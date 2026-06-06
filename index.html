@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arulz-XD Pastebin - Data Creator Tool</title>
+    <style>
+        :root {
+            --bg-main: #f5f4ef;
+            --yellow: #ffde00;
+            --orange: #ff6b00;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-main);
+            background-image: radial-gradient(rgba(0, 0, 0, 0.15) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            color: #000;
+            margin: 0;
+            padding: 20px;
+            font-weight: bold;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 4px solid #000000;
+            box-shadow: 8px 8px 0px #000000;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .header {
+            background: var(--yellow);
+            border: 3px solid #000;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            text-transform: uppercase;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+        input[type="text"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            border: 3px solid #000;
+            box-sizing: border-box;
+            background: #fff;
+            font-weight: bold;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--orange);
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .btn-container {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+        .btn {
+            background: var(--yellow);
+            color: #000;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 900;
+            font-family: inherit;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: transform 0.05s, box-shadow 0.05s;
+        }
+        .btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #000;
+        }
+        .btn.orange {
+            background: var(--orange);
+            color: #fff;
+        }
+        .output-box {
+            margin-top: 30px;
+            background: #0b0c10;
+            color: #39ff14;
+            padding: 20px;
+            border: 4px solid #000;
+            box-shadow: 4px 4px 0px #000;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            display: none;
+            position: relative;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .copy-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--yellow);
+            color: #000;
+            padding: 4px 8px;
+            font-size: 11px;
+            border: 2px solid #000;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🛠️ Pastebin JSON & ID Generator</h1>
+    </div>
+
+    <form id="pasteForm" onsubmit="generateJSON(event)">
+        <div class="form-group">
+            <label for="title">Judul Paste / Snippet</label>
+            <input type="text" id="title" placeholder="Contoh: Koneksi Database PHP MySQL" required>
+        </div>
+
+        <div class="form-group">
+            <label for="language">Bahasa Pemrograman</label>
+            <select id="language" required>
+                <option value="javascript">JavaScript</option>
+                <option value="html">HTML</option>
+                <option value="php">PHP</option>
+                <option value="python">Python</option>
+                <option value="plaintext">Plaintext</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="desc">Deskripsi Singkat</label>
+            <input type="text" id="desc" placeholder="Masukkan deskripsi kegunaan atau catatan script..." required>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Isi Kode Murni (Paste Di Sini)</label>
+            <textarea id="content" placeholder="Tempelkan kode mentah kamu di sini tanpa perlu khawatir error enter/baris baru..." required></textarea>
+        </div>
+
+        <div class="btn-container">
+            <button type="submit" class="btn">⚡ Buat Objek Paste</button>
+            <button type="button" class="btn orange" onclick="clearForm()">🧹 Reset</button>
+        </div>
+    </form>
+
+    <div class="output-box" id="outputContainer">
+        <div class="copy-badge" onclick="copyResult()">📋 SALIN HASIL</div>
+        <code id="jsonOutput"></code>
+    </div>
+</div>
+
+<script>
+    // Fungsi memformat tanggal secara dinamis (Contoh: "6 Jun 2026")
+    function getFormattedDate() {
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const d = new Date();
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function generateJSON(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('title').value;
+        const language = document.getElementById('language').value;
+        const desc = document.getElementById('desc').value;
+        const content = document.getElementById('content').value;
+
+        // MEMBUAT ID UNIK OTOMATIS: menggunakan nilai timestamp milidetik saat ini
+        // Menjamin tidak akan pernah ada ID ganda/bentrok saat penambahan data baru
+        const uniqueId = "paste-" + Date.now();
+
+        const pasteObject = {
+            id: uniqueId,
+            title: title,
+            language: language,
+            desc: desc,
+            date: getFormattedDate(),
+            content: content
+        };
+
+        // Mengubah objek menjadi susunan teks JSON string yang rapi indentasi 4 spasi
+        const jsonResult = JSON.stringify(pasteObject, null, 4);
+
+        // Menampilkan kotak hasil keluaran
+        const outputContainer = document.getElementById('outputContainer');
+        const jsonOutput = document.getElementById('jsonOutput');
+        
+        // Menambahkan koma di bagian akhir sebagai penanda item di dalam array window.defaultData
+        jsonOutput.textContent = jsonResult + ",";
+        outputContainer.style.display = "block";
+        outputContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copyResult() {
+        const textToCopy = document.getElementById('jsonOutput').textContent;
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            alert("Hasil kode objek JSON berhasil disalin! Silakan tempelkan ke dalam array di file data.js kamu.");
+        });
+    }
+
+    function clearForm() {
+        document.getElementById('pasteForm').reset();
+        document.getElementById('outputContainer').style.display = "none";
+    }
+</script>
+
+</body>
+          </html>
