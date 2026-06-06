@@ -186,7 +186,7 @@
 
         // MEMBUAT ID UNIK OTOMATIS: menggunakan nilai timestamp milidetik saat ini
         // Menjamin tidak akan pernah ada ID ganda/bentrok saat penambahan data baru
-        const uniqueId = "paste-" + Date.now();
+        const uniqueId = Date.now();
 
         const pasteObject = {
             id: uniqueId,
