@@ -1,15 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arulz-XD Pastebin - Data Creator Tool</title>
+    <title>Arulz-XD - Data Creator Tool</title>
     <style>
         :root {
             --bg-main: #f5f4ef;
             --yellow: #ffde00;
             --orange: #ff6b00;
+            --cyan: #00e5ff;
         }
         body {
             font-family: 'Courier New', Courier, monospace;
@@ -34,14 +34,38 @@
             background: var(--yellow);
             border: 3px solid #000;
             padding: 15px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             text-align: center;
         }
         .header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
             text-transform: uppercase;
         }
+        /* Mode Switcher Buttons */
+        .mode-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .btn-mode {
+            flex: 1;
+            background: #fff;
+            color: #000;
+            border: 3px solid #000;
+            padding: 10px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 3px 3px 0px #000;
+        }
+        .btn-mode.active {
+            background: var(--cyan);
+            box-shadow: none;
+            transform: translate(2px, 2px);
+        }
+
         .form-group {
             margin-bottom: 20px;
         }
@@ -127,39 +151,82 @@
 
 <div class="container">
     <div class="header">
-        <h1>🛠️ Pastebin JSON & ID Generator</h1>
+        <h1 id="headerTitle">🛠️ PASTEBIN JSON GENERATOR</h1>
     </div>
 
-    <form id="pasteForm" onsubmit="generateJSON(event)">
-        <div class="form-group">
-            <label for="title">Judul Paste / Snippet</label>
-            <input type="text" id="title" placeholder="Contoh: Koneksi Database PHP MySQL" required>
+    <!-- Switch Mode -->
+    <div class="mode-container">
+        <button type="button" class="btn-mode active" id="btnModePaste" onclick="switchMode('paste')">📋 Mode Pastebin</button>
+        <button type="button" class="btn-mode" id="btnModeChangelog" onclick="switchMode('changelog')">🚀 Mode Changelog</button>
+    </div>
+
+    <form id="generatorForm" onsubmit="generateJSON(event)">
+        
+        <!-- Field khusus Pastebin -->
+        <div class="paste-field">
+            <div class="form-group">
+                <label for="title">Judul Paste / Snippet</label>
+                <input type="text" id="title" placeholder="Contoh: Koneksi Database PHP MySQL">
+            </div>
+
+            <div class="form-group">
+                <label for="language">Bahasa Pemrograman</label>
+                <select id="language">
+                    <option value="javascript">JavaScript</option>
+                    <option value="html">HTML</option>
+                    <option value="php">PHP</option>
+                    <option value="python">Python</option>
+                    <option value="scrape">Scrape / Web Crawler</option>
+                    <option value="plaintext">Plaintext</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="desc">Deskripsi Singkat</label>
+                <input type="text" id="desc" placeholder="Masukkan deskripsi kegunaan atau catatan script...">
+            </div>
+
+            <div class="form-group">
+                <label for="content">Isi Kode Murni (Paste Di Sini)</label>
+                <textarea id="content" placeholder="Tempelkan kode mentah kamu di sini..."></textarea>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="language">Bahasa Pemrograman</label>
-            <select id="language" required>
-                <option value="javascript">JavaScript</option>
-                <option value="html">HTML</option>
-                <option value="php">PHP</option>
-                <option value="python">Python</option>
-                <option value="scrape">Scrape / Web Crawler</option>
-                <option value="plaintext">Plaintext</option>
-            </select>
-        </div>
+        <!-- Field khusus Changelog -->
+        <div class="changelog-field" style="display: none;">
+            <div class="form-group">
+                <label for="version">Versi</label>
+                <input type="text" id="version" value="v1.0.0" placeholder="Contoh: v1.0.0">
+            </div>
 
-        <div class="form-group">
-            <label for="desc">Deskripsi Singkat</label>
-            <input type="text" id="desc" placeholder="Masukkan deskripsi kegunaan atau catatan script..." required>
-        </div>
+            <div class="form-group">
+                <label for="type">Tipe Perubahan</label>
+                <select id="type">
+                    <option value="feature">Feature (Fitur Baru)</option>
+                    <option value="bugfix">Bugfix (Perbaikan)</option>
+                    <option value="update">Update (Pembaruan)</option>
+                    <option value="decommissioned">Decommissioned (Penghapusan)</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="content">Isi Kode Murni (Paste Di Sini)</label>
-            <textarea id="content" placeholder="Tempelkan kode mentah kamu di sini tanpa perlu khawatir error enter/baris baru..." required></textarea>
+            <div class="form-group">
+                <label for="clTitle">Judul Log</label>
+                <input type="text" id="clTitle" placeholder="Contoh: Protocol Synchronized: YouTube Post Downloader">
+            </div>
+
+            <div class="form-group">
+                <label for="clDesc">Deskripsi Log</label>
+                <textarea id="clDesc" style="height: 100px;" placeholder="Masukkan detail protokol/sistem yang diperbarui..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="node">Node Cluster (Otomatis Acak / Bisa Diubah)</label>
+                <input type="text" id="node" placeholder="Contoh: US-NYC-02">
+            </div>
         </div>
 
         <div class="btn-container">
-            <button type="submit" class="btn">⚡ Buat Objek Paste</button>
+            <button type="submit" class="btn">⚡ Buat Objek JSON</button>
             <button type="button" class="btn orange" onclick="clearForm()">🧹 Reset</button>
         </div>
     </form>
@@ -171,42 +238,97 @@
 </div>
 
 <script>
-    // Fungsi memformat tanggal secara dinamis (Contoh: "6 Jun 2026")
-    function getFormattedDate() {
+    let currentMode = 'paste';
+
+    // Daftar lokasi region node acak
+    const nodeRegions = ["US-NYC", "DE-FRA", "SG-SIN", "JP-TYO", "UK-LON", "AU-SYD"];
+
+    // Fungsi generate Node ID acak (Contoh: US-NYC-02, SG-SIN-01)
+    function getRandomNode() {
+        const randomRegion = nodeRegions[Math.floor(Math.random() * nodeRegions.length)];
+        const randomNum = String(Math.floor(Math.random() * 9) + 1).padStart(2, '0');
+        return `${randomRegion}-${randomNum}`;
+    }
+
+    function switchMode(mode) {
+        currentMode = mode;
+        const btnPaste = document.getElementById('btnModePaste');
+        const btnChangelog = document.getElementById('btnModeChangelog');
+        const pasteFields = document.querySelectorAll('.paste-field');
+        const changelogFields = document.querySelectorAll('.changelog-field');
+        const headerTitle = document.getElementById('headerTitle');
+
+        if (mode === 'paste') {
+            btnPaste.classList.add('active');
+            btnChangelog.classList.remove('active');
+            pasteFields.forEach(el => el.style.display = 'block');
+            changelogFields.forEach(el => el.style.display = 'none');
+            headerTitle.textContent = "🛠️ PASTEBIN JSON GENERATOR";
+        } else {
+            btnChangelog.classList.add('active');
+            btnPaste.classList.remove('active');
+            pasteFields.forEach(el => el.style.display = 'none');
+            changelogFields.forEach(el => el.style.display = 'block');
+            headerTitle.textContent = "🚀 CHANGELOG JSON GENERATOR";
+            
+            // Set otomatis node acak saat berpindah ke mode Changelog
+            document.getElementById('node').value = getRandomNode();
+        }
+        clearForm(false);
+    }
+
+    function getFormattedDatePaste() {
         const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const d = new Date();
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function getFormattedDateChangelog() {
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
         const d = new Date();
         return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     }
 
     function generateJSON(e) {
         e.preventDefault();
+        let resultObject = {};
 
-        const title = document.getElementById('title').value;
-        const language = document.getElementById('language').value;
-        const desc = document.getElementById('desc').value;
-        const content = document.getElementById('content').value;
+        if (currentMode === 'paste') {
+            const title = document.getElementById('title').value;
+            const language = document.getElementById('language').value;
+            const desc = document.getElementById('desc').value;
+            const content = document.getElementById('content').value;
 
-        // MEMBUAT ID UNIK OTOMATIS: menggunakan nilai timestamp milidetik saat ini
-        // Menjamin tidak akan pernah ada ID ganda/bentrok saat penambahan data baru
-        const uniqueId = Date.now();
+            resultObject = {
+                id: Date.now(),
+                title: title,
+                language: language,
+                desc: desc,
+                date: getFormattedDatePaste(),
+                content: content
+            };
+        } else {
+            const version = document.getElementById('version').value || "v1.0.0";
+            const type = document.getElementById('type').value;
+            const clTitle = document.getElementById('clTitle').value;
+            const clDesc = document.getElementById('clDesc').value;
+            // Gunakan nilai input atau buat acak baru jika dikosongkan
+            const node = document.getElementById('node').value || getRandomNode();
 
-        const pasteObject = {
-            id: uniqueId,
-            title: title,
-            language: language,
-            desc: desc,
-            date: getFormattedDate(),
-            content: content
-        };
+            resultObject = {
+                version: version,
+                date: getFormattedDateChangelog(),
+                type: type,
+                title: clTitle,
+                description: clDesc,
+                node: node
+            };
+        }
 
-        // Mengubah objek menjadi susunan teks JSON string yang rapi indentasi 4 spasi
-        const jsonResult = JSON.stringify(pasteObject, null, 4);
-
-        // Menampilkan kotak hasil keluaran
+        const jsonResult = JSON.stringify(resultObject, null, 4);
         const outputContainer = document.getElementById('outputContainer');
         const jsonOutput = document.getElementById('jsonOutput');
 
-        // Menambahkan koma di bagian akhir sebagai penanda item di dalam array window.defaultData
         jsonOutput.textContent = jsonResult + ",";
         outputContainer.style.display = "block";
         outputContainer.scrollIntoView({ behavior: 'smooth' });
@@ -215,12 +337,18 @@
     function copyResult() {
         const textToCopy = document.getElementById('jsonOutput').textContent;
         navigator.clipboard.writeText(textToCopy).then(() => {
-            alert("Hasil kode objek JSON berhasil disalin! Silakan tempelkan ke dalam array di file data.js kamu.");
+            alert("Hasil objek JSON berhasil disalin!");
         });
     }
 
-    function clearForm() {
-        document.getElementById('pasteForm').reset();
+    function clearForm(resetAll = true) {
+        if (resetAll) {
+            document.getElementById('generatorForm').reset();
+            if (currentMode === 'changelog') {
+                document.getElementById('version').value = "v1.0.0";
+                document.getElementById('node').value = getRandomNode();
+            }
+        }
         document.getElementById('outputContainer').style.display = "none";
     }
 </script>
