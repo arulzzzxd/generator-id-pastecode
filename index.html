@@ -1,174 +1,254 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arulz-XD - Data Creator Tool</title>
+    <title>Arulz-XD - Multi Data Generator</title>
     <style>
         :root {
-            --bg-main: #f5f4ef;
-            --yellow: #ffde00;
-            --orange: #ff6b00;
-            --cyan: #00e5ff;
+            --bg-main: #0a0a0f;
+            --bg-card: #12131c;
+            --text-color: #00ffcc;
+            --text-sec: #e0e6ed;
+            --cyan-neon: #00f3ff;
+            --pink-neon: #ff0055;
+            --yellow-neon: #ffe600;
+            --border-color: #00f3ff;
+            --shadow-color: rgba(0, 243, 255, 0.4);
+            --input-bg: #090a0f;
         }
+
+        [data-theme="light"] {
+            --bg-main: #f0f3f8;
+            --bg-card: #ffffff;
+            --text-color: #0d0f18;
+            --text-sec: #2a2d3d;
+            --cyan-neon: #00a8b3;
+            --pink-neon: #d60046;
+            --yellow-neon: #d4be00;
+            --border-color: #000000;
+            --shadow-color: rgba(0, 0, 0, 0.9);
+            --input-bg: #f8fafc;
+        }
+
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: var(--bg-main);
-            background-image: radial-gradient(rgba(0, 0, 0, 0.15) 1.5px, transparent 1.5px);
-            background-size: 24px 24px;
-            color: #000;
+            color: var(--text-sec);
             margin: 0;
             padding: 20px;
             font-weight: bold;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #ffffff;
-            border: 4px solid #000000;
-            box-shadow: 8px 8px 0px #000000;
-            padding: 30px;
-            box-sizing: border-box;
-        }
-        .header {
-            background: var(--yellow);
-            border: 3px solid #000;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 22px;
-            text-transform: uppercase;
-        }
-        /* Mode Switcher Buttons */
-        .mode-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-        .btn-mode {
-            flex: 1;
-            background: #fff;
-            color: #000;
-            border: 3px solid #000;
-            padding: 10px;
-            font-weight: bold;
-            font-family: inherit;
-            cursor: pointer;
-            text-transform: uppercase;
-            box-shadow: 3px 3px 0px #000;
-        }
-        .btn-mode.active {
-            background: var(--cyan);
-            box-shadow: none;
-            transform: translate(2px, 2px);
+            transition: all 0.3s ease;
         }
 
-        .form-group {
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--bg-card);
+            border: 3px solid var(--border-color);
+            box-shadow: 6px 6px 0px var(--shadow-color);
+            padding: 25px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--input-bg);
+            padding: 10px 15px;
+            border: 2px solid var(--border-color);
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 20px;
+            color: var(--cyan-neon);
+            text-shadow: 0 0 5px var(--cyan-neon);
+            text-transform: uppercase;
+        }
+
+        .theme-toggle {
+            background: var(--pink-neon);
+            color: #fff;
+            border: 2px solid var(--border-color);
+            padding: 6px 12px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 2px 2px 0px var(--shadow-color);
+        }
+
+        .mode-select-box {
             margin-bottom: 20px;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            font-size: 14px;
-        }
-        input[type="text"], select, textarea {
+
+        select, input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
             width: 100%;
             padding: 12px;
             font-family: inherit;
             font-size: 14px;
-            border: 3px solid #000;
+            border: 2px solid var(--border-color);
             box-sizing: border-box;
-            background: #fff;
+            background: var(--input-bg);
+            color: var(--text-sec);
             font-weight: bold;
             outline: none;
+            margin-top: 5px;
         }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--orange);
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--pink-neon);
+            box-shadow: 0 0 8px var(--pink-neon);
         }
+
+        label {
+            text-transform: uppercase;
+            font-size: 13px;
+            color: var(--cyan-neon);
+            display: block;
+            margin-top: 10px;
+        }
+
         textarea {
-            height: 150px;
+            height: 120px;
             resize: vertical;
         }
-        .btn-container {
-            margin-top: 25px;
+
+        .btn-group {
             display: flex;
-            gap: 15px;
+            gap: 10px;
+            margin-top: 20px;
         }
+
         .btn {
-            background: var(--yellow);
+            flex: 1;
+            background: var(--cyan-neon);
             color: #000;
-            border: 4px solid #000;
-            box-shadow: 4px 4px 0px #000;
-            padding: 12px 24px;
+            border: 2px solid var(--border-color);
+            padding: 12px;
             font-size: 14px;
             font-weight: 900;
             font-family: inherit;
             text-transform: uppercase;
             cursor: pointer;
-            transition: transform 0.05s, box-shadow 0.05s;
+            box-shadow: 4px 4px 0px var(--shadow-color);
+            transition: 0.1s;
         }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
         .btn:active {
             transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0px #000;
+            box-shadow: 2px 2px 0px var(--shadow-color);
         }
+
         .btn.orange {
-            background: var(--orange);
+            background: var(--pink-neon);
             color: #fff;
         }
+
+        .btn.yellow {
+            background: var(--yellow-neon);
+            color: #000;
+        }
+
         .output-box {
-            margin-top: 30px;
-            background: #0b0c10;
-            color: #39ff14;
-            padding: 20px;
-            border: 4px solid #000;
-            box-shadow: 4px 4px 0px #000;
+            margin-top: 25px;
+            background: #000000;
+            color: #00ff66;
+            padding: 15px;
+            border: 2px solid var(--cyan-neon);
             white-space: pre-wrap;
             font-family: monospace;
             font-size: 13px;
             display: none;
             position: relative;
-            max-height: 400px;
+            max-height: 300px;
             overflow-y: auto;
         }
-        .copy-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--yellow);
-            color: #000;
-            padding: 4px 8px;
-            font-size: 11px;
-            border: 2px solid #000;
-            cursor: pointer;
+
+        .inline-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .inline-group input {
+            flex: 1;
+        }
+
+        .inline-group button {
+            width: auto;
+            white-space: nowrap;
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h1 id="headerTitle">🛠️ PASTEBIN JSON GENERATOR</h1>
+    <div class="top-bar">
+        <h1 class="header-title" id="headerTitle">⚡ ARULZXD GENERATOR</h1>
+        <button class="theme-toggle" onclick="toggleTheme()">🌗 MODE TEMA</button>
     </div>
 
-    <!-- Switch Mode -->
-    <div class="mode-container">
-        <button type="button" class="btn-mode active" id="btnModePaste" onclick="switchMode('paste')">📋 Mode Pastebin</button>
-        <button type="button" class="btn-mode" id="btnModeChangelog" onclick="switchMode('changelog')">🚀 Mode Changelog</button>
+    <!-- Mode Selector pake SELECT tag -->
+    <div class="mode-select-box">
+        <label for="modeSelector">PILIH MODE GENERATOR:</label>
+        <select id="modeSelector" onchange="switchMode(this.value)">
+            <option value="voucher">🎟️ Mode Voucher Diskon</option>
+            <option value="paste">📋 Mode Pastebin</option>
+            <option value="changelog">🚀 Mode Changelog</option>
+        </select>
     </div>
 
-    <form id="generatorForm" onsubmit="generateJSON(event)">
-        
-        <!-- Field khusus Pastebin -->
-        <div class="paste-field">
+    <form id="generatorForm" onsubmit="handleFormSubmit(event)">
+
+        <!-- FIELD VOUCHER -->
+        <div class="mode-field" id="field-voucher">
             <div class="form-group">
-                <label for="title">Judul Paste / Snippet</label>
-                <input type="text" id="title" placeholder="Contoh: Koneksi Database PHP MySQL">
+                <label>Kode Voucher</label>
+                <div class="inline-group">
+                    <input type="text" id="vCode" placeholder="Masukkan Kode atau Acak...">
+                    <button type="button" class="btn yellow" onclick="generateRandomVoucher()">🎲 Acak</button>
+                </div>
             </div>
 
+            <div class="form-group">
+                <label for="vDiscount">Nominal / Persentase Diskon</label>
+                <input type="number" id="vDiscount" placeholder="Contoh: 20 (untuk 20% atau Rp 20.000)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vType">Tipe Diskon</label>
+                <select id="vType">
+                    <option value="percentage">Persentase (%)</option>
+                    <option value="fixed">Potongan Tetap (Nominal)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="vExpiry">Tanggal & Waktu Expired</label>
+                <input type="datetime-local" id="vExpiry" required>
+            </div>
+
+            <div class="form-group">
+                <label for="vLimit">Batas Penggunaan (Max Use)</label>
+                <input type="number" id="vLimit" value="100" placeholder="100">
+            </div>
+        </div>
+
+        <!-- FIELD PASTEBIN -->
+        <div class="mode-field" id="field-paste" style="display: none;">
+            <div class="form-group">
+                <label for="title">Judul Snippet</label>
+                <input type="text" id="title" placeholder="Contoh: Script Auto Login">
+            </div>
             <div class="form-group">
                 <label for="language">Bahasa Pemrograman</label>
                 <select id="language">
@@ -176,182 +256,133 @@
                     <option value="html">HTML</option>
                     <option value="php">PHP</option>
                     <option value="python">Python</option>
-                    <option value="scrape">Scrape / Web Crawler</option>
                     <option value="plaintext">Plaintext</option>
                 </select>
             </div>
-
             <div class="form-group">
-                <label for="desc">Deskripsi Singkat</label>
-                <input type="text" id="desc" placeholder="Masukkan deskripsi kegunaan atau catatan script...">
-            </div>
-
-            <div class="form-group">
-                <label for="content">Isi Kode Murni (Paste Di Sini)</label>
-                <textarea id="content" placeholder="Tempelkan kode mentah kamu di sini..."></textarea>
+                <label for="content">Isi Kode</label>
+                <textarea id="content" placeholder="Tempelkan kode di sini..."></textarea>
             </div>
         </div>
 
-        <!-- Field khusus Changelog -->
-        <div class="changelog-field" style="display: none;">
+        <!-- FIELD CHANGELOG -->
+        <div class="mode-field" id="field-changelog" style="display: none;">
             <div class="form-group">
                 <label for="version">Versi</label>
-                <input type="text" id="version" value="v1.0.0" placeholder="Contoh: v1.0.0">
+                <input type="text" id="version" value="v1.0.0">
             </div>
-
             <div class="form-group">
                 <label for="type">Tipe Perubahan</label>
                 <select id="type">
-                    <option value="feature">Feature (Fitur Baru)</option>
-                    <option value="bugfix">Bugfix (Perbaikan)</option>
-                    <option value="update">Update (Pembaruan)</option>
-                    <option value="decommissioned">Decommissioned (Penghapusan)</option>
+                    <option value="feature">Feature</option>
+                    <option value="bugfix">Bugfix</option>
+                    <option value="update">Update</option>
                 </select>
             </div>
-
             <div class="form-group">
                 <label for="clTitle">Judul Log</label>
-                <input type="text" id="clTitle" placeholder="Contoh: Protocol Synchronized: YouTube Post Downloader">
-            </div>
-
-            <div class="form-group">
-                <label for="clDesc">Deskripsi Log</label>
-                <textarea id="clDesc" style="height: 100px;" placeholder="Masukkan detail protokol/sistem yang diperbarui..."></textarea>
-            </div>
-
-            <div class="form-group">
-                <label for="node">Node Cluster (Otomatis Acak / Bisa Diubah)</label>
-                <input type="text" id="node" placeholder="Contoh: US-NYC-02">
+                <input type="text" id="clTitle" placeholder="Detail update...">
             </div>
         </div>
 
-        <div class="btn-container">
-            <button type="submit" class="btn">⚡ Buat Objek JSON</button>
-            <button type="button" class="btn orange" onclick="clearForm()">🧹 Reset</button>
+        <div class="btn-group">
+            <button type="submit" class="btn">⚡ EXECUTE / SIMPAN</button>
+            <button type="button" class="btn orange" onclick="resetForm()">🧹 RESET</button>
         </div>
     </form>
 
     <div class="output-box" id="outputContainer">
-        <div class="copy-badge" onclick="copyResult()">📋 SALIN HASIL</div>
         <code id="jsonOutput"></code>
     </div>
 </div>
 
 <script>
-    let currentMode = 'paste';
+    let currentMode = 'voucher';
 
-    // Daftar lokasi region node acak
-    const nodeRegions = ["US-NYC", "DE-FRA", "SG-SIN", "JP-TYO", "UK-LON", "AU-SYD"];
-
-    // Fungsi generate Node ID acak (Contoh: US-NYC-02, SG-SIN-01)
-    function getRandomNode() {
-        const randomRegion = nodeRegions[Math.floor(Math.random() * nodeRegions.length)];
-        const randomNum = String(Math.floor(Math.random() * 9) + 1).padStart(2, '0');
-        return `${randomRegion}-${randomNum}`;
+    // Theme Switcher
+    function toggleTheme() {
+        const html = document.documentElement;
+        const current = html.getAttribute('data-theme');
+        const target = current === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', target);
     }
 
+    // Switch Form Mode
     function switchMode(mode) {
         currentMode = mode;
-        const btnPaste = document.getElementById('btnModePaste');
-        const btnChangelog = document.getElementById('btnModeChangelog');
-        const pasteFields = document.querySelectorAll('.paste-field');
-        const changelogFields = document.querySelectorAll('.changelog-field');
-        const headerTitle = document.getElementById('headerTitle');
+        document.querySelectorAll('.mode-field').forEach(el => el.style.display = 'none');
+        document.getElementById(`field-${mode}`).style.display = 'block';
+        document.getElementById('outputContainer').style.display = 'none';
+    }
 
-        if (mode === 'paste') {
-            btnPaste.classList.add('active');
-            btnChangelog.classList.remove('active');
-            pasteFields.forEach(el => el.style.display = 'block');
-            changelogFields.forEach(el => el.style.display = 'none');
-            headerTitle.textContent = "🛠️ PASTEBIN JSON GENERATOR";
-        } else {
-            btnChangelog.classList.add('active');
-            btnPaste.classList.remove('active');
-            pasteFields.forEach(el => el.style.display = 'none');
-            changelogFields.forEach(el => el.style.display = 'block');
-            headerTitle.textContent = "🚀 CHANGELOG JSON GENERATOR";
-            
-            // Set otomatis node acak saat berpindah ke mode Changelog
-            document.getElementById('node').value = getRandomNode();
+    // Generator Kode Voucher Acak (ARULZXD tanpa -)
+    function generateRandomVoucher() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let randomStr = '';
+        for (let i = 0; i < 6; i++) {
+            randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
         }
-        clearForm(false);
+        // Format: ARULZXD + String Acak
+        document.getElementById('vCode').value = `ARULZXD${randomStr}`;
     }
 
-    function getFormattedDatePaste() {
-        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
-        const d = new Date();
-        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    }
-
-    function getFormattedDateChangelog() {
-        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        const d = new Date();
-        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
-    }
-
-    function generateJSON(e) {
+    // Handle Form Submit
+    async function handleFormSubmit(e) {
         e.preventDefault();
-        let resultObject = {};
+        let payload = {};
 
-        if (currentMode === 'paste') {
-            const title = document.getElementById('title').value;
-            const language = document.getElementById('language').value;
-            const desc = document.getElementById('desc').value;
-            const content = document.getElementById('content').value;
-
-            resultObject = {
-                id: Date.now(),
-                title: title,
-                language: language,
-                desc: desc,
-                date: getFormattedDatePaste(),
-                content: content
+        if (currentMode === 'voucher') {
+            const code = document.getElementById('vCode').value || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            payload = {
+                code: code,
+                discount: Number(document.getElementById('vDiscount').value),
+                type: document.getElementById('vType').value,
+                expiredAt: document.getElementById('vExpiry').value,
+                usageLimit: Number(document.getElementById('vLimit').value)
             };
-        } else {
-            const version = document.getElementById('version').value || "v1.0.0";
-            const type = document.getElementById('type').value;
-            const clTitle = document.getElementById('clTitle').value;
-            const clDesc = document.getElementById('clDesc').value;
-            // Gunakan nilai input atau buat acak baru jika dikosongkan
-            const node = document.getElementById('node').value || getRandomNode();
 
-            resultObject = {
-                version: version,
-                date: getFormattedDateChangelog(),
-                type: type,
-                title: clTitle,
-                description: clDesc,
-                node: node
-            };
-        }
-
-        const jsonResult = JSON.stringify(resultObject, null, 4);
-        const outputContainer = document.getElementById('outputContainer');
-        const jsonOutput = document.getElementById('jsonOutput');
-
-        jsonOutput.textContent = jsonResult + ",";
-        outputContainer.style.display = "block";
-        outputContainer.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function copyResult() {
-        const textToCopy = document.getElementById('jsonOutput').textContent;
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            alert("Hasil objek JSON berhasil disalin!");
-        });
-    }
-
-    function clearForm(resetAll = true) {
-        if (resetAll) {
-            document.getElementById('generatorForm').reset();
-            if (currentMode === 'changelog') {
-                document.getElementById('version').value = "v1.0.0";
-                document.getElementById('node').value = getRandomNode();
+            // Kirim ke Backend MongoDB API
+            try {
+                const response = await fetch('/api/vouchers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                showOutput({ status: 'SUCCESS_SAVED_TO_MONGODB', data: result });
+            } catch (err) {
+                showOutput({ status: 'LOCAL_JSON_ONLY (SERVER OFFLINE)', data: payload });
             }
+
+        } else if (currentMode === 'paste') {
+            payload = {
+                id: Date.now(),
+                title: document.getElementById('title').value,
+                language: document.getElementById('language').value,
+                content: document.getElementById('content').value
+            };
+            showOutput(payload);
+        } else if (currentMode === 'changelog') {
+            payload = {
+                version: document.getElementById('version').value,
+                type: document.getElementById('type').value,
+                title: document.getElementById('clTitle').value,
+                date: new Date().toISOString()
+            };
+            showOutput(payload);
         }
-        document.getElementById('outputContainer').style.display = "none";
+    }
+
+    function showOutput(data) {
+        const out = document.getElementById('outputContainer');
+        document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 4);
+        out.style.display = 'block';
+    }
+
+    function resetForm() {
+        document.getElementById('generatorForm').reset();
+        document.getElementById('outputContainer').style.display = 'none';
     }
 </script>
-
 </body>
 </html>
