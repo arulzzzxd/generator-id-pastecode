@@ -89,7 +89,7 @@
             gap: 6px;
         }
 
-        /* STYLING MODE SELECTOR CYBERPUNK */
+        /* STYLING MODE SELECTOR CYBERPUNK CONTAINER */
         .mode-select-box {
             margin-bottom: 20px;
             background: rgba(0, 243, 255, 0.05);
@@ -102,35 +102,103 @@
         .mode-select-box label {
             text-shadow: 0 0 5px var(--cyan-neon);
             letter-spacing: 1px;
+            margin-bottom: 8px;
         }
 
-        .cyber-select {
+        /* CUSTOM DROPDOWN (MENGGANTIKAN NATIVE SELECT BROWSER) */
+        .custom-dropdown {
+            position: relative;
             width: 100%;
-            padding: 12px;
+            margin-top: 8px;
+            user-select: none;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            padding: 12px 15px;
             font-family: inherit;
             font-size: 15px;
-            border: 2px solid var(--cyan-neon) !important;
-            box-sizing: border-box;
-            background: #000000 !important;
-            color: var(--cyan-neon) !important;
             font-weight: bold;
-            outline: none;
-            margin-top: 8px;
-            cursor: pointer;
+            color: var(--cyan-neon);
+            background: #000000;
+            border: 2px solid var(--cyan-neon);
             box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
             text-shadow: 0 0 5px var(--cyan-neon);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            box-sizing: border-box;
             transition: all 0.3s ease;
         }
 
-        .cyber-select:focus, .cyber-select:hover {
-            border-color: #ffffff !important;
+        .dropdown-trigger:hover {
+            border-color: #ffffff;
             box-shadow: 0 0 15px var(--cyan-neon), inset 0 0 10px var(--cyan-neon);
         }
 
-        .cyber-select option {
-            background: #0d0f18;
+        .dropdown-arrow {
+            font-size: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .custom-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #090a0f;
+            border: 2px solid var(--cyan-neon);
+            border-top: none;
+            box-shadow: 0 10px 20px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.2);
+            z-index: 1000;
+            display: none;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .custom-dropdown.open .dropdown-menu {
+            display: block;
+            animation: dropdownSlide 0.2s ease-out;
+        }
+
+        @keyframes dropdownSlide {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            padding: 12px 15px;
             color: var(--cyan-neon);
-            padding: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover, .dropdown-item.selected {
+            background: rgba(0, 243, 255, 0.15);
+            color: #ffffff;
+            text-shadow: 0 0 8px var(--cyan-neon);
+            padding-left: 20px;
+        }
+
+        .dropdown-item.selected::after {
+            content: "●";
+            color: var(--pink-neon);
+            text-shadow: 0 0 5px var(--pink-neon);
         }
 
         .mode-field {
@@ -143,17 +211,10 @@
         }
 
         @keyframes fadeInCyber {
-            from {
-                opacity: 0;
-                transform: translateY(-5px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* CARD NEON DISPLAY CODE */
         .code-display-card {
             margin-top: 15px;
             padding: 20px;
@@ -350,18 +411,25 @@
         </button>
     </div>
 
-    <!-- Mode Selector Cyberpunk -->
+    <!-- Mode Selector Custom Cyberpunk Dropdown -->
     <div class="mode-select-box">
-        <label for="modeSelector">
+        <label>
             <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             PILIH MODE GENERATOR:
         </label>
-        <select id="modeSelector" class="cyber-select" onchange="switchMode(this.value)">
-            <option value="voucher">⚡ MODE VOUCHER DISKON</option>
-            <option value="codeGen">🎲 MODE RANDOM CODE GENERATOR</option>
-            <option value="paste">📋 MODE PASTEBIN</option>
-            <option value="changelog">📝 MODE CHANGELOG</option>
-        </select>
+        
+        <div class="custom-dropdown" id="cyberDropdown">
+            <div class="dropdown-trigger" onclick="toggleDropdown()">
+                <span id="selectedOptionText">⚡ MODE VOUCHER DISKON</span>
+                <span class="dropdown-arrow">▼</span>
+            </div>
+            <div class="dropdown-menu">
+                <div class="dropdown-item selected" onclick="selectOption('voucher', '⚡ MODE VOUCHER DISKON')">⚡ MODE VOUCHER DISKON</div>
+                <div class="dropdown-item" onclick="selectOption('codeGen', '🎲 MODE RANDOM CODE GENERATOR')">🎲 MODE RANDOM CODE GENERATOR</div>
+                <div class="dropdown-item" onclick="selectOption('paste', '📋 MODE PASTEBIN')">📋 MODE PASTEBIN</div>
+                <div class="dropdown-item" onclick="selectOption('changelog', '📝 MODE CHANGELOG')">📝 MODE CHANGELOG</div>
+            </div>
+        </div>
     </div>
 
     <form id="generatorForm" onsubmit="handleFormSubmit(event)">
@@ -500,6 +568,33 @@
         buttonsStyling: false
     });
 
+    // Kontrol Custom Dropdown Mode
+    function toggleDropdown() {
+        document.getElementById('cyberDropdown').classList.toggle('open');
+    }
+
+    function selectOption(mode, labelText) {
+        document.getElementById('selectedOptionText').textContent = labelText;
+        
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.textContent === labelText) {
+                item.classList.add('selected');
+            }
+        });
+
+        document.getElementById('cyberDropdown').classList.remove('open');
+        switchMode(mode);
+    }
+
+    // Tutup dropdown jika mengklik di luar area
+    window.addEventListener('click', function(e) {
+        const dropdown = document.getElementById('cyberDropdown');
+        if (dropdown && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+
     function toggleTheme() {
         const html = document.documentElement;
         const current = html.getAttribute('data-theme');
@@ -518,7 +613,6 @@
         }
     }
 
-    // Fungsi Generator Kode Utama
     function generateCode(length = 6) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
@@ -569,7 +663,6 @@
 
         if (currentMode === 'codeGen') {
             const code = document.getElementById('codeDisplay').textContent;
-            // Menampilkan string murni (misal: k8P2mW) bukan format JSON
             showOutput(code);
             CyberSwal.fire({ icon: 'success', title: 'KODE BERHASIL DIBUAT', timer: 1500, showConfirmButton: false });
 
