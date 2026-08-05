@@ -8,14 +8,14 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// 1. Static file & Routing
+// 1. Sertakan file statis & route root menggunakan __dirname
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. Koneksi Database MongoDB Atlas
+// 2. Koneksi MongoDB Atlas (Optimized untuk Vercel Serverless)
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0';
 
 let cachedDb = null;
@@ -29,6 +29,7 @@ async function connectToDatabase() {
     return cachedDb;
 }
 
+// Middleware koneksi database untuk seluruh endpoint API
 app.use(async (req, res, next) => {
     if (req.path.startsWith('/api')) {
         try {
@@ -40,14 +41,13 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// 3. Skema & Model Voucher (DENGAN OTOMATIS EXPIRED TTL INDEX)
+// 3. Skema & Model Voucher
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
     type: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
-    // Menambahkan 'expires: 0' agar MongoDB menghapus dokumen secara otomatis saat mencapai tanggal expiredAt
-    expiredAt: { type: Date, required: true, expires: 0 },
-    usageLimit: { type: Number, default: 100 },
+    expiredAt: { type: Date, required: true },
+    usageLimit: { type: Number, default: 20 },
     usedCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
@@ -68,11 +68,7 @@ app.post('/api/vouchers', async (req, res) => {
         });
 
         await newVoucher.save();
-        res.status(201).json({ 
-            success: true, 
-            message: 'Voucher berhasil disimpan dan akan terhapus otomatis setelah kedaluwarsa!', 
-            voucher: newVoucher 
-        });
+        res.status(201).json({ success: true, message: 'Voucher berhasil disimpan ke Database!', voucher: newVoucher });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
@@ -83,7 +79,11 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
         const voucher = await Voucher.findOne({ code: req.params.code.toUpperCase() });
         
         if (!voucher) {
-            return res.status(404).json({ valid: false, message: 'Voucher tidak ditemukan atau sudah kedaluwarsa.' });
+            return res.status(404).json({ valid: false, message: 'Voucher tidak ditemukan.' });
+        }
+
+        if (new Date() > voucher.expiredAt) {
+            return res.status(400).json({ valid: false, message: 'Voucher telah kedaluwarsa.' });
         }
 
         if (voucher.usedCount >= voucher.usageLimit) {
@@ -96,7 +96,7 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
     }
 });
 
-// 5. Export / Server runner
+// 5. Jalankan server lokal jika tidak dijalankan di lingkungan Vercel Serverless
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
