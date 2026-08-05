@@ -1,20 +1,47 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
 
-// 1. Koneksi Database MongoDB
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0'; 
+// 1. Sertakan file statis & route root menggunakan __dirname
+app.use(express.static(__dirname));
 
-mongoose.connect(MONGODB_URI)
-    .then(() => console.log('📦 Berhasil terhubung ke MongoDB!'))
-    .catch(err => console.error('❌ Gagal koneksi ke MongoDB:', err));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-// 2. Skema & Model Voucher
+// 2. Koneksi MongoDB Atlas (Optimized untuk Vercel Serverless)
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0';
+
+let cachedDb = null;
+async function connectToDatabase() {
+    if (cachedDb && mongoose.connection.readyState === 1) {
+        return cachedDb;
+    }
+    cachedDb = await mongoose.connect(MONGODB_URI, {
+        bufferCommands: false,
+    });
+    return cachedDb;
+}
+
+// Middleware koneksi database untuk seluruh endpoint API
+app.use(async (req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        try {
+            await connectToDatabase();
+        } catch (error) {
+            return res.status(500).json({ success: false, message: 'Gagal terhubung ke MongoDB', error: error.message });
+        }
+    }
+    next();
+});
+
+// 3. Skema & Model Voucher
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
@@ -25,9 +52,9 @@ const voucherSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-const Voucher = mongoose.model('Voucher', voucherSchema);
+const Voucher = mongoose.models.Voucher || mongoose.model('Voucher', voucherSchema);
 
-// 3. Endpoint Simpan Voucher Baru
+// 4. Endpoint API
 app.post('/api/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit } = req.body;
@@ -47,7 +74,6 @@ app.post('/api/vouchers', async (req, res) => {
     }
 });
 
-// 4. Endpoint Cek Validitas Voucher
 app.get('/api/vouchers/validate/:code', async (req, res) => {
     try {
         const voucher = await Voucher.findOne({ code: req.params.code.toUpperCase() });
@@ -70,4 +96,10 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
     }
 });
 
-app.listen(3000, () => console.log('🚀 Server berjalan di http://localhost:3000'));
+// 5. Jalankan server lokal jika tidak dijalankan di lingkungan Vercel Serverless
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
+}
+
+module.exports = app;
