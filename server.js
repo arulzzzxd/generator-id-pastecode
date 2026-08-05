@@ -8,11 +8,11 @@ app.use(express.json());
 app.use(cors());
 
 // 1. Koneksi Database MongoDB
-mongoose.connect('mongodb://127.0.01:27017/arulzxd_db', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => console.log('⚡ MongoDB Connected'))
-  .catch(err => console.error('MongoDB Error:', err));
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0'; 
+
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('📦 Berhasil terhubung ke MongoDB!'))
+    .catch(err => console.error('❌ Gagal koneksi ke MongoDB:', err));
 
 // 2. Skema & Model Voucher
 const voucherSchema = new mongoose.Schema({
