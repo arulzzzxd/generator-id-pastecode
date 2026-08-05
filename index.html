@@ -68,7 +68,7 @@
             margin: 0;
             font-size: 20px;
             color: var(--cyan-neon);
-            text-shadow: 0 0 5px var(--cyan-neon);
+            text-shadow: 0 0 8px var(--cyan-neon);
             text-transform: uppercase;
             display: flex;
             align-items: center;
@@ -89,8 +89,89 @@
             gap: 6px;
         }
 
+        /* STYLING MODE SELECTOR CYBERPUNK */
         .mode-select-box {
             margin-bottom: 20px;
+            background: rgba(0, 243, 255, 0.05);
+            padding: 15px;
+            border: 2px solid var(--cyan-neon);
+            box-shadow: inset 0 0 10px var(--cyan-neon), 0 0 10px rgba(0, 243, 255, 0.2);
+            position: relative;
+        }
+
+        .mode-select-box label {
+            text-shadow: 0 0 5px var(--cyan-neon);
+            letter-spacing: 1px;
+        }
+
+        .cyber-select {
+            width: 100%;
+            padding: 12px;
+            font-family: inherit;
+            font-size: 15px;
+            border: 2px solid var(--cyan-neon) !important;
+            box-sizing: border-box;
+            background: #000000 !important;
+            color: var(--cyan-neon) !important;
+            font-weight: bold;
+            outline: none;
+            margin-top: 8px;
+            cursor: pointer;
+            box-shadow: 0 0 8px rgba(0, 243, 255, 0.4);
+            text-shadow: 0 0 5px var(--cyan-neon);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-select:focus, .cyber-select:hover {
+            border-color: #ffffff !important;
+            box-shadow: 0 0 15px var(--cyan-neon), inset 0 0 10px var(--cyan-neon);
+        }
+
+        .cyber-select option {
+            background: #0d0f18;
+            color: var(--cyan-neon);
+            padding: 10px;
+        }
+
+        .mode-field {
+            border: 2px solid var(--cyan-neon);
+            padding: 20px;
+            background: rgba(0, 243, 255, 0.02);
+            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.15), 0 0 10px rgba(0, 243, 255, 0.2);
+            margin-bottom: 15px;
+            animation: fadeInCyber 0.4s ease-in-out;
+        }
+
+        @keyframes fadeInCyber {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* CARD NEON DISPLAY CODE (TANPA CANVAS) */
+        .code-display-card {
+            margin-top: 15px;
+            padding: 20px;
+            background: #000000;
+            border: 2px dashed var(--cyan-neon);
+            text-align: center;
+            box-shadow: inset 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+
+        .code-neon-text {
+            font-size: 32px;
+            letter-spacing: 6px;
+            color: var(--cyan-neon);
+            text-shadow: 0 0 10px var(--cyan-neon), 0 0 20px var(--cyan-neon);
+            font-weight: 900;
+            user-select: all;
+            margin: 10px 0;
+            display: inline-block;
         }
 
         select, input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
@@ -109,7 +190,7 @@
 
         select:focus, input:focus, textarea:focus {
             border-color: var(--pink-neon);
-            box-shadow: 0 0 8px var(--pink-neon);
+            box-shadow: 0 0 10px var(--pink-neon);
         }
 
         label {
@@ -154,6 +235,7 @@
 
         .btn:hover {
             opacity: 0.9;
+            box-shadow: 0 0 12px var(--cyan-neon);
         }
 
         .btn:active {
@@ -177,6 +259,7 @@
             color: #00ff66;
             padding: 15px;
             border: 2px solid var(--cyan-neon);
+            box-shadow: 0 0 10px var(--cyan-neon);
             white-space: pre-wrap;
             font-family: monospace;
             font-size: 13px;
@@ -203,10 +286,6 @@
             gap: 6px;
         }
 
-        .copy-btn:active {
-            transform: scale(0.95);
-        }
-
         .inline-group {
             display: flex;
             gap: 10px;
@@ -223,14 +302,12 @@
             margin-top: 5px;
         }
 
-        /* SVG Icon Sizing */
         .icon {
             width: 18px;
             height: 18px;
             fill: currentColor;
         }
 
-        /* Custom Styling SweetAlert2 Tema Cyberpunk */
         .swal2-popup-cyberpunk {
             background: var(--bg-card) !important;
             border: 3px solid var(--cyan-neon) !important;
@@ -271,16 +348,17 @@
         </button>
     </div>
 
-    <!-- Mode Selector -->
+    <!-- Mode Selector Cyberpunk -->
     <div class="mode-select-box">
         <label for="modeSelector">
             <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             PILIH MODE GENERATOR:
         </label>
-        <select id="modeSelector" onchange="switchMode(this.value)">
-            <option value="voucher">Mode Voucher Diskon</option>
-            <option value="paste">Mode Pastebin</option>
-            <option value="changelog">Mode Changelog</option>
+        <select id="modeSelector" class="cyber-select" onchange="switchMode(this.value)">
+            <option value="voucher">⚡ MODE VOUCHER DISKON</option>
+            <option value="codeGen">🎲 MODE RANDOM CODE GENERATOR</option>
+            <option value="paste">📋 MODE PASTEBIN</option>
+            <option value="changelog">📝 MODE CHANGELOG</option>
         </select>
     </div>
 
@@ -301,7 +379,7 @@
 
             <div class="form-group">
                 <label for="vDiscount">Nominal / Persentase Diskon</label>
-                <input type="number" id="vDiscount" placeholder="Contoh: 20 (untuk 20% atau Rp 20.000)" required>
+                <input type="number" id="vDiscount" placeholder="Contoh: 20 (untuk 20% atau Rp 20.000)">
             </div>
 
             <div class="form-group">
@@ -314,12 +392,30 @@
 
             <div class="form-group">
                 <label for="vExpiry">Tanggal & Waktu Expired</label>
-                <input type="datetime-local" id="vExpiry" required>
+                <input type="datetime-local" id="vExpiry">
             </div>
 
             <div class="form-group">
                 <label for="vLimit">Batas Penggunaan (Max Use)</label>
                 <input type="number" id="vLimit" value="100" placeholder="100">
+            </div>
+        </div>
+
+        <!-- FIELD CODE GENERATOR (TANPA CANVAS) -->
+        <div class="mode-field" id="field-codeGen" style="display: none;">
+            <div class="form-group">
+                <label>Panjang Karakter Kode</label>
+                <input type="number" id="codeLength" value="6" min="4" max="32">
+            </div>
+
+            <div class="code-display-card">
+                <label style="justify-content: center; margin-top: 0;">HASIL KODE ACAK</label>
+                <div class="code-neon-text" id="codeDisplay">k8P2mW</div>
+                <br>
+                <button type="button" class="btn yellow" style="margin: 10px auto 0 auto; width: auto;" onclick="generateRandomCodeUI()">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7 7h2v2H7V7zm0 10h2v-2H7v2zm10 0h-2v-2h2v2zm0-10h-2v2h2V7zm-5 5h2v-2h-2v2z"/></svg>
+                    ACAK KODE BARU
+                </button>
             </div>
         </div>
 
@@ -392,7 +488,6 @@
     let currentMode = 'voucher';
     let currentOutputText = '';
 
-    // SweetAlert Mixin untuk Styling Cyberpunk
     const CyberSwal = Swal.mixin({
         customClass: {
             popup: 'swal2-popup-cyberpunk',
@@ -403,7 +498,6 @@
         buttonsStyling: false
     });
 
-    // Theme Switcher
     function toggleTheme() {
         const html = document.documentElement;
         const current = html.getAttribute('data-theme');
@@ -411,15 +505,33 @@
         html.setAttribute('data-theme', target);
     }
 
-    // Switch Form Mode
     function switchMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-field').forEach(el => el.style.display = 'none');
         document.getElementById(`field-${mode}`).style.display = 'block';
         document.getElementById('outputContainer').style.display = 'none';
+
+        if (mode === 'codeGen') {
+            generateRandomCodeUI();
+        }
     }
 
-    // Generator Kode Voucher Acak
+    // Fungsi Utama Generator Kode Acak
+    function generateCode(length = 6) {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        for (let i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    }
+
+    function generateRandomCodeUI() {
+        const len = parseInt(document.getElementById('codeLength').value) || 6;
+        const code = generateCode(len);
+        document.getElementById('codeDisplay').textContent = code;
+    }
+
     function generateRandomVoucher() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let randomStr = '';
@@ -437,7 +549,6 @@
         });
     }
 
-    // Format Tanggal Sosmed
     function formatDateSosmed(isoStr) {
         const date = new Date(isoStr);
         return date.toLocaleString('id-ID', {
@@ -450,12 +561,17 @@
         });
     }
 
-    // Handle Form Submit
     async function handleFormSubmit(e) {
         e.preventDefault();
         let payload = {};
 
-        if (currentMode === 'voucher') {
+        if (currentMode === 'codeGen') {
+            const code = document.getElementById('codeDisplay').textContent;
+            payload = { code: code };
+            showOutput(JSON.stringify(payload, null, 4));
+            CyberSwal.fire({ icon: 'success', title: 'KODE BERHASIL DIBUAT', timer: 1500, showConfirmButton: false });
+
+        } else if (currentMode === 'voucher') {
             const code = document.getElementById('vCode').value || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
             payload = {
                 code: code,
@@ -544,7 +660,6 @@ Powered by Arulz-XD`;
         out.style.display = 'block';
     }
 
-    // Fungsi Copy Text pake SweetAlert
     function copyResult() {
         if (!currentOutputText) return;
         navigator.clipboard.writeText(currentOutputText).then(() => {
@@ -558,7 +673,6 @@ Powered by Arulz-XD`;
         });
     }
 
-    // Reset Form pake Konfirmasi SweetAlert
     function resetForm() {
         CyberSwal.fire({
             title: 'RESET FORM?',
@@ -572,6 +686,7 @@ Powered by Arulz-XD`;
                 document.getElementById('generatorForm').reset();
                 document.getElementById('outputContainer').style.display = 'none';
                 currentOutputText = '';
+                generateRandomCodeUI();
                 CyberSwal.fire({ icon: 'success', title: 'CLEARED!', timer: 1000, showConfirmButton: false });
             }
         });
