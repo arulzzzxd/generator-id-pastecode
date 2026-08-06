@@ -475,6 +475,17 @@
         <!-- FIELD PRODUCT GENERATOR -->
         <div class="mode-field" id="field-product" style="display: none;">
             <div class="form-group">
+                <label>ID Produk (Acak 10 Karakter)</label>
+                <div class="inline-group">
+                    <input type="text" id="pId" placeholder="Otomatis acak 10 karakter...">
+                    <button type="button" class="btn yellow" onclick="generateRandomProductId()">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7 7h2v2H7V7zm0 10h2v-2H7v2zm10 0h-2v-2h2v2zm0-10h-2v2h2V7zm-5 5h2v-2h-2v2z"/></svg>
+                        ACAK ID
+                    </button>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label for="pNama">Nama Produk *</label>
                 <input type="text" id="pNama" placeholder="Contoh: Script Bot WhatsApp V5">
             </div>
@@ -490,8 +501,8 @@
             </div>
 
             <div class="form-group">
-                <label for="pKategori">Kategori</label>
-                <input type="text" id="pKategori" placeholder="Default: General (misal: Script, Source Code)">
+                <label for="pKategori">Kategori *</label>
+                <input type="text" id="pKategori" placeholder="Contoh: Script, Source Code">
             </div>
 
             <div class="form-group">
@@ -664,10 +675,12 @@
 
         if (mode === 'codeGen') {
             generateRandomCodeUI();
+        } else if (mode === 'product' && !document.getElementById('pId').value) {
+            generateRandomProductId();
         }
     }
 
-    function generateCode(length = 6) {
+    function generateCode(length = 10) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         let result = '';
         for (let i = 0; i < length; i++) {
@@ -680,6 +693,11 @@
         const len = parseInt(document.getElementById('codeLength').value) || 6;
         const code = generateCode(len);
         document.getElementById('codeDisplay').textContent = code;
+    }
+
+    function generateRandomProductId() {
+        const newId = generateCode(10);
+        document.getElementById('pId').value = newId;
     }
 
     function generateRandomVoucher() {
@@ -781,23 +799,26 @@ Powered by Arulz-XD`;
             }
 
         } else if (currentMode === 'product') {
+            const productId = document.getElementById('pId').value || generateCode(10);
             const nama = document.getElementById('pNama').value;
             const harga = document.getElementById('pHarga').value;
+            const kategori = document.getElementById('pKategori').value;
             const link = document.getElementById('pLink').value;
 
-            if (!nama || !harga || !link) {
+            if (!nama || !harga || !kategori || !link) {
                 return CyberSwal.fire({
                     icon: 'error',
                     title: 'FIELD WAJIB KOSONG',
-                    text: 'Nama Produk, Harga, dan Link wajib diisi!'
+                    text: 'Nama Produk, Harga, Kategori, dan Link wajib diisi!'
                 });
             }
 
             payload = {
+                Id: productId,
                 nama: nama,
                 harga: Number(harga),
                 harga_diskon: document.getElementById('pHargaDiskon').value ? Number(document.getElementById('pHargaDiskon').value) : null,
-                kategori: document.getElementById('pKategori').value || "General",
+                kategori: kategori,
                 badge: document.getElementById('pBadge').value || "",
                 terjual: Number(document.getElementById('pTerjual').value) || 0,
                 stok: Number(document.getElementById('pStok').value) || 0,
@@ -829,6 +850,7 @@ Powered by Arulz-XD`;
                     const sosmedText = 
 `🔥 NEW PRODUCT RELEASE! 🔥
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ID PRODUK   : ${p.Id}
 NAMA PRODUK : ${p.nama}
 KATEGORI    : ${p.kategori} ${p.badge ? `[${p.badge}]` : ''}
 HARGA       : ${hargaFormatted}
@@ -920,6 +942,7 @@ Powered by Arulz-XD`;
                 document.getElementById('outputContainer').style.display = 'none';
                 currentOutputText = '';
                 generateRandomCodeUI();
+                generateRandomProductId();
                 CyberSwal.fire({ icon: 'success', title: 'CLEARED!', timer: 1000, showConfirmButton: false });
             }
         });
