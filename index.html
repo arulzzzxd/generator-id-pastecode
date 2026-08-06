@@ -105,7 +105,7 @@
             margin-bottom: 8px;
         }
 
-        /* CUSTOM DROPDOWN (MENGGANTIKAN NATIVE SELECT BROWSER) */
+        /* CUSTOM DROPDOWN */
         .custom-dropdown {
             position: relative;
             width: 100%;
@@ -248,6 +248,13 @@
             font-weight: bold;
             outline: none;
             margin-top: 5px;
+        }
+
+        input[readonly] {
+            background: rgba(0, 243, 255, 0.05);
+            color: var(--cyan-neon);
+            cursor: not-allowed;
+            border-style: dashed;
         }
 
         input:focus, textarea:focus {
@@ -590,8 +597,8 @@
                 <input type="text" id="desc" placeholder="Contoh: By arulzxd" value="By arulzxd">
             </div>
             <div class="form-group">
-                <label for="date">Tanggal</label>
-                <input type="text" id="date" placeholder="Contoh: 7 Jun 2026">
+                <label for="date">Tanggal (Otomatis Hari Ini)</label>
+                <input type="text" id="date" readonly placeholder="Otomatis terisi...">
             </div>
             <div class="form-group">
                 <label for="content">Isi Kode / Content</label>
@@ -603,26 +610,42 @@
         <div class="mode-field" id="field-changelog" style="display: none;">
             <div class="form-group">
                 <label for="version">Versi</label>
-                <input type="text" id="version" value="v1.0.0">
+                <input type="text" id="version" value="v2.0.0">
             </div>
             <div class="form-group">
                 <label>Tipe Perubahan</label>
                 <div class="custom-dropdown" id="clTypeDropdown">
                     <div class="dropdown-trigger" onclick="toggleCustomDropdown('clTypeDropdown')">
-                        <span id="clTypeSelectedText">Feature</span>
+                        <span id="clTypeSelectedText">Add (add)</span>
                         <span class="dropdown-arrow">▼</span>
                     </div>
                     <div class="dropdown-menu">
-                        <div class="dropdown-item selected" onclick="selectCustomValue('clTypeDropdown', 'feature', 'Feature', 'type')">Feature</div>
-                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'bugfix', 'Bugfix', 'type')">Bugfix</div>
-                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'update', 'Update', 'type')">Update</div>
+                        <div class="dropdown-item selected" onclick="selectCustomValue('clTypeDropdown', 'add', 'Add (add)', 'type')">Add (add)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'delete', 'Delete (delete)', 'type')">Delete (delete)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'bug fix', 'Bug Fix (bug fix)', 'type')">Bug Fix (bug fix)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'feature', 'Feature (feature)', 'type')">Feature (feature)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'default', 'Default (default)', 'type')">Default (default)</div>
                     </div>
                 </div>
-                <input type="hidden" id="type" value="feature">
+                <input type="hidden" id="type" value="add">
             </div>
             <div class="form-group">
                 <label for="clTitle">Judul Log</label>
-                <input type="text" id="clTitle" placeholder="Detail update...">
+                <input type="text" id="clTitle" placeholder="Contoh: Major Release: Dynamic Endpoint Core">
+            </div>
+            <div class="form-group">
+                <label for="clDescription">Deskripsi Detail</label>
+                <textarea id="clDescription" placeholder="Detail deskripsi perubahan sistem..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Node ID (Acak 3-5-3)</label>
+                <div class="inline-group">
+                    <input type="text" id="clNode" placeholder="Contoh: IDN-JAKAR-402">
+                    <button type="button" class="btn yellow" onclick="generateRandomNode()">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7 7h2v2H7V7zm0 10h2v-2H7v2zm10 0h-2v-2h2v2zm0-10h-2v2h2V7zm-5 5h2v-2h-2v2z"/></svg>
+                        ACAK NODE
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -663,7 +686,7 @@
         buttonsStyling: false
     });
 
-    // Kontrol Custom Dropdown Generik
+    // Kontrol Custom Dropdown
     function toggleCustomDropdown(dropdownId) {
         const dropdown = document.getElementById(dropdownId);
         document.querySelectorAll('.custom-dropdown').forEach(d => {
@@ -698,7 +721,7 @@
         switchMode(mode);
     }
 
-    // Tutup semua dropdown jika klik di luar
+    // Tutup dropdown jika klik luar
     window.addEventListener('click', function(e) {
         if (!e.target.closest('.custom-dropdown')) {
             document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
@@ -712,6 +735,18 @@
         html.setAttribute('data-theme', target);
     }
 
+    function getFormattedDateToday() {
+        const now = new Date();
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+        return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
+    function getFormattedDateUpper() {
+        const now = new Date();
+        const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
     function switchMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-field').forEach(el => el.style.display = 'none');
@@ -723,22 +758,40 @@
         } else if (mode === 'product' && !document.getElementById('pId').value) {
             generateRandomProductId();
         } else if (mode === 'paste') {
-            const dateInput = document.getElementById('date');
-            if (!dateInput.value) {
-                const now = new Date();
-                const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-                dateInput.value = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            // Set tanggal otomatis tanpa ketikan
+            document.getElementById('date').value = getFormattedDateToday();
+        } else if (mode === 'changelog') {
+            if (!document.getElementById('clNode').value) {
+                generateRandomNode();
             }
         }
     }
 
+    function generateRandomChars(length, chars) {
+        let res = '';
+        for (let i = 0; i < length; i++) {
+            res += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return res;
+    }
+
     function generateCode(length = 10) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
-        for (let i = 0; i < length; i++) {
-            result += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return result;
+        return generateRandomChars(length, chars);
+    }
+
+    // Generator Node Format: [3 HURUF]-[5 HURUF]-[3 ANGKA] acak
+    function generateRandomNode() {
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numbers = '0123456789';
+        
+        const p1 = generateRandomChars(3, letters);
+        const p2 = generateRandomChars(5, letters);
+        const p3 = generateRandomChars(3, numbers);
+        
+        const nodeCode = `${p1}-${p2}-${p3}`;
+        document.getElementById('clNode').value = nodeCode;
+        return nodeCode;
     }
 
     function generateRandomCodeUI() {
@@ -754,10 +807,7 @@
 
     function generateRandomVoucher() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let randomStr = '';
-        for (let i = 0; i < 6; i++) {
-            randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
+        let randomStr = generateRandomChars(6, chars);
         document.getElementById('vCode').value = `ARULZXD${randomStr}`;
 
         CyberSwal.fire({
@@ -944,20 +994,22 @@ Powered by Arulz-XD`;
                 title: document.getElementById('title').value || "Tanpa Judul",
                 language: document.getElementById('language').value,
                 desc: document.getElementById('desc').value || "",
-                date: document.getElementById('date').value || "",
+                date: getFormattedDateToday(),
                 content: document.getElementById('content').value || ""
             };
-            showOutput(JSON.stringify(payload, null, 4));
+            showOutput(JSON.stringify(payload, null, 2));
             CyberSwal.fire({ icon: 'success', title: 'PASTEBIN JSON GENERATED', timer: 1500, showConfirmButton: false });
 
         } else if (currentMode === 'changelog') {
             payload = {
-                version: document.getElementById('version').value,
+                version: document.getElementById('version').value || "v1.0.0",
+                date: getFormattedDateUpper(),
                 type: document.getElementById('type').value,
-                title: document.getElementById('clTitle').value,
-                date: new Date().toISOString()
+                title: document.getElementById('clTitle').value || "",
+                description: document.getElementById('clDescription').value || "",
+                node: document.getElementById('clNode').value || generateRandomNode()
             };
-            showOutput(JSON.stringify(payload, null, 4));
+            showOutput(JSON.stringify(payload, null, 2));
             CyberSwal.fire({ icon: 'success', title: 'CHANGELOG JSON GENERATED', timer: 1500, showConfirmButton: false });
         }
     }
@@ -997,6 +1049,8 @@ Powered by Arulz-XD`;
                 currentOutputText = '';
                 generateRandomCodeUI();
                 generateRandomProductId();
+                document.getElementById('date').value = getFormattedDateToday();
+                generateRandomNode();
                 CyberSwal.fire({ icon: 'success', title: 'CLEARED!', timer: 1000, showConfirmButton: false });
             }
         });
