@@ -236,7 +236,7 @@
             word-break: break-all;
         }
 
-        select, input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
+        input[type="text"], input[type="number"], input[type="datetime-local"], textarea {
             width: 100%;
             padding: 12px;
             font-family: inherit;
@@ -250,7 +250,7 @@
             margin-top: 5px;
         }
 
-        select:focus, input:focus, textarea:focus {
+        input:focus, textarea:focus {
             border-color: var(--pink-neon);
             box-shadow: 0 0 10px var(--pink-neon);
         }
@@ -419,7 +419,7 @@
         </label>
 
         <div class="custom-dropdown" id="cyberDropdown">
-            <div class="dropdown-trigger" onclick="toggleDropdown()">
+            <div class="dropdown-trigger" onclick="toggleCustomDropdown('cyberDropdown')">
                 <span id="selectedOptionText">⚡ MODE VOUCHER DISKON</span>
                 <span class="dropdown-arrow">▼</span>
             </div>
@@ -454,11 +454,18 @@
             </div>
 
             <div class="form-group">
-                <label for="vType">Tipe Diskon</label>
-                <select id="vType">
-                    <option value="percentage">Persentase (%)</option>
-                    <option value="fixed">Potongan Tetap (Nominal)</option>
-                </select>
+                <label>Tipe Diskon</label>
+                <div class="custom-dropdown" id="vTypeDropdown">
+                    <div class="dropdown-trigger" onclick="toggleCustomDropdown('vTypeDropdown')">
+                        <span id="vTypeSelectedText">Persentase (%)</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item selected" onclick="selectCustomValue('vTypeDropdown', 'percentage', 'Persentase (%)', 'vType')">Persentase (%)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('vTypeDropdown', 'fixed', 'Potongan Tetap (Nominal)', 'vType')">Potongan Tetap (Nominal)</div>
+                    </div>
+                </div>
+                <input type="hidden" id="vType" value="percentage">
             </div>
 
             <div class="form-group">
@@ -558,21 +565,37 @@
         <div class="mode-field" id="field-paste" style="display: none;">
             <div class="form-group">
                 <label for="title">Judul Snippet</label>
-                <input type="text" id="title" placeholder="Contoh: Script Auto Login">
+                <input type="text" id="title" placeholder="Contoh: Contoh2">
             </div>
             <div class="form-group">
-                <label for="language">Bahasa Pemrograman</label>
-                <select id="language">
-                    <option value="javascript">JavaScript</option>
-                    <option value="html">HTML</option>
-                    <option value="php">PHP</option>
-                    <option value="python">Python</option>
-                    <option value="plaintext">Plaintext</option>
-                </select>
+                <label>Bahasa Pemrograman / Mode</label>
+                <div class="custom-dropdown" id="langDropdown">
+                    <div class="dropdown-trigger" onclick="toggleCustomDropdown('langDropdown')">
+                        <span id="langSelectedText">Scrape (scrape)</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item selected" onclick="selectCustomValue('langDropdown', 'scrape', 'Scrape (scrape)', 'language')">Scrape (scrape)</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('langDropdown', 'javascript', 'JavaScript', 'language')">JavaScript</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('langDropdown', 'html', 'HTML', 'language')">HTML</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('langDropdown', 'php', 'PHP', 'language')">PHP</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('langDropdown', 'python', 'Python', 'language')">Python</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('langDropdown', 'plaintext', 'Plaintext', 'language')">Plaintext</div>
+                    </div>
+                </div>
+                <input type="hidden" id="language" value="scrape">
             </div>
             <div class="form-group">
-                <label for="content">Isi Kode</label>
-                <textarea id="content" placeholder="Tempelkan kode di sini..."></textarea>
+                <label for="desc">Deskripsi (By / Author)</label>
+                <input type="text" id="desc" placeholder="Contoh: By arulzxd" value="By arulzxd">
+            </div>
+            <div class="form-group">
+                <label for="date">Tanggal</label>
+                <input type="text" id="date" placeholder="Contoh: 7 Jun 2026">
+            </div>
+            <div class="form-group">
+                <label for="content">Isi Kode / Content</label>
+                <textarea id="content" placeholder="Tempelkan kode/konten di sini..."></textarea>
             </div>
         </div>
 
@@ -583,12 +606,19 @@
                 <input type="text" id="version" value="v1.0.0">
             </div>
             <div class="form-group">
-                <label for="type">Tipe Perubahan</label>
-                <select id="type">
-                    <option value="feature">Feature</option>
-                    <option value="bugfix">Bugfix</option>
-                    <option value="update">Update</option>
-                </select>
+                <label>Tipe Perubahan</label>
+                <div class="custom-dropdown" id="clTypeDropdown">
+                    <div class="dropdown-trigger" onclick="toggleCustomDropdown('clTypeDropdown')">
+                        <span id="clTypeSelectedText">Feature</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item selected" onclick="selectCustomValue('clTypeDropdown', 'feature', 'Feature', 'type')">Feature</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'bugfix', 'Bugfix', 'type')">Bugfix</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('clTypeDropdown', 'update', 'Update', 'type')">Update</div>
+                    </div>
+                </div>
+                <input type="hidden" id="type" value="feature">
             </div>
             <div class="form-group">
                 <label for="clTitle">Judul Log</label>
@@ -633,30 +663,45 @@
         buttonsStyling: false
     });
 
-    // Kontrol Custom Dropdown Mode
-    function toggleDropdown() {
-        document.getElementById('cyberDropdown').classList.toggle('open');
+    // Kontrol Custom Dropdown Generik
+    function toggleCustomDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('open');
+        });
+        dropdown.classList.toggle('open');
     }
 
-    function selectOption(mode, labelText) {
-        document.getElementById('selectedOptionText').textContent = labelText;
-
-        document.querySelectorAll('.dropdown-item').forEach(item => {
+    function selectCustomValue(dropdownId, val, labelText, hiddenInputId) {
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.querySelector('.dropdown-trigger span').textContent = labelText;
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
             item.classList.remove('selected');
             if (item.textContent === labelText) {
                 item.classList.add('selected');
             }
         });
+        document.getElementById(hiddenInputId).value = val;
+        dropdown.classList.remove('open');
+    }
 
-        document.getElementById('cyberDropdown').classList.remove('open');
+    function selectOption(mode, labelText) {
+        document.getElementById('selectedOptionText').textContent = labelText;
+        const dropdown = document.getElementById('cyberDropdown');
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+            if (item.textContent === labelText) {
+                item.classList.add('selected');
+            }
+        });
+        dropdown.classList.remove('open');
         switchMode(mode);
     }
 
-    // Tutup dropdown jika mengklik di luar area
+    // Tutup semua dropdown jika klik di luar
     window.addEventListener('click', function(e) {
-        const dropdown = document.getElementById('cyberDropdown');
-        if (dropdown && !dropdown.contains(e.target)) {
-            dropdown.classList.remove('open');
+        if (!e.target.closest('.custom-dropdown')) {
+            document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
         }
     });
 
@@ -677,6 +722,13 @@
             generateRandomCodeUI();
         } else if (mode === 'product' && !document.getElementById('pId').value) {
             generateRandomProductId();
+        } else if (mode === 'paste') {
+            const dateInput = document.getElementById('date');
+            if (!dateInput.value) {
+                const now = new Date();
+                const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+                dateInput.value = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+            }
         }
     }
 
@@ -889,9 +941,11 @@ Powered by Arulz-XD`;
         } else if (currentMode === 'paste') {
             payload = {
                 id: Date.now(),
-                title: document.getElementById('title').value,
+                title: document.getElementById('title').value || "Tanpa Judul",
                 language: document.getElementById('language').value,
-                content: document.getElementById('content').value
+                desc: document.getElementById('desc').value || "",
+                date: document.getElementById('date').value || "",
+                content: document.getElementById('content').value || ""
             };
             showOutput(JSON.stringify(payload, null, 4));
             CyberSwal.fire({ icon: 'success', title: 'PASTEBIN JSON GENERATED', timer: 1500, showConfirmButton: false });
