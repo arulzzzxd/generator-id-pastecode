@@ -476,7 +476,7 @@
             </div>
 
             <div class="form-group">
-                <label for="vExpiry">Tanggal & Waktu Expired</label>
+                <label for="vExpiry">Tanggal & Waktu Expired (Default: 24 Jam)</label>
                 <input type="datetime-local" id="vExpiry">
             </div>
 
@@ -747,18 +747,33 @@
         return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     }
 
+    // Mengatur default tanggal & waktu +24 Jam untuk input datetime-local
+    function setDefault24HoursVoucher() {
+        const now = new Date();
+        now.setHours(now.getHours() + 24);
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        document.getElementById('vExpiry').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+
     function switchMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-field').forEach(el => el.style.display = 'none');
         document.getElementById(`field-${mode}`).style.display = 'block';
         document.getElementById('outputContainer').style.display = 'none';
 
-        if (mode === 'codeGen') {
+        if (mode === 'voucher') {
+            if (!document.getElementById('vExpiry').value) {
+                setDefault24HoursVoucher();
+            }
+        } else if (mode === 'codeGen') {
             generateRandomCodeUI();
         } else if (mode === 'product' && !document.getElementById('pId').value) {
             generateRandomProductId();
         } else if (mode === 'paste') {
-            // Set tanggal otomatis tanpa ketikan
             document.getElementById('date').value = getFormattedDateToday();
         } else if (mode === 'changelog') {
             if (!document.getElementById('clNode').value) {
@@ -784,11 +799,11 @@
     function generateRandomNode() {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbers = '0123456789';
-        
+
         const p1 = generateRandomChars(3, letters);
         const p2 = generateRandomChars(5, letters);
         const p3 = generateRandomChars(3, numbers);
-        
+
         const nodeCode = `${p1}-${p2}-${p3}`;
         document.getElementById('clNode').value = nodeCode;
         return nodeCode;
@@ -819,16 +834,17 @@
         });
     }
 
-    function formatDateSosmed(isoStr) {
+    // Format tanggal khusus voucher sosmed sesuai request: "08 Agustus 2026 pukul 13.12 WIB"
+    function formatDateSosmedVoucher(isoStr) {
         const date = new Date(isoStr);
-        return date.toLocaleString('id-ID', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZoneName: 'short'
-        });
+        const day = String(date.getDate()).padStart(2, '0');
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${day} ${month} ${year} pukul ${hours}.${minutes} WIB`;
     }
 
     async function handleFormSubmit(e) {
@@ -842,12 +858,21 @@
 
         } else if (currentMode === 'voucher') {
             const code = document.getElementById('vCode').value || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+            
+            // Jika tanggal expired tidak diisi, otomatis set +24 jam
+            let expiryValue = document.getElementById('vExpiry').value;
+            if (!expiryValue) {
+                const now = new Date();
+                now.setHours(now.getHours() + 24);
+                expiryValue = now.toISOString();
+            }
+
             payload = {
                 code: code,
-                discount: Number(document.getElementById('vDiscount').value),
+                discount: Number(document.getElementById('vDiscount').value) || 0,
                 type: document.getElementById('vType').value,
-                expiredAt: document.getElementById('vExpiry').value,
-                usageLimit: Number(document.getElementById('vLimit').value)
+                expiredAt: expiryValue,
+                usageLimit: Number(document.getElementById('vLimit').value) || 100
             };
 
             CyberSwal.fire({
@@ -867,7 +892,7 @@
 
                 if (result.success && result.voucher) {
                     const v = result.voucher;
-                    const discountText = v.type === 'percentage' ? `${v.discount}% OFF` : `Rp ${v.discount.toLocaleString('id-ID')}`;
+                    const discountText = v.type === 'percentage' ? `${v.discount}%` : `Rp ${v.discount.toLocaleString('id-ID')}`;
 
                     const sosmedText = 
 `SPECIAL VOUCHER DISCOUNT!
@@ -875,7 +900,7 @@
 KODE VOUCHER : ${v.code}
 DISKON       : ${discountText}
 KUOTA        : ${v.usageLimit} Pengguna
-KEDALUWARSA  : ${formatDateSosmed(v.expiredAt)}
+KEDALUWARSA  : ${formatDateSosmedVoucher(v.expiredAt)}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Klaim sekarang sebelum kehabisan!
 Powered by Arulz-XD`;
@@ -892,11 +917,24 @@ Powered by Arulz-XD`;
                     CyberSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
                 }
             } catch (err) {
-                showOutput(JSON.stringify({ status: 'LOCAL_JSON_ONLY', data: payload }, null, 4));
+                const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${payload.discount.toLocaleString('id-ID')}`;
+                
+                const sosmedText = 
+`SPECIAL VOUCHER DISCOUNT!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+KODE VOUCHER : ${payload.code}
+DISKON       : ${discountText}
+KUOTA        : ${payload.usageLimit} Pengguna
+KEDALUWARSA  : ${formatDateSosmedVoucher(payload.expiredAt)}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Klaim sekarang sebelum kehabisan!
+Powered by Arulz-XD`;
+
+                showOutput(sosmedText);
                 CyberSwal.fire({
                     icon: 'warning',
                     title: 'MODE OFFLINE',
-                    text: 'Gagal terhubung server. Hasil ditampilkan sebagai JSON Lokal.'
+                    text: 'Gagal terhubung server. Hasil format teks berhasil dibuat secara lokal.'
                 });
             }
 
@@ -1047,6 +1085,7 @@ Powered by Arulz-XD`;
                 document.getElementById('generatorForm').reset();
                 document.getElementById('outputContainer').style.display = 'none';
                 currentOutputText = '';
+                setDefault24HoursVoucher();
                 generateRandomCodeUI();
                 generateRandomProductId();
                 document.getElementById('date').value = getFormattedDateToday();
@@ -1055,6 +1094,11 @@ Powered by Arulz-XD`;
             }
         });
     }
+
+    // Set nilai default tanggal saat halaman pertama kali dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+        setDefault24HoursVoucher();
+    });
 </script>
 </body>
 </html>
