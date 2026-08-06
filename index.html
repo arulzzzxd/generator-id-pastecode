@@ -417,7 +417,7 @@
             <svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
             PILIH MODE GENERATOR:
         </label>
-        
+
         <div class="custom-dropdown" id="cyberDropdown">
             <div class="dropdown-trigger" onclick="toggleDropdown()">
                 <span id="selectedOptionText">⚡ MODE VOUCHER DISKON</span>
@@ -425,6 +425,7 @@
             </div>
             <div class="dropdown-menu">
                 <div class="dropdown-item selected" onclick="selectOption('voucher', '⚡ MODE VOUCHER DISKON')">⚡ MODE VOUCHER DISKON</div>
+                <div class="dropdown-item" onclick="selectOption('product', '🛍️ MODE PRODUCT GENERATOR')">🛍️ MODE PRODUCT GENERATOR</div>
                 <div class="dropdown-item" onclick="selectOption('codeGen', '🎲 MODE RANDOM CODE GENERATOR')">🎲 MODE RANDOM CODE GENERATOR</div>
                 <div class="dropdown-item" onclick="selectOption('paste', '📋 MODE PASTEBIN')">📋 MODE PASTEBIN</div>
                 <div class="dropdown-item" onclick="selectOption('changelog', '📝 MODE CHANGELOG')">📝 MODE CHANGELOG</div>
@@ -468,6 +469,59 @@
             <div class="form-group">
                 <label for="vLimit">Batas Penggunaan (Max Use)</label>
                 <input type="number" id="vLimit" value="100" placeholder="100">
+            </div>
+        </div>
+
+        <!-- FIELD PRODUCT GENERATOR -->
+        <div class="mode-field" id="field-product" style="display: none;">
+            <div class="form-group">
+                <label for="pNama">Nama Produk *</label>
+                <input type="text" id="pNama" placeholder="Contoh: Script Bot WhatsApp V5">
+            </div>
+
+            <div class="form-group">
+                <label for="pHarga">Harga (Rp) *</label>
+                <input type="number" id="pHarga" placeholder="Contoh: 50000">
+            </div>
+
+            <div class="form-group">
+                <label for="pHargaDiskon">Harga Diskon (Opsional)</label>
+                <input type="number" id="pHargaDiskon" placeholder="Contoh: 35000">
+            </div>
+
+            <div class="form-group">
+                <label for="pKategori">Kategori</label>
+                <input type="text" id="pKategori" placeholder="Default: General (misal: Script, Source Code)">
+            </div>
+
+            <div class="form-group">
+                <label for="pBadge">Badge Produk</label>
+                <input type="text" id="pBadge" placeholder="Contoh: BEST SELLER, HOT, NEW">
+            </div>
+
+            <div class="form-group">
+                <label for="pTerjual">Jumlah Terjual</label>
+                <input type="number" id="pTerjual" value="0" placeholder="0">
+            </div>
+
+            <div class="form-group">
+                <label for="pStok">Stok Produk</label>
+                <input type="number" id="pStok" value="100" placeholder="100">
+            </div>
+
+            <div class="form-group">
+                <label for="pGambar">URL Gambar Produk</label>
+                <input type="text" id="pGambar" value="https://arulz-xd.my.id/files/X1F0Cn.png" placeholder="https://...">
+            </div>
+
+            <div class="form-group">
+                <label for="pDeskripsi">Deskripsi Produk</label>
+                <textarea id="pDeskripsi" placeholder="Tuliskan detail deskripsi produk di sini..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pLink">Link Produk *</label>
+                <input type="text" id="pLink" placeholder="Contoh: https://arulz-xd.my.id/product/bot-wa">
             </div>
         </div>
 
@@ -575,7 +629,7 @@
 
     function selectOption(mode, labelText) {
         document.getElementById('selectedOptionText').textContent = labelText;
-        
+
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.classList.remove('selected');
             if (item.textContent === labelText) {
@@ -635,7 +689,7 @@
             randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
         }
         document.getElementById('vCode').value = `ARULZXD${randomStr}`;
-        
+
         CyberSwal.fire({
             icon: 'success',
             title: 'KODE DI-GENERATE',
@@ -690,11 +744,11 @@
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
-                
+
                 if (result.success && result.voucher) {
                     const v = result.voucher;
                     const discountText = v.type === 'percentage' ? `${v.discount}% OFF` : `Rp ${v.discount.toLocaleString('id-ID')}`;
-                    
+
                     const sosmedText = 
 `SPECIAL VOUCHER DISCOUNT!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -712,6 +766,90 @@ Powered by Arulz-XD`;
                         icon: 'success',
                         title: 'BERHASIL DISIMPAN!',
                         text: 'Voucher berhasil tersimpan di MongoDB!'
+                    });
+                } else {
+                    showOutput(JSON.stringify(result, null, 4));
+                    CyberSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
+                }
+            } catch (err) {
+                showOutput(JSON.stringify({ status: 'LOCAL_JSON_ONLY', data: payload }, null, 4));
+                CyberSwal.fire({
+                    icon: 'warning',
+                    title: 'MODE OFFLINE',
+                    text: 'Gagal terhubung server. Hasil ditampilkan sebagai JSON Lokal.'
+                });
+            }
+
+        } else if (currentMode === 'product') {
+            const nama = document.getElementById('pNama').value;
+            const harga = document.getElementById('pHarga').value;
+            const link = document.getElementById('pLink').value;
+
+            if (!nama || !harga || !link) {
+                return CyberSwal.fire({
+                    icon: 'error',
+                    title: 'FIELD WAJIB KOSONG',
+                    text: 'Nama Produk, Harga, dan Link wajib diisi!'
+                });
+            }
+
+            payload = {
+                nama: nama,
+                harga: Number(harga),
+                harga_diskon: document.getElementById('pHargaDiskon').value ? Number(document.getElementById('pHargaDiskon').value) : null,
+                kategori: document.getElementById('pKategori').value || "General",
+                badge: document.getElementById('pBadge').value || "",
+                terjual: Number(document.getElementById('pTerjual').value) || 0,
+                stok: Number(document.getElementById('pStok').value) || 0,
+                gambar: document.getElementById('pGambar').value || "https://arulz-xd.my.id/files/X1F0Cn.png",
+                deskripsi: document.getElementById('pDeskripsi').value || "",
+                link: link
+            };
+
+            CyberSwal.fire({
+                title: 'MEMPROSES...',
+                text: 'Menyimpan produk ke database MongoDB',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success && result.product) {
+                    const p = result.product;
+                    const hargaFormatted = `Rp ${p.harga.toLocaleString('id-ID')}`;
+                    const diskonFormatted = p.harga_diskon ? `Rp ${p.harga_diskon.toLocaleString('id-ID')}` : '-';
+
+                    const sosmedText = 
+`🔥 NEW PRODUCT RELEASE! 🔥
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+NAMA PRODUK : ${p.nama}
+KATEGORI    : ${p.kategori} ${p.badge ? `[${p.badge}]` : ''}
+HARGA       : ${hargaFormatted}
+HARGA DISKON: ${diskonFormatted}
+STOK        : ${p.stok}
+TERJUAL     : ${p.terjual}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESKRIPSI:
+${p.deskripsi || '-'}
+
+🔗 LINK PEMBELIAN:
+${p.link}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Powered by Arulz-XD`;
+
+                    showOutput(sosmedText);
+
+                    CyberSwal.fire({
+                        icon: 'success',
+                        title: 'BERHASIL DISIMPAN!',
+                        text: 'Produk berhasil tersimpan di MongoDB!'
                     });
                 } else {
                     showOutput(JSON.stringify(result, null, 4));
