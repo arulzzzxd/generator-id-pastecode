@@ -41,6 +41,16 @@ app.use(async (req, res, next) => {
     next();
 });
 
+// Helper function untuk generate ID acak 10 karakter
+function generateId(length = 10) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+}
+
 // 3. Skema & Model Voucher
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
@@ -56,10 +66,11 @@ const Voucher = mongoose.models.Voucher || mongoose.model('Voucher', voucherSche
 
 // Skema & Model Product
 const productSchema = new mongoose.Schema({
+    Id: { type: String, required: true, unique: true, trim: true }, // Custom Id acak 10 karakter
     nama: { type: String, required: true, trim: true },
     harga: { type: Number, required: true },
     harga_diskon: { type: Number, default: null },
-    kategori: { type: String, default: "General" },
+    kategori: { type: String, required: true },
     badge: { type: String, default: "" },
     terjual: { type: Number, default: 0 },
     stok: { type: Number, default: 0 },
@@ -115,13 +126,14 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
 
 app.post('/api/products', async (req, res) => {
     try {
-        const { nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link } = req.body;
+        const { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link } = req.body;
 
         const newProduct = new Product({
+            Id: Id || generateId(10), // Jika Id tidak dikirim dari UI, maka otomatis buat 10 karakter
             nama,
             harga,
             harga_diskon: harga_diskon ? Number(harga_diskon) : null,
-            kategori: kategori || "General",
+            kategori,
             badge: badge || "",
             terjual: terjual ? Number(terjual) : 0,
             stok: stok ? Number(stok) : 0,
