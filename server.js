@@ -51,12 +51,16 @@ function generateId(length = 10) {
     return result;
 }
 
-// 3. Skema & Model Voucher
+// 3. Skema & Model Voucher (Menggunakan TTL Index untuk Hapus Otomatis)
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
     type: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
-    expiredAt: { type: Date, required: true },
+    expiredAt: { 
+        type: Date, 
+        required: true,
+        expires: 0 // <--- TIL / TTL INDEX: Menghapus dokumen dari MongoDB secara otomatis saat waktu 'expiredAt' tercapai
+    },
     usageLimit: { type: Number, default: 20 },
     usedCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -107,7 +111,7 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
         const voucher = await Voucher.findOne({ code: req.params.code.toUpperCase() });
 
         if (!voucher) {
-            return res.status(404).json({ valid: false, message: 'Voucher tidak ditemukan.' });
+            return res.status(404).json({ valid: false, message: 'Voucher tidak ditemukan atau sudah kedaluwarsa.' });
         }
 
         if (new Date() > voucher.expiredAt) {
