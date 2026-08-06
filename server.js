@@ -54,11 +54,28 @@ const voucherSchema = new mongoose.Schema({
 
 const Voucher = mongoose.models.Voucher || mongoose.model('Voucher', voucherSchema);
 
+// Skema & Model Product
+const productSchema = new mongoose.Schema({
+    nama: { type: String, required: true, trim: true },
+    harga: { type: Number, required: true },
+    harga_diskon: { type: Number, default: null },
+    kategori: { type: String, default: "General" },
+    badge: { type: String, default: "" },
+    terjual: { type: Number, default: 0 },
+    stok: { type: Number, default: 0 },
+    gambar: { type: String, default: "https://arulz-xd.my.id/files/X1F0Cn.png" },
+    deskripsi: { type: String, default: "" },
+    link: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
+
 // 4. Endpoint API
 app.post('/api/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit } = req.body;
-        
+
         const newVoucher = new Voucher({
             code: code.toUpperCase(),
             discount,
@@ -77,7 +94,7 @@ app.post('/api/vouchers', async (req, res) => {
 app.get('/api/vouchers/validate/:code', async (req, res) => {
     try {
         const voucher = await Voucher.findOne({ code: req.params.code.toUpperCase() });
-        
+
         if (!voucher) {
             return res.status(404).json({ valid: false, message: 'Voucher tidak ditemukan.' });
         }
@@ -93,6 +110,39 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
         res.json({ valid: true, voucher });
     } catch (error) {
         res.status(500).json({ valid: false, message: error.message });
+    }
+});
+
+app.post('/api/products', async (req, res) => {
+    try {
+        const { nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link } = req.body;
+
+        const newProduct = new Product({
+            nama,
+            harga,
+            harga_diskon: harga_diskon ? Number(harga_diskon) : null,
+            kategori: kategori || "General",
+            badge: badge || "",
+            terjual: terjual ? Number(terjual) : 0,
+            stok: stok ? Number(stok) : 0,
+            gambar: gambar || "https://arulz-xd.my.id/files/X1F0Cn.png",
+            deskripsi: deskripsi || "",
+            link
+        });
+
+        await newProduct.save();
+        res.status(201).json({ success: true, message: 'Produk berhasil disimpan ke Database!', product: newProduct });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
