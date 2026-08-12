@@ -2,20 +2,21 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-// 1. Sertakan file statis & route root menggunakan __dirname
+// 1. Sertakan file statis & route root
 app.use(express.static(__dirname));
 
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. Koneksi MongoDB Atlas (Optimized untuk Vercel Serverless)
+// 2. Koneksi MongoDB Atlas
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0';
 
 let cachedDb = null;
@@ -41,7 +42,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Helper function untuk generate ID acak 10 karakter
+// Helper Functions Generator
 function generateId(length = 10) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -51,16 +52,55 @@ function generateId(length = 10) {
     return result;
 }
 
-// 3. Skema & Model Voucher (Menggunakan TTL Index untuk Hapus Otomatis)
+function generateFreeApiKey() {
+    return 'arulzxdfree-' + crypto.randomBytes(3).toString('hex');
+}
+
+function generatePremiumApiKey(username = 'user') {
+    return `${username.toLowerCase()}prem-` + crypto.randomBytes(3).toString('hex');
+}
+
+// 3. Schema & Models
+
+// Schema & Model User (dengan Pre-Save Middleware untuk penyesuaian API Key otomatis)
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true, lowercase: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    role: { type: String, default: 'Free User' },
+    apikey: { type: String, required: true },
+    avatar: { type: String, default: 'https://arulz-xd.my.id/files/X1F0Cn.png' },
+    createdAt: { type: Date, default: Date.now }
+});
+
+// Hook Mongoose untuk update API Key berdasarkan Role
+userSchema.pre('save', function() {
+    if (this.isModified('role')) {
+        const roleLower = (this.role || '').toLowerCase();
+
+        if (roleLower.includes('vip')) {
+            if (!this.apikey || !this.apikey.includes('-custom-vip')) {
+                this.apikey = `${this.username.toLowerCase()}-custom-vip`;
+            }
+        } else if (roleLower.includes('premium')) {
+            if (!this.apikey || !this.apikey.includes('prem-')) {
+                this.apikey = generatePremiumApiKey(this.username);
+            }
+        } else {
+            if (!this.apikey || !this.apikey.startsWith('arulzxdfree-')) {
+                this.apikey = generateFreeApiKey();
+            }
+        }
+    }
+});
+
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+// Schema & Model Voucher
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
     type: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
-    expiredAt: { 
-        type: Date, 
-        required: true,
-        expires: 0 // <--- TIL / TTL INDEX: Menghapus dokumen dari MongoDB secara otomatis saat waktu 'expiredAt' tercapai
-    },
+    expiredAt: { type: Date, required: true, expires: 0 },
     usageLimit: { type: Number, default: 20 },
     usedCount: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
@@ -68,9 +108,9 @@ const voucherSchema = new mongoose.Schema({
 
 const Voucher = mongoose.models.Voucher || mongoose.model('Voucher', voucherSchema);
 
-// Skema & Model Product
+// Schema & Model Product
 const productSchema = new mongoose.Schema({
-    Id: { type: String, required: true, unique: true, trim: true }, // Custom Id acak 10 karakter
+    Id: { type: String, required: true, unique: true, trim: true },
     nama: { type: String, required: true, trim: true },
     harga: { type: Number, required: true },
     harga_diskon: { type: Number, default: null },
@@ -86,7 +126,52 @@ const productSchema = new mongoose.Schema({
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-// 4. Endpoint API
+// 4. Endpoints API
+
+// ENDPOINT UPDATE ROLE USER
+app.post('/api/admin/update-role', async (req, res) => {
+    try {
+        const { targetEmail, newRole } = req.body;
+
+        if (!targetEmail || !newRole) {
+            return res.status(400).json({ status: false, message: 'Target email dan role baru wajib diisi!' });
+        }
+
+        const validRoles = ['Free User', 'Premium User', 'VIP User'];
+        const formattedRole = validRoles.find(r => r.toLowerCase() === newRole.toLowerCase().trim());
+
+        if (!formattedRole) {
+            return res.status(400).json({ status: false, message: 'Role tidak valid! Pilihan: "Free User", "Premium User", "VIP User"' });
+        }
+
+        const user = await User.findOne({ email: targetEmail.toLowerCase().trim() });
+
+        if (!user) {
+            return res.status(404).json({ status: false, message: `User dengan email '${targetEmail}' tidak ditemukan!` });
+        }
+
+        // Perbarui Role (Pre-save hook di schema akan otomatis update apikey)
+        user.role = formattedRole;
+        await user.save();
+
+        return res.json({
+            status: true,
+            message: `Role user ${user.username} berhasil diubah!`,
+            data: {
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                apikey: user.apikey
+            }
+        });
+
+    } catch (error) {
+        console.error("Gagal update role user:", error);
+        return res.status(500).json({ status: false, message: 'Terjadi kesalahan server saat memperbarui role.' });
+    }
+});
+
+// ENDPOINT VOUCHER
 app.post('/api/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit } = req.body;
@@ -128,12 +213,13 @@ app.get('/api/vouchers/validate/:code', async (req, res) => {
     }
 });
 
+// ENDPOINT PRODUCT
 app.post('/api/products', async (req, res) => {
     try {
         const { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link } = req.body;
 
         const newProduct = new Product({
-            Id: Id || generateId(10), // Jika Id tidak dikirim dari UI, maka otomatis buat 10 karakter
+            Id: Id || generateId(10),
             nama,
             harga,
             harga_diskon: harga_diskon ? Number(harga_diskon) : null,
@@ -162,7 +248,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
-// 5. Jalankan server lokal jika tidak dijalankan di lingkungan Vercel Serverless
+// 5. Listener Server Lokal
 if (process.env.NODE_ENV !== 'production') {
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => console.log(`🚀 Server berjalan di http://localhost:${PORT}`));
