@@ -536,8 +536,8 @@
             </div>
 
             <div class="form-group">
-                <label for="pGambar">URL Gambar Produk</label>
-                <input type="text" id="pGambar" value="https://arulz-xd.my.id/files/X1F0Cn.png" placeholder="https://...">
+                <label for="pGambar">URL Gambar Produk (Pisahkan dengan baris baru atau koma)</label>
+                <textarea id="pGambar" placeholder="https://arulz-xd.my.id/files/X1F0Cn.png&#10;https://arulz-xd.my.id/files/gambar2.png">https://arulz-xd.my.id/files/X1F0Cn.png</textarea>
             </div>
 
             <div class="form-group">
@@ -995,7 +995,7 @@ Powered by Arulz-XD`;
                 }
             } catch (err) {
                 const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${payload.discount.toLocaleString('id-ID')}`;
-                
+
                 const sosmedText = 
 `SPECIAL VOUCHER DISCOUNT!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1030,6 +1030,12 @@ Powered by Arulz-XD`;
                 });
             }
 
+            const rawGambar = document.getElementById('pGambar').value;
+            const gambarArray = rawGambar
+                .split(/[\n,]+/)
+                .map(url => url.trim())
+                .filter(url => url.length > 0);
+
             payload = {
                 Id: productId,
                 nama: nama,
@@ -1039,7 +1045,7 @@ Powered by Arulz-XD`;
                 badge: document.getElementById('pBadge').value || "",
                 terjual: Number(document.getElementById('pTerjual').value) || 0,
                 stok: Number(document.getElementById('pStok').value) || 0,
-                gambar: document.getElementById('pGambar').value || "https://arulz-xd.my.id/files/X1F0Cn.png",
+                gambar: gambarArray.length > 0 ? gambarArray : ["https://arulz-xd.my.id/files/X1F0Cn.png"],
                 deskripsi: document.getElementById('pDeskripsi').value || "",
                 link: link
             };
@@ -1063,6 +1069,7 @@ Powered by Arulz-XD`;
                     const p = result.product;
                     const hargaFormatted = `Rp ${p.harga.toLocaleString('id-ID')}`;
                     const diskonFormatted = p.harga_diskon ? `Rp ${p.harga_diskon.toLocaleString('id-ID')}` : '-';
+                    const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
 
                     const sosmedText = 
 `🔥 NEW PRODUCT RELEASE! 🔥
@@ -1074,6 +1081,9 @@ HARGA       : ${hargaFormatted}
 HARGA DISKON: ${diskonFormatted}
 STOK        : ${p.stok}
 TERJUAL     : ${p.terjual}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GAMBAR:
+${gambarFormatted}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DESKRIPSI:
 ${p.deskripsi || '-'}
