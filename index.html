@@ -433,6 +433,7 @@
             <div class="dropdown-menu">
                 <div class="dropdown-item selected" onclick="selectOption('voucher', '⚡ MODE VOUCHER DISKON')">⚡ MODE VOUCHER DISKON</div>
                 <div class="dropdown-item" onclick="selectOption('product', '🛍️ MODE PRODUCT GENERATOR')">🛍️ MODE PRODUCT GENERATOR</div>
+                <div class="dropdown-item" onclick="selectOption('updateRole', '🛡️ MODE UPDATE ROLE USER')">🛡️ MODE UPDATE ROLE USER</div>
                 <div class="dropdown-item" onclick="selectOption('codeGen', '🎲 MODE RANDOM CODE GENERATOR')">🎲 MODE RANDOM CODE GENERATOR</div>
                 <div class="dropdown-item" onclick="selectOption('paste', '📋 MODE PASTEBIN')">📋 MODE PASTEBIN</div>
                 <div class="dropdown-item" onclick="selectOption('changelog', '📝 MODE CHANGELOG')">📝 MODE CHANGELOG</div>
@@ -547,6 +548,30 @@
             <div class="form-group">
                 <label for="pLink">Link Produk *</label>
                 <input type="text" id="pLink" placeholder="Contoh: https://arulz-xd.my.id/product/bot-wa">
+            </div>
+        </div>
+
+        <!-- FIELD UPDATE ROLE USER -->
+        <div class="mode-field" id="field-updateRole" style="display: none;">
+            <div class="form-group">
+                <label for="targetEmail">Target Email User *</label>
+                <input type="text" id="targetEmail" placeholder="Contoh: user@gmail.com">
+            </div>
+
+            <div class="form-group">
+                <label>Pilih Role Baru *</label>
+                <div class="custom-dropdown" id="roleDropdown">
+                    <div class="dropdown-trigger" onclick="toggleCustomDropdown('roleDropdown')">
+                        <span id="roleSelectedText">Premium User</span>
+                        <span class="dropdown-arrow">▼</span>
+                    </div>
+                    <div class="dropdown-menu">
+                        <div class="dropdown-item" onclick="selectCustomValue('roleDropdown', 'Free User', 'Free User', 'newRole')">Free User</div>
+                        <div class="dropdown-item selected" onclick="selectCustomValue('roleDropdown', 'Premium User', 'Premium User', 'newRole')">Premium User</div>
+                        <div class="dropdown-item" onclick="selectCustomValue('roleDropdown', 'VIP User', 'VIP User', 'newRole')">VIP User</div>
+                    </div>
+                </div>
+                <input type="hidden" id="newRole" value="Premium User">
             </div>
         </div>
 
@@ -747,7 +772,6 @@
         return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
     }
 
-    // Mengatur default tanggal & waktu +24 Jam untuk input datetime-local
     function setDefault24HoursVoucher() {
         const now = new Date();
         now.setHours(now.getHours() + 24);
@@ -795,15 +819,12 @@
         return generateRandomChars(length, chars);
     }
 
-    // Generator Node Format: [3 HURUF]-[5 HURUF]-[3 ANGKA] acak
     function generateRandomNode() {
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const numbers = '0123456789';
-
         const p1 = generateRandomChars(3, letters);
         const p2 = generateRandomChars(5, letters);
         const p3 = generateRandomChars(3, numbers);
-
         const nodeCode = `${p1}-${p2}-${p3}`;
         document.getElementById('clNode').value = nodeCode;
         return nodeCode;
@@ -834,7 +855,6 @@
         });
     }
 
-    // Format tanggal khusus voucher sosmed sesuai request: "08 Agustus 2026 pukul 13.12 WIB"
     function formatDateSosmedVoucher(isoStr) {
         const date = new Date(isoStr);
         const day = String(date.getDate()).padStart(2, '0');
@@ -851,15 +871,72 @@
         e.preventDefault();
         let payload = {};
 
-        if (currentMode === 'codeGen') {
+        if (currentMode === 'updateRole') {
+            const targetEmail = document.getElementById('targetEmail').value.trim();
+            const newRole = document.getElementById('newRole').value;
+
+            if (!targetEmail) {
+                return CyberSwal.fire({
+                    icon: 'error',
+                    title: 'EMAIL KOSONG',
+                    text: 'Target email user wajib diisi!'
+                });
+            }
+
+            CyberSwal.fire({
+                title: 'MEMPROSES...',
+                text: 'Memperbarui role user di database',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const response = await fetch('/api/admin/update-role', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetEmail, newRole })
+                });
+
+                const result = await response.json();
+
+                if (result.status && result.data) {
+                    const u = result.data;
+                    const roleText = 
+`✅ ROLE USER BERHASIL DIPERBARUI!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+USERNAME : ${u.username}
+EMAIL    : ${u.email}
+ROLE     : ${u.role}
+APIKEY   : ${u.apikey}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Powered by Arulz-XD`;
+
+                    showOutput(roleText);
+
+                    CyberSwal.fire({
+                        icon: 'success',
+                        title: 'UPDATE BERHASIL!',
+                        text: `Role user ${u.username} berhasil diubah ke ${u.role}!`
+                    });
+                } else {
+                    showOutput(JSON.stringify(result, null, 4));
+                    CyberSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message || 'Gagal update role' });
+                }
+            } catch (err) {
+                CyberSwal.fire({
+                    icon: 'error',
+                    title: 'ERROR SERVER',
+                    text: 'Gagal terhubung ke server untuk update role.'
+                });
+            }
+
+        } else if (currentMode === 'codeGen') {
             const code = document.getElementById('codeDisplay').textContent;
             showOutput(code);
             CyberSwal.fire({ icon: 'success', title: 'KODE BERHASIL DIBUAT', timer: 1500, showConfirmButton: false });
 
         } else if (currentMode === 'voucher') {
             const code = document.getElementById('vCode').value || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-            
-            // Jika tanggal expired tidak diisi, otomatis set +24 jam
             let expiryValue = document.getElementById('vExpiry').value;
             if (!expiryValue) {
                 const now = new Date();
@@ -1095,7 +1172,6 @@ Powered by Arulz-XD`;
         });
     }
 
-    // Set nilai default tanggal saat halaman pertama kali dimuat
     window.addEventListener('DOMContentLoaded', () => {
         setDefault24HoursVoucher();
     });
