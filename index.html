@@ -89,6 +89,49 @@
             gap: 6px;
         }
 
+        /* STYLING SCHEMA SWITCHER */
+        .schema-select-box {
+            margin-bottom: 15px;
+            background: rgba(255, 0, 85, 0.05);
+            padding: 12px 15px;
+            border: 2px solid var(--pink-neon);
+            box-shadow: inset 0 0 10px var(--pink-neon), 0 0 10px rgba(255, 0, 85, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .schema-select-box label {
+            text-shadow: 0 0 5px var(--pink-neon);
+            color: var(--pink-neon);
+            letter-spacing: 1px;
+            margin: 0;
+        }
+
+        .schema-btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .schema-btn {
+            background: #000;
+            color: var(--text-sec);
+            border: 2px solid var(--border-color);
+            padding: 6px 14px;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .schema-btn.active {
+            background: var(--cyan-neon);
+            color: #000;
+            box-shadow: 0 0 10px var(--cyan-neon);
+        }
+
         /* STYLING MODE SELECTOR CYBERPUNK CONTAINER */
         .mode-select-box {
             margin-bottom: 20px;
@@ -418,6 +461,18 @@
         </button>
     </div>
 
+    <!-- TOMBOL PILIH SCHEMA VERSION -->
+    <div class="schema-select-box">
+        <label>
+            <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+            PILIH TARGET SCHEMA:
+        </label>
+        <div class="schema-btn-group">
+            <button type="button" class="schema-btn active" id="btnSchemaV1" onclick="setSchemaVersion('v1')">SCHEMA V1</button>
+            <button type="button" class="schema-btn" id="btnSchemaV2" onclick="setSchemaVersion('v2')">SCHEMA V2</button>
+        </div>
+    </div>
+
     <!-- Mode Selector Custom Cyberpunk Dropdown -->
     <div class="mode-select-box">
         <label>
@@ -699,6 +754,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let currentMode = 'voucher';
+    let currentSchemaVersion = 'v1';
     let currentOutputText = '';
 
     const CyberSwal = Swal.mixin({
@@ -710,6 +766,27 @@
         },
         buttonsStyling: false
     });
+
+    // Kontrol Schema Switcher
+    function setSchemaVersion(ver) {
+        currentSchemaVersion = ver;
+        document.getElementById('btnSchemaV1').classList.remove('active');
+        document.getElementById('btnSchemaV2').classList.remove('active');
+
+        if (ver === 'v1') {
+            document.getElementById('btnSchemaV1').classList.add('active');
+        } else {
+            document.getElementById('btnSchemaV2').classList.add('active');
+        }
+
+        CyberSwal.fire({
+            icon: 'info',
+            title: `TARGET SCHEMA: ${ver.toUpperCase()}`,
+            text: `Operasi API sekarang mengarah ke Endpoint ${ver.toUpperCase()}`,
+            timer: 1200,
+            showConfirmButton: false
+        });
+    }
 
     // Kontrol Custom Dropdown
     function toggleCustomDropdown(dropdownId) {
@@ -952,15 +1029,17 @@ Powered by Arulz-XD`;
                 usageLimit: Number(document.getElementById('vLimit').value) || 100
             };
 
+            const targetEndpoint = currentSchemaVersion === 'v2' ? '/api/v2/vouchers' : '/api/vouchers';
+
             CyberSwal.fire({
                 title: 'MEMPROSES...',
-                text: 'Menyimpan data ke database MongoDB',
+                text: `Menyimpan data ke database MongoDB (${currentSchemaVersion.toUpperCase()})`,
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
             });
 
             try {
-                const response = await fetch('/api/vouchers', {
+                const response = await fetch(targetEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -972,7 +1051,7 @@ Powered by Arulz-XD`;
                     const discountText = v.type === 'percentage' ? `${v.discount}%` : `Rp ${v.discount.toLocaleString('id-ID')}`;
 
                     const sosmedText = 
-`SPECIAL VOUCHER DISCOUNT!
+`SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 KODE VOUCHER : ${v.code}
 DISKON       : ${discountText}
@@ -987,7 +1066,7 @@ Powered by Arulz-XD`;
                     CyberSwal.fire({
                         icon: 'success',
                         title: 'BERHASIL DISIMPAN!',
-                        text: 'Voucher berhasil tersimpan di MongoDB!'
+                        text: `Voucher berhasil tersimpan di MongoDB (${currentSchemaVersion.toUpperCase()})!`
                     });
                 } else {
                     showOutput(JSON.stringify(result, null, 4));
@@ -997,7 +1076,7 @@ Powered by Arulz-XD`;
                 const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${payload.discount.toLocaleString('id-ID')}`;
 
                 const sosmedText = 
-`SPECIAL VOUCHER DISCOUNT!
+`SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 KODE VOUCHER : ${payload.code}
 DISKON       : ${discountText}
@@ -1050,15 +1129,17 @@ Powered by Arulz-XD`;
                 link: link
             };
 
+            const targetEndpoint = currentSchemaVersion === 'v2' ? '/api/v2/products' : '/api/products';
+
             CyberSwal.fire({
                 title: 'MEMPROSES...',
-                text: 'Menyimpan produk ke database MongoDB',
+                text: `Menyimpan produk ke database MongoDB (${currentSchemaVersion.toUpperCase()})`,
                 allowOutsideClick: false,
                 didOpen: () => { Swal.showLoading(); }
             });
 
             try {
-                const response = await fetch('/api/products', {
+                const response = await fetch(targetEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -1072,7 +1153,7 @@ Powered by Arulz-XD`;
                     const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
 
                     const sosmedText = 
-`🔥 NEW PRODUCT RELEASE! 🔥
+`🔥 NEW PRODUCT RELEASE (${currentSchemaVersion.toUpperCase()})! 🔥
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ID PRODUK   : ${p.Id}
 NAMA PRODUK : ${p.nama}
@@ -1098,14 +1179,14 @@ Powered by Arulz-XD`;
                     CyberSwal.fire({
                         icon: 'success',
                         title: 'BERHASIL DISIMPAN!',
-                        text: 'Produk berhasil tersimpan di MongoDB!'
+                        text: `Produk berhasil tersimpan di MongoDB (${currentSchemaVersion.toUpperCase()})!`
                     });
                 } else {
                     showOutput(JSON.stringify(result, null, 4));
                     CyberSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
                 }
             } catch (err) {
-                showOutput(JSON.stringify({ status: 'LOCAL_JSON_ONLY', data: payload }, null, 4));
+                showOutput(JSON.stringify({ status: 'LOCAL_JSON_ONLY', version: currentSchemaVersion, data: payload }, null, 4));
                 CyberSwal.fire({
                     icon: 'warning',
                     title: 'MODE OFFLINE',

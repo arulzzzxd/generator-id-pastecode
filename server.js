@@ -51,7 +51,10 @@ function generateId(length = 10) {
     return result;
 }
 
-// 3. Skema & Model Voucher (Menggunakan TTL Index untuk Hapus Otomatis)
+// ====================================================
+// 3. SCHEMA & MODEL V1 (Tetap Sama Tanpa Berubah) [source: 8]
+// ====================================================
+
 const voucherSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
@@ -59,7 +62,7 @@ const voucherSchema = new mongoose.Schema({
     expiredAt: { 
         type: Date, 
         required: true,
-        expires: 0 // <--- TIL / TTL INDEX: Menghapus dokumen dari MongoDB secara otomatis saat waktu 'expiredAt' tercapai
+        expires: 0 
     },
     usageLimit: { type: Number, default: 20 },
     usedCount: { type: Number, default: 0 },
@@ -88,7 +91,48 @@ const productSchema = new mongoose.Schema({
 
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
-// 4. Endpoint API
+// ====================================================
+// 3.1 SCHEMA & MODEL V2 (Tipe Data & Struktur V2)
+// ====================================================
+
+const voucherSchemaV2 = new mongoose.Schema({
+    code: { type: String, required: true, unique: true, uppercase: true },
+    discount: { type: Number, required: true },
+    type: { type: String, enum: ['percentage', 'fixed'], default: 'percentage' },
+    expiredAt: { type: Date, required: true },
+    usageLimit: { type: Number, default: 20 },
+    usedCount: { type: Number, default: 0 },
+    usedBy: [{ type: String }],
+    createdAt: { type: Date, default: Date.now }
+});
+
+const VoucherV2 = mongoose.models.VoucherV2 || mongoose.model('VoucherV2', voucherSchemaV2);
+
+const productSchemaV2 = new mongoose.Schema({
+    Id: { type: String, required: true, unique: true, trim: true },
+    nama: { type: String, required: true, trim: true },
+    harga: { type: Number, required: true },
+    harga_diskon: { type: Number, default: null },
+    kategori: { type: String, required: true },
+    badge: { type: String, default: "" },
+    terjual: { type: Number, default: 0 },
+    stok: { type: Number, default: 0 },
+    gambar: { 
+        type: [String], 
+        default: ["https://arulz-xd.my.id/files/X1F0Cn.png"] 
+    },    
+    deskripsi: { type: String, default: "" },
+    link: { type: String, required: true },
+    purchasedBy: [{ type: String }],
+    createdAt: { type: Date, default: Date.now }
+});
+
+const ProductV2 = mongoose.models.ProductV2 || mongoose.model('ProductV2', productSchemaV2);
+
+// ====================================================
+// 4. ENDPOINT API V1 (Tetap Sama) [source: 8]
+// ====================================================
+
 app.post('/api/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit } = req.body;
@@ -102,7 +146,7 @@ app.post('/api/vouchers', async (req, res) => {
         });
 
         await newVoucher.save();
-        res.status(201).json({ success: true, message: 'Voucher berhasil disimpan ke Database!', voucher: newVoucher });
+        res.status(201).json({ success: true, message: 'Voucher (V1) berhasil disimpan ke Database!', voucher: newVoucher });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
@@ -145,7 +189,7 @@ app.post('/api/products', async (req, res) => {
         }
 
         const newProduct = new Product({
-            Id: Id || generateId(10), // Jika Id tidak dikirim dari UI, maka otomatis buat 10 karakter
+            Id: Id || generateId(10),
             nama,
             harga,
             harga_diskon: harga_diskon ? Number(harga_diskon) : null,
@@ -159,7 +203,7 @@ app.post('/api/products', async (req, res) => {
         });
 
         await newProduct.save();
-        res.status(201).json({ success: true, message: 'Produk berhasil disimpan ke Database!', product: newProduct });
+        res.status(201).json({ success: true, message: 'Produk (V1) berhasil disimpan ke Database!', product: newProduct });
     } catch (error) {
         res.status(400).json({ success: false, message: error.message });
     }
@@ -168,6 +212,84 @@ app.post('/api/products', async (req, res) => {
 app.get('/api/products', async (req, res) => {
     try {
         const products = await Product.find().sort({ createdAt: -1 });
+        res.json({ success: true, products });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ====================================================
+// 4.1 ENDPOINT API V2
+// ====================================================
+
+app.post('/api/v2/vouchers', async (req, res) => {
+    try {
+        const { code, discount, type, expiredAt, usageLimit, usedBy } = req.body;
+
+        const newVoucher = new VoucherV2({
+            code: code.toUpperCase(),
+            discount,
+            type,
+            expiredAt: new Date(expiredAt),
+            usageLimit,
+            usedBy: usedBy || []
+        });
+
+        await newVoucher.save();
+        res.status(201).json({ success: true, message: 'Voucher (V2) berhasil disimpan ke Database!', voucher: newVoucher });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/v2/vouchers', async (req, res) => {
+    try {
+        const vouchers = await VoucherV2.find().sort({ createdAt: -1 });
+        res.json({ success: true, vouchers });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.post('/api/v2/products', async (req, res) => {
+    try {
+        let { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link, purchasedBy } = req.body;
+
+        let gambarArray = ["https://arulz-xd.my.id/files/X1F0Cn.png"];
+        if (Array.isArray(gambar)) {
+            gambarArray = gambar.filter(url => url.trim() !== "");
+        } else if (typeof gambar === 'string' && gambar.trim() !== "") {
+            gambarArray = gambar
+                .split(/[\n,]+/)
+                .map(url => url.trim())
+                .filter(url => url !== "");
+        }
+
+        const newProduct = new ProductV2({
+            Id: Id || generateId(10),
+            nama,
+            harga,
+            harga_diskon: harga_diskon ? Number(harga_diskon) : null,
+            kategori,
+            badge: badge || "",
+            terjual: terjual ? Number(terjual) : 0,
+            stok: stok ? Number(stok) : 0,
+            gambar: gambarArray.length > 0 ? gambarArray : ["https://arulz-xd.my.id/files/X1F0Cn.png"],
+            deskripsi: deskripsi || "",
+            link,
+            purchasedBy: purchasedBy || []
+        });
+
+        await newProduct.save();
+        res.status(201).json({ success: true, message: 'Produk (V2) berhasil disimpan ke Database!', product: newProduct });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/v2/products', async (req, res) => {
+    try {
+        const products = await ProductV2.find().sort({ createdAt: -1 });
         res.json({ success: true, products });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
