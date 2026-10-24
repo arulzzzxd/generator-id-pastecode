@@ -57,7 +57,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Helper Generate ID
+// Helper Generate ID Alphanumeric 10 Karakter
 function generateId(length = 10) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
@@ -125,15 +125,20 @@ app.post('/api/pastecode', async (req, res) => {
             year: 'numeric'
         });
 
+        // Generate ID acak 10 karakter
+        const pasteId = generateId(10);
+        const safeAuthor = author ? String(author).trim().substring(0, 1000) : 'Anonymous';
+
         const { data, error } = await supabase
             .from('pastes')
             .insert([
                 {
+                    id: pasteId,
                     title: title.trim(),
                     desc: desc ? desc.trim() : 'By Anonymous',
                     language: language ? language.toLowerCase().trim() : 'plaintext',
                     content: content,
-                    author: author || 'Anonymous',
+                    author: safeAuthor,
                     date: formattedDate
                 }
             ])
