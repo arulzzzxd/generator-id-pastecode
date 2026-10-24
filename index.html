@@ -288,6 +288,8 @@
             font-weight: bold;
             outline: none;
             margin-top: 5px;
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         input[readonly] {
@@ -370,6 +372,7 @@
             border: 2px solid var(--cyan-neon);
             box-shadow: 0 0 10px var(--cyan-neon);
             white-space: pre-wrap;
+            word-break: break-word;
             font-family: monospace;
             font-size: 16px;
             font-weight: bold;
@@ -377,6 +380,11 @@
             position: relative;
             max-height: 350px;
             overflow-y: auto;
+        }
+
+        .output-box code {
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
         .copy-btn {
@@ -671,7 +679,7 @@
             </div>
             <div class="form-group">
                 <label for="desc">Deskripsi (By / Author)</label>
-                <input type="text" id="desc" placeholder="Contoh: By arulzxd" value="By arulzxd">
+                <textarea id="desc" placeholder="Contoh: By arulzxd"></textarea>
             </div>
             <div class="form-group">
                 <label for="date">Tanggal (Otomatis Hari Ini)</label>
@@ -1191,7 +1199,7 @@ Powered by Arulz-XD`;
         } else if (currentMode === 'paste') {
             const titleVal = document.getElementById('title').value.trim() || "Tanpa Judul";
             const languageVal = document.getElementById('language').value || "plaintext";
-            const descVal = document.getElementById('desc').value.trim() || "By arulzxd";
+            const descVal = document.getElementById('desc').value;
             const contentVal = document.getElementById('content').value;
 
             if (!contentVal || !contentVal.trim()) {
@@ -1205,8 +1213,8 @@ Powered by Arulz-XD`;
             payload = {
                 title: titleVal,
                 language: languageVal,
-                desc: descVal,
-                author: descVal.replace(/^By\s+/i, ''),
+                desc: descVal || "By arulzxd",
+                author: descVal ? descVal.replace(/^By\s+/i, '') : "arulzxd",
                 content: contentVal
             };
 
