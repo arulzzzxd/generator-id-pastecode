@@ -89,7 +89,6 @@
             gap: 6px;
         }
 
-        /* STYLING SCHEMA SWITCHER */
         .schema-select-box {
             margin-bottom: 15px;
             background: rgba(255, 0, 85, 0.05);
@@ -132,7 +131,6 @@
             box-shadow: 0 0 10px var(--cyan-neon);
         }
 
-        /* STYLING MODE SELECTOR CYBERPUNK CONTAINER */
         .mode-select-box {
             margin-bottom: 20px;
             background: rgba(0, 243, 255, 0.05);
@@ -148,7 +146,6 @@
             margin-bottom: 8px;
         }
 
-        /* CUSTOM DROPDOWN */
         .custom-dropdown {
             position: relative;
             width: 100%;
@@ -767,7 +764,6 @@
         buttonsStyling: false
     });
 
-    // Kontrol Schema Switcher
     function setSchemaVersion(ver) {
         currentSchemaVersion = ver;
         document.getElementById('btnSchemaV1').classList.remove('active');
@@ -788,7 +784,6 @@
         });
     }
 
-    // Kontrol Custom Dropdown
     function toggleCustomDropdown(dropdownId) {
         const dropdown = document.getElementById(dropdownId);
         document.querySelectorAll('.custom-dropdown').forEach(d => {
@@ -823,7 +818,6 @@
         switchMode(mode);
     }
 
-    // Tutup dropdown jika klik luar
     window.addEventListener('click', function(e) {
         if (!e.target.closest('.custom-dropdown')) {
             document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
@@ -1195,16 +1189,67 @@ Powered by Arulz-XD`;
             }
 
         } else if (currentMode === 'paste') {
+            const titleVal = document.getElementById('title').value.trim() || "Tanpa Judul";
+            const languageVal = document.getElementById('language').value || "plaintext";
+            const descVal = document.getElementById('desc').value.trim() || "By arulzxd";
+            const contentVal = document.getElementById('content').value;
+
+            if (!contentVal || !contentVal.trim()) {
+                return CyberSwal.fire({
+                    icon: 'error',
+                    title: 'KONTEN KODE KOSONG',
+                    text: 'Isi Kode / Content wajib diisi!'
+                });
+            }
+
             payload = {
-                id: Date.now(),
-                title: document.getElementById('title').value || "Tanpa Judul",
-                language: document.getElementById('language').value,
-                desc: document.getElementById('desc').value || "",
-                date: getFormattedDateToday(),
-                content: document.getElementById('content').value || ""
+                title: titleVal,
+                language: languageVal,
+                desc: descVal,
+                author: descVal.replace(/^By\s+/i, ''),
+                content: contentVal
             };
-            showOutput(JSON.stringify(payload, null, 2));
-            CyberSwal.fire({ icon: 'success', title: 'PASTEBIN JSON GENERATED', timer: 1500, showConfirmButton: false });
+
+            CyberSwal.fire({
+                title: 'MEMPROSES...',
+                text: 'Menyimpan Pastecode ke database Supabase',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
+
+            try {
+                const response = await fetch('/api/pastecode', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success && result.paste) {
+                    showOutput(JSON.stringify(result.paste, null, 2));
+
+                    CyberSwal.fire({
+                        icon: 'success',
+                        title: 'PASTEBIN SAVED!',
+                        text: 'Snippet kode berhasil disimpan ke Supabase!'
+                    });
+                } else {
+                    showOutput(JSON.stringify(result, null, 2));
+                    CyberSwal.fire({
+                        icon: 'error',
+                        title: 'GAGAL MENYIMPAN',
+                        text: result.message || 'Terjadi kesalahan saat menyimpan paste'
+                    });
+                }
+            } catch (err) {
+                showOutput(JSON.stringify(payload, null, 2));
+                CyberSwal.fire({
+                    icon: 'warning',
+                    title: 'MODE OFFLINE',
+                    text: 'Gagal terhubung ke Supabase. Hasil tetap ditampilkan sebagai JSON lokal.'
+                });
+            }
 
         } else if (currentMode === 'changelog') {
             payload = {
