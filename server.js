@@ -30,9 +30,10 @@ if (SUPABASE_URL && SUPABASE_KEY) {
 }
 
 // ====================================================
-// KONEKSI MONGODB ATLAS
+// KONEKSI MONGODB ATLAS (V1 & V2 TERPISAH)
 // ====================================================
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0';
+const MONGODB_URI_V2 = process.env.MONGODB_URI_V2 || 'mongodb+srv://arulzdb:Haqqi_%5B0813%5D@arulzdb.wpp3ns8.mongodb.net/?appName=arulzdb';
 
 let cachedDb = null;
 async function connectToDatabase() {
@@ -45,11 +46,27 @@ async function connectToDatabase() {
     return cachedDb;
 }
 
+const connV2 = mongoose.createConnection(MONGODB_URI_V2, {
+    bufferCommands: false,
+});
+
+async function connectToDatabaseV2() {
+    if (connV2.readyState === 1) {
+        return connV2;
+    }
+    await connV2.asPromise();
+    return connV2;
+}
+
 // Middleware DB Mongo
 app.use(async (req, res, next) => {
     if (req.path.startsWith('/api') && !req.path.startsWith('/api/pastecode')) {
         try {
-            await connectToDatabase();
+            if (req.path.startsWith('/api/v2')) {
+                await connectToDatabaseV2();
+            } else {
+                await connectToDatabase();
+            }
         } catch (error) {
             return res.status(500).json({ success: false, message: 'Gagal terhubung ke MongoDB', error: error.message });
         }
@@ -176,7 +193,7 @@ const productSchema = new mongoose.Schema({
     badge: { type: String, default: "" },
     terjual: { type: Number, default: 0 },
     stok: { type: Number, default: 0 },
-    gambar: { type: [String], default: ["https://arulz-xd.my.id/files/X1F0Cn.png"] },    
+    gambar: { type: [String], default: ["https://cdn.larasxd.my.id/files/1wh5do.png"] },    
     deskripsi: { type: String, default: "" },
     link: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
@@ -193,7 +210,7 @@ const voucherSchemaV2 = new mongoose.Schema({
     usedBy: [{ type: String }],
     createdAt: { type: Date, default: Date.now }
 });
-const VoucherV2 = mongoose.models.VoucherV2 || mongoose.model('VoucherV2', voucherSchemaV2);
+const VoucherV2 = connV2.models.VoucherV2 || connV2.model('VoucherV2', voucherSchemaV2, 'vouchers');
 
 const productSchemaV2 = new mongoose.Schema({
     Id: { type: String, required: true, unique: true, trim: true },
@@ -204,13 +221,13 @@ const productSchemaV2 = new mongoose.Schema({
     badge: { type: String, default: "" },
     terjual: { type: Number, default: 0 },
     stok: { type: Number, default: 0 },
-    gambar: { type: [String], default: ["https://arulz-xd.my.id/files/X1F0Cn.png"] },    
+    gambar: { type: [String], default: ["https://cdn.larasxd.my.id/files/1wh5do.png"] },    
     deskripsi: { type: String, default: "" },
     link: { type: String, required: true },
     purchasedBy: [{ type: String }],
     createdAt: { type: Date, default: Date.now }
 });
-const ProductV2 = mongoose.models.ProductV2 || mongoose.model('ProductV2', productSchemaV2);
+const ProductV2 = connV2.models.ProductV2 || connV2.model('ProductV2', productSchemaV2, 'products');
 
 // ====================================================
 // ENDPOINT VOUCHER & PRODUCT (V1 & V2)
@@ -224,14 +241,32 @@ app.post('/api/vouchers', async (req, res) => {
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
 });
 
+app.get('/api/products', async (req, res) => {
+    try {
+        const products = await Product.find().sort({ createdAt: -1 });
+        res.json({ success: true, products });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
 app.post('/api/products', async (req, res) => {
     try {
         let { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link } = req.body;
         let gambarArray = Array.isArray(gambar) ? gambar.filter(u => u.trim()) : (typeof gambar === 'string' ? gambar.split(/[\n,]+/).map(u => u.trim()).filter(Boolean) : []);
-        const newProduct = new Product({ Id: Id || generateId(10), nama, harga, harga_diskon: harga_diskon ? Number(harga_diskon) : null, kategori, badge: badge || "", terjual: Number(terjual) || 0, stok: Number(stok) || 0, gambar: gambarArray.length ? gambarArray : ["https://arulz-xd.my.id/files/X1F0Cn.png"], deskripsi: deskripsi || "", link });
+        const newProduct = new Product({ Id: Id || generateId(10), nama, harga, harga_diskon: harga_diskon ? Number(harga_diskon) : null, kategori, badge: badge || "", terjual: Number(terjual) || 0, stok: Number(stok) || 0, gambar: gambarArray.length ? gambarArray : ["https://cdn.larasxd.my.id/files/1wh5do.png"], deskripsi: deskripsi || "", link });
         await newProduct.save();
         res.status(201).json({ success: true, message: 'Produk (V1) berhasil disimpan!', product: newProduct });
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
+});
+
+app.delete('/api/products/:id', async (req, res) => {
+    try {
+        const targetId = req.params.id.trim();
+        const deleted = await Product.findOneAndDelete({ Id: targetId });
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: `Produk V1 dengan ID "${targetId}" tidak ditemukan.` });
+        }
+        res.json({ success: true, message: `Produk V1 "${deleted.nama}" (${deleted.Id}) berhasil dihapus!`, product: deleted });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 app.post('/api/v2/vouchers', async (req, res) => {
@@ -243,14 +278,32 @@ app.post('/api/v2/vouchers', async (req, res) => {
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
 });
 
+app.get('/api/v2/products', async (req, res) => {
+    try {
+        const products = await ProductV2.find().sort({ createdAt: -1 });
+        res.json({ success: true, products });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
+});
+
 app.post('/api/v2/products', async (req, res) => {
     try {
         let { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link, purchasedBy } = req.body;
         let gambarArray = Array.isArray(gambar) ? gambar.filter(u => u.trim()) : (typeof gambar === 'string' ? gambar.split(/[\n,]+/).map(u => u.trim()).filter(Boolean) : []);
-        const newProduct = new ProductV2({ Id: Id || generateId(10), nama, harga, harga_diskon: harga_diskon ? Number(harga_diskon) : null, kategori, badge: badge || "", terjual: Number(terjual) || 0, stok: Number(stok) || 0, gambar: gambarArray.length ? gambarArray : ["https://arulz-xd.my.id/files/X1F0Cn.png"], deskripsi: deskripsi || "", link, purchasedBy: purchasedBy || [] });
+        const newProduct = new ProductV2({ Id: Id || generateId(10), nama, harga, harga_diskon: harga_diskon ? Number(harga_diskon) : null, kategori, badge: badge || "", terjual: Number(terjual) || 0, stok: Number(stok) || 0, gambar: gambarArray.length ? gambarArray : ["https://cdn.larasxd.my.id/files/1wh5do.png"], deskripsi: deskripsi || "", link, purchasedBy: purchasedBy || [] });
         await newProduct.save();
         res.status(201).json({ success: true, message: 'Produk (V2) berhasil disimpan!', product: newProduct });
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
+});
+
+app.delete('/api/v2/products/:id', async (req, res) => {
+    try {
+        const targetId = req.params.id.trim();
+        const deleted = await ProductV2.findOneAndDelete({ Id: targetId });
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: `Produk V2 dengan ID "${targetId}" tidak ditemukan.` });
+        }
+        res.json({ success: true, message: `Produk V2 "${deleted.nama}" (${deleted.Id}) berhasil dihapus!`, product: deleted });
+    } catch (error) { res.status(500).json({ success: false, message: error.message }); }
 });
 
 if (process.env.NODE_ENV !== 'production') {
