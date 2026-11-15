@@ -33,7 +33,7 @@ if (SUPABASE_URL && SUPABASE_KEY) {
 // KONEKSI MONGODB ATLAS (V1 & V2 TERPISAH)
 // ====================================================
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://arulz-xd-owner:Haqqi0213@cluster0.fgxhxqm.mongodb.net/?appName=Cluster0';
-const MONGODB_URI_V2 = process.env.MONGODB_URI_V2 || 'mongodb+srv://arulzdb:Haqqi_%5B0813%5D@arulzdb.wpp3ns8.mongodb.net/?appName=arulzdb';
+const MONGODB_URI_V2 = process.env.MONGODB_URI_V2 || 'mongodb+srv://arulzdb:arulxd123@arulzdb.wpp3ns8.mongodb.net/?appName=arulzdb';
 
 let cachedDb = null;
 async function connectToDatabase() {
@@ -200,6 +200,7 @@ const productSchema = new mongoose.Schema({
 });
 const Product = mongoose.models.Product || mongoose.model('Product', productSchema);
 
+// VOUCHER SCHEMA V2 (Sesuai index.js -> koleksi: voucherv2s)
 const voucherSchemaV2 = new mongoose.Schema({
     code: { type: String, required: true, unique: true, uppercase: true },
     discount: { type: Number, required: true },
@@ -210,8 +211,9 @@ const voucherSchemaV2 = new mongoose.Schema({
     usedBy: [{ type: String }],
     createdAt: { type: Date, default: Date.now }
 });
-const VoucherV2 = connV2.models.VoucherV2 || connV2.model('VoucherV2', voucherSchemaV2, 'vouchers');
+const VoucherV2 = connV2.models.VoucherV2 || connV2.model('VoucherV2', voucherSchemaV2);
 
+// PRODUCT SCHEMA V2 (Sesuai index.js -> koleksi: productv2s)
 const productSchemaV2 = new mongoose.Schema({
     Id: { type: String, required: true, unique: true, trim: true },
     nama: { type: String, required: true, trim: true },
@@ -221,13 +223,16 @@ const productSchemaV2 = new mongoose.Schema({
     badge: { type: String, default: "" },
     terjual: { type: Number, default: 0 },
     stok: { type: Number, default: 0 },
-    gambar: { type: [String], default: ["https://cdn.larasxd.my.id/files/1wh5do.png"] },    
+    gambar: { 
+        type: [String], 
+        default: ["https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png"] 
+    },    
     deskripsi: { type: String, default: "" },
     link: { type: String, required: true },
     purchasedBy: [{ type: String }],
     createdAt: { type: Date, default: Date.now }
 });
-const ProductV2 = connV2.models.ProductV2 || connV2.model('ProductV2', productSchemaV2, 'products');
+const ProductV2 = connV2.models.ProductV2 || connV2.model('ProductV2', productSchemaV2);
 
 // ====================================================
 // ENDPOINT VOUCHER & PRODUCT (V1 & V2)
@@ -272,7 +277,14 @@ app.delete('/api/products/:id', async (req, res) => {
 app.post('/api/v2/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit, usedBy } = req.body;
-        const newVoucher = new VoucherV2({ code: code.toUpperCase(), discount, type, expiredAt: new Date(expiredAt), usageLimit, usedBy: usedBy || [] });
+        const newVoucher = new VoucherV2({ 
+            code: code.toUpperCase(), 
+            discount, 
+            type, 
+            expiredAt: new Date(expiredAt), 
+            usageLimit, 
+            usedBy: usedBy || [] 
+        });
         await newVoucher.save();
         res.status(201).json({ success: true, message: 'Voucher (V2) berhasil disimpan!', voucher: newVoucher });
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
@@ -289,7 +301,20 @@ app.post('/api/v2/products', async (req, res) => {
     try {
         let { Id, nama, harga, harga_diskon, kategori, badge, terjual, stok, gambar, deskripsi, link, purchasedBy } = req.body;
         let gambarArray = Array.isArray(gambar) ? gambar.filter(u => u.trim()) : (typeof gambar === 'string' ? gambar.split(/[\n,]+/).map(u => u.trim()).filter(Boolean) : []);
-        const newProduct = new ProductV2({ Id: Id || generateId(10), nama, harga, harga_diskon: harga_diskon ? Number(harga_diskon) : null, kategori, badge: badge || "", terjual: Number(terjual) || 0, stok: Number(stok) || 0, gambar: gambarArray.length ? gambarArray : ["https://cdn.larasxd.my.id/files/1wh5do.png"], deskripsi: deskripsi || "", link, purchasedBy: purchasedBy || [] });
+        const newProduct = new ProductV2({ 
+            Id: Id || generateId(10), 
+            nama, 
+            harga, 
+            harga_diskon: harga_diskon ? Number(harga_diskon) : null, 
+            kategori, 
+            badge: badge || "", 
+            terjual: Number(terjual) || 0, 
+            stok: Number(stok) || 0, 
+            gambar: gambarArray.length ? gambarArray : ["https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png"], 
+            deskripsi: deskripsi || "", 
+            link, 
+            purchasedBy: purchasedBy || [] 
+        });
         await newProduct.save();
         res.status(201).json({ success: true, message: 'Produk (V2) berhasil disimpan!', product: newProduct });
     } catch (error) { res.status(400).json({ success: false, message: error.message }); }
