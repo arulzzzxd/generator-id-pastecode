@@ -16,6 +16,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Moment & Moment-Timezone CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.45/moment-timezone-with-data.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -199,7 +202,7 @@
         }
 
         /* Mode Field Transition */
-        .mode-field {
+        .mode-field, .product-sub-section {
             animation: fadeInBrutal 0.22s ease-out;
         }
 
@@ -208,11 +211,13 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Neo Inputs */
+        /* Neo Inputs & Select */
         .neo-input,
         input[type="text"],
         input[type="number"],
+        input[type="time"],
         input[type="datetime-local"],
+        select.neo-select,
         textarea {
             width: 100%;
             padding: 12px 14px;
@@ -238,7 +243,7 @@
             border-style: dashed;
         }
 
-        input:focus, textarea:focus {
+        input:focus, select.neo-select:focus, textarea:focus {
             background: #FFFFFF;
             box-shadow: 4px 4px 0px #00E5FF;
             transform: translate(-1px, -1px);
@@ -387,7 +392,7 @@
                         Pilih Versi Schema MongoDB
                     </h2>
                     <p class="text-xs font-bold text-black/80 mt-0.5">
-                        Arahkan penyimpanan &amp; penghapusan data ke Cluster V1 atau V2.
+                        Arahkan penyimpanan, edit &amp; penghapusan data ke Cluster V1 atau V2.
                     </p>
                 </div>
 
@@ -401,7 +406,7 @@
                 </div>
             </div>
 
-            <!-- MODE SELECTOR CARD (FULL SVG ICONS, TANPA EMOJI) -->
+            <!-- MODE SELECTOR CARD (FULL SVG ICONS) -->
             <div class="lg:col-span-7 neo-box rounded-2xl p-5 bg-neoCyan flex flex-col justify-between gap-3">
                 <div>
                     <span class="inline-flex items-center gap-1.5 bg-white border-2 border-black text-black text-[11px] font-black px-2.5 py-0.5 rounded-lg uppercase font-cyber shadow-[2px_2px_0_#000]">
@@ -466,7 +471,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-cyber font-black text-base text-black">Generator Voucher Diskon</h3>
-                                    <p class="text-[11px] font-bold text-black/80">Buat kode promo otomatis untuk pelanggan</p>
+                                    <p class="text-[11px] font-bold text-black/80">Buat kode promo otomatis dengan waktu WIB (Asia/Jakarta)</p>
                                 </div>
                             </div>
                         </div>
@@ -475,7 +480,7 @@
                             <div>
                                 <label class="field-label">Kode Voucher</label>
                                 <div class="flex flex-col sm:flex-row gap-2.5">
-                                    <input type="text" id="vCode" placeholder="Masukkan Kode atau Acak..." class="flex-1">
+                                    <input type="text" id="vCode" placeholder="Masukkan Kode atau Acak..." class="flex-1 font-mono uppercase">
                                     <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomVoucher()">
                                         <i class="fa-solid fa-shuffle"></i> ACAK KODE
                                     </button>
@@ -485,7 +490,8 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label for="vDiscount" class="field-label">Nominal / Persentase Diskon</label>
-                                    <input type="number" id="vDiscount" placeholder="Contoh: 20 (untuk 20% atau Rp 20.000)">
+                                    <input type="text" inputmode="numeric" id="vDiscount" placeholder="Contoh: 20 atau 20.000 (otomatis jadi 20000)" oninput="sanitizeRupiahInput(this)">
+                                    <p class="text-[11px] font-bold text-gray-600 mt-1">Ketik <span class="font-mono bg-white border border-black px-1 rounded">20.000</span> otomatis disimpan sebagai <span class="font-mono">20000</span></p>
                                 </div>
 
                                 <div>
@@ -504,24 +510,129 @@
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="vExpiry" class="field-label">Tanggal &amp; Waktu Expired (Default: 24 Jam)</label>
-                                    <input type="datetime-local" id="vExpiry">
+                            <!-- PENGATURAN WAKTU EXPIRED (MOMENT-TIMEZONE ASIA/JAKARTA ATAU ATUR SENDIRI) -->
+                            <div class="rounded-xl border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000] space-y-3.5">
+                                <div class="flex flex-wrap items-center justify-between gap-2">
+                                    <label class="field-label mb-0">
+                                        <i class="fa-regular fa-clock"></i> Waktu Expired Voucher (WIB / Asia/Jakarta)
+                                    </label>
+                                    <div class="flex flex-wrap items-center gap-1.5">
+                                        <button type="button" id="btnExpiryAuto" onclick="setVoucherExpiryMode('auto')" class="px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer">
+                                            Otomatis
+                                        </button>
+                                        <button type="button" id="btnExpiryManual" onclick="setVoucherExpiryMode('manual')" class="px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer">
+                                            Atur Sendiri
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label for="vLimit" class="field-label">Batas Penggunaan (Max Use)</label>
-                                    <input type="number" id="vLimit" value="100" placeholder="100">
+                                <!-- Preset Durasi Otomatis -->
+                                <div id="voucherExpiryAutoPanel" class="space-y-2.5">
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button" onclick="applyAutoDurationHours(1)" class="neo-btn bg-neoBg hover:bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+1 Jam</button>
+                                        <button type="button" onclick="applyAutoDurationHours(6)" class="neo-btn bg-neoBg hover:bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+6 Jam</button>
+                                        <button type="button" onclick="applyAutoDurationHours(12)" class="neo-btn bg-neoBg hover:bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+12 Jam</button>
+                                        <button type="button" onclick="applyAutoDurationHours(24)" class="neo-btn bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+24 Jam (Default)</button>
+                                        <button type="button" onclick="applyAutoDurationHours(72)" class="neo-btn bg-neoBg hover:bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+3 Hari</button>
+                                        <button type="button" onclick="applyAutoDurationHours(168)" class="neo-btn bg-neoBg hover:bg-neoYellow text-black font-cyber font-black px-3 py-1.5 rounded-lg text-[11px]">+7 Hari</button>
+                                    </div>
                                 </div>
+
+                                <!-- Pengaturan Manual: Tanggal, Bulan, Tahun, Jam -->
+                                <div id="voucherExpiryManualPanel" class="space-y-2.5" style="display: none;">
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                                        <div>
+                                            <label for="vExpDay" class="text-[11px] font-cyber font-black uppercase block mb-1">Tanggal</label>
+                                            <select id="vExpDay" class="neo-select font-mono" onchange="syncExpiryFromManualInputs()"></select>
+                                        </div>
+                                        <div>
+                                            <label for="vExpMonth" class="text-[11px] font-cyber font-black uppercase block mb-1">Bulan</label>
+                                            <select id="vExpMonth" class="neo-select font-cyber" onchange="updateDaysInMonthSelect(); syncExpiryFromManualInputs();">
+                                                <option value="01">01 - Januari</option>
+                                                <option value="02">02 - Februari</option>
+                                                <option value="03">03 - Maret</option>
+                                                <option value="04">04 - April</option>
+                                                <option value="05">05 - Mei</option>
+                                                <option value="06">06 - Juni</option>
+                                                <option value="07">07 - Juli</option>
+                                                <option value="08">08 - Agustus</option>
+                                                <option value="09">09 - September</option>
+                                                <option value="10">10 - Oktober</option>
+                                                <option value="11">11 - November</option>
+                                                <option value="12">12 - Desember</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label for="vExpYear" class="text-[11px] font-cyber font-black uppercase block mb-1">Tahun</label>
+                                            <select id="vExpYear" class="neo-select font-mono" onchange="updateDaysInMonthSelect(); syncExpiryFromManualInputs();"></select>
+                                        </div>
+                                        <div>
+                                            <label for="vExpTime" class="text-[11px] font-cyber font-black uppercase block mb-1">Jam (WIB)</label>
+                                            <input type="time" id="vExpTime" class="font-mono" onchange="syncExpiryFromManualInputs()">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Preview Hasil Waktu Moment-Timezone WIB -->
+                                <div class="rounded-lg bg-neoPaper border-2 border-black px-3.5 py-2 flex flex-wrap items-center justify-between gap-2">
+                                    <span class="text-[11px] font-cyber font-black uppercase text-gray-700">Target Kedaluwarsa (WIB):</span>
+                                    <span id="vExpiryPreviewWib" class="font-mono text-xs font-extrabold text-black">-</span>
+                                </div>
+                                <input type="hidden" id="vExpiry" value="">
+                            </div>
+
+                            <div>
+                                <label for="vLimit" class="field-label">Batas Penggunaan (Max Use)</label>
+                                <input type="number" id="vLimit" value="100" placeholder="100">
                             </div>
                         </div>
                     </div>
 
-                    <!-- FIELD PRODUCT GENERATOR -->
+                    <!-- FIELD PRODUCT GENERATOR (DENGAN SELECT SUB-MODE: TAMBAH / EDIT / KELOLA & HAPUS) -->
                     <div class="mode-field space-y-6" id="field-product" style="display: none;">
-                        <!-- Card Tambah Produk -->
-                        <div class="neo-box rounded-2xl overflow-hidden bg-white">
+
+                        <!-- SELECT AKSI MODE PRODUK -->
+                        <div class="neo-box rounded-2xl p-5 bg-white space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="inline-flex items-center gap-1.5 bg-neoYellow border-2 border-black text-black text-[11px] font-black px-2.5 py-0.5 rounded-lg uppercase font-cyber shadow-[2px_2px_0_#000]">
+                                    <i class="fa-solid fa-boxes-stacked"></i> Aksi Produk (<span id="productActionSchemaTag">V1</span>)
+                                </span>
+                                <span class="text-[11px] font-bold text-gray-600">Pilih operasi produk yang ingin dijalankan</span>
+                            </div>
+
+                            <div class="custom-dropdown" id="productSubModeDropdown">
+                                <div class="dropdown-trigger bg-neoPaper" onclick="toggleCustomDropdown('productSubModeDropdown')">
+                                    <span id="selectedProductSubModeText" class="inline-flex items-center gap-2.5">
+                                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                        <span>TAMBAH PRODUK BARU</span>
+                                    </span>
+                                    <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                </div>
+                                <div class="dropdown-menu neo-scroll" id="productSubModeMenu">
+                                    <div class="dropdown-item selected" data-submode="add" onclick="selectProductSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                            <span>TAMBAH PRODUK BARU</span>
+                                        </span>
+                                    </div>
+                                    <div class="dropdown-item" data-submode="edit" onclick="selectProductSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                                            <span>EDIT PRODUK (SEMUA FIELD)</span>
+                                        </span>
+                                    </div>
+                                    <div class="dropdown-item" data-submode="manage" onclick="selectProductSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                            <span>KELOLA &amp; HAPUS PRODUK</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-SECTION 1: TAMBAH PRODUK BARU -->
+                        <div class="product-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-product-add">
                             <div class="bg-neoYellow border-b-[3px] border-black px-5 py-3.5 flex items-center justify-between">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
@@ -529,18 +640,18 @@
                                     </div>
                                     <div>
                                         <h3 class="font-cyber font-black text-base text-black">Tambah Produk Baru</h3>
-                                        <p class="text-[11px] font-bold text-black/80">Input katalog produk digital ke database</p>
+                                        <p class="text-[11px] font-bold text-black/80">ID otomatis terisi acak atau klik tombol Acak ID</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="p-5 sm:p-6 bg-neoPaper space-y-4">
                                 <div>
-                                    <label class="field-label">ID Produk (Acak 10 Karakter)</label>
+                                    <label class="field-label">ID Produk (Acak Otomatis 10 Karakter)</label>
                                     <div class="flex flex-col sm:flex-row gap-2.5">
                                         <input type="text" id="pId" placeholder="Otomatis acak 10 karakter..." class="flex-1 font-mono">
-                                        <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomProductId()">
-                                            <i class="fa-solid fa-dice"></i> ACAK ID
+                                        <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomProductId(true)">
+                                            <i class="fa-solid fa-dice"></i> ACAK ID BARU
                                         </button>
                                     </div>
                                 </div>
@@ -559,11 +670,11 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <label for="pHarga" class="field-label">Harga (Rp) *</label>
-                                        <input type="number" id="pHarga" placeholder="Contoh: 50000">
+                                        <input type="text" inputmode="numeric" id="pHarga" placeholder="Contoh: 20.000 -> otomatis 20000" oninput="sanitizeRupiahInput(this)">
                                     </div>
                                     <div>
                                         <label for="pHargaDiskon" class="field-label">Harga Diskon (Opsional)</label>
-                                        <input type="number" id="pHargaDiskon" placeholder="Contoh: 35000">
+                                        <input type="text" inputmode="numeric" id="pHargaDiskon" placeholder="Contoh: 15.000 -> otomatis 15000" oninput="sanitizeRupiahInput(this)">
                                     </div>
                                 </div>
 
@@ -599,8 +710,122 @@
                             </div>
                         </div>
 
-                        <!-- FITUR HAPUS PRODUK -->
-                        <div class="neo-box rounded-2xl overflow-hidden bg-white">
+                        <!-- SUB-SECTION 2: EDIT PRODUK (SEMUA PRODUK & SEMUA FIELD BISA DIEDIT) -->
+                        <div class="product-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-product-edit" style="display: none;">
+                            <div class="bg-neoCyan border-b-[3px] border-black px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-cyber font-black text-base text-black flex items-center gap-2">
+                                            <span>Edit Data Produk</span>
+                                            <span id="editSchemaLabel" class="text-[11px] font-mono bg-black text-neoCyan px-2 py-0.5 rounded-md">V1</span>
+                                        </h3>
+                                        <p class="text-[11px] font-bold text-black/80">Pilih produk dari katalog lalu ubah seluruh field yang diinginkan</p>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="neo-btn bg-white text-black font-cyber font-black px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5" onclick="loadProductList()">
+                                    <i class="fa-solid fa-rotate"></i> Refresh Katalog
+                                </button>
+                            </div>
+
+                            <div class="p-5 sm:p-6 bg-neoPaper space-y-5">
+                                <!-- Pilih Produk untuk Diedit -->
+                                <div class="rounded-xl border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000] space-y-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <label class="field-label mb-0">1. Pilih Produk yang Akan Diedit *</label>
+                                        <span id="editSelectedStatusBadge" class="text-[11px] font-mono font-extrabold bg-neoBg border-2 border-black px-2.5 py-0.5 rounded-md">
+                                            BELUM DIPILIH
+                                        </span>
+                                    </div>
+
+                                    <div class="custom-dropdown" id="editProductSelectDropdown">
+                                        <div class="dropdown-trigger bg-neoYellow/40" onclick="toggleCustomDropdown('editProductSelectDropdown')">
+                                            <span id="editProductSelectText" class="truncate">-- Pilih Produk dari Database --</span>
+                                            <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                        <div class="dropdown-menu neo-scroll" id="editProductDropdownMenu">
+                                            <div class="p-4 text-center text-xs font-bold text-gray-600">Memuat daftar produk...</div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="editTargetOriginalId" value="">
+
+                                    <div class="pt-1">
+                                        <input type="text" id="editSearchFilterInput" placeholder="Cari cepat nama / ID produk di katalog..." oninput="filterEditProductDropdown(this.value)" class="text-xs">
+                                    </div>
+                                </div>
+
+                                <!-- Form Edit Semua Field Produk -->
+                                <div id="editProductFormFields" class="space-y-4">
+                                    <div>
+                                        <label for="editPId" class="field-label">ID Produk (Bisa Diedit / Acak Baru) *</label>
+                                        <div class="flex flex-col sm:flex-row gap-2.5">
+                                            <input type="text" id="editPId" placeholder="ID Produk..." class="flex-1 font-mono">
+                                            <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomEditProductId()">
+                                                <i class="fa-solid fa-dice"></i> ACAK ID BARU
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="editPNama" class="field-label">Nama Produk *</label>
+                                            <input type="text" id="editPNama" placeholder="Nama produk...">
+                                        </div>
+                                        <div>
+                                            <label for="editPKategori" class="field-label">Kategori *</label>
+                                            <input type="text" id="editPKategori" placeholder="Kategori produk...">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="editPHarga" class="field-label">Harga (Rp) *</label>
+                                            <input type="text" inputmode="numeric" id="editPHarga" placeholder="Contoh: 20.000 -> 20000" oninput="sanitizeRupiahInput(this)">
+                                        </div>
+                                        <div>
+                                            <label for="editPHargaDiskon" class="field-label">Harga Diskon (Kosongkan jika tidak ada)</label>
+                                            <input type="text" inputmode="numeric" id="editPHargaDiskon" placeholder="Contoh: 15.000 -> 15000" oninput="sanitizeRupiahInput(this)">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div>
+                                            <label for="editPBadge" class="field-label">Badge Produk</label>
+                                            <input type="text" id="editPBadge" placeholder="BEST SELLER, HOT, NEW">
+                                        </div>
+                                        <div>
+                                            <label for="editPTerjual" class="field-label">Jumlah Terjual</label>
+                                            <input type="number" id="editPTerjual" placeholder="0">
+                                        </div>
+                                        <div>
+                                            <label for="editPStok" class="field-label">Stok Produk</label>
+                                            <input type="number" id="editPStok" placeholder="100">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="editPLink" class="field-label">Link Produk *</label>
+                                        <input type="text" id="editPLink" placeholder="https://arulz-xd.my.id/product/...">
+                                    </div>
+
+                                    <div>
+                                        <label for="editPGambar" class="field-label">URL Gambar Produk (Pisahkan dengan baris baru atau koma)</label>
+                                        <textarea id="editPGambar" placeholder="https://cdn.larasxd.my.id/files/1wh5do.png"></textarea>
+                                    </div>
+
+                                    <div>
+                                        <label for="editPDeskripsi" class="field-label">Deskripsi Produk</label>
+                                        <textarea id="editPDeskripsi" placeholder="Deskripsi lengkap produk..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-SECTION 3: KELOLA & HAPUS PRODUK -->
+                        <div class="product-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-product-manage" style="display: none;">
                             <div class="bg-neoPink border-b-[3px] border-black px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-2.5">
                                     <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
@@ -611,7 +836,7 @@
                                             <span>Kelola &amp; Hapus Produk</span>
                                             <span id="deleteSchemaLabel" class="text-[11px] font-mono bg-black text-neoYellow px-2 py-0.5 rounded-md">V1</span>
                                         </h3>
-                                        <p class="text-[11px] font-bold text-black/80">Hapus berdasarkan ID atau pilih langsung dari katalog</p>
+                                        <p class="text-[11px] font-bold text-black/80">Edit cepat atau hapus produk dari database</p>
                                     </div>
                                 </div>
 
@@ -631,22 +856,28 @@
                                     </div>
                                 </div>
 
+                                <div>
+                                    <label for="manageSearchFilterInput" class="field-label">Filter Daftar Produk</label>
+                                    <input type="text" id="manageSearchFilterInput" placeholder="Cari nama, kategori, atau ID produk..." oninput="renderManageProductList(this.value)">
+                                </div>
+
                                 <div class="rounded-xl border-[3px] border-black bg-white shadow-[4px_4px_0_#000] overflow-hidden">
                                     <div class="bg-neoBg border-b-2 border-black px-4 py-2 text-[11px] font-cyber font-black uppercase flex items-center justify-between">
-                                        <span>Daftar Produk Tersimpan</span>
-                                        <span class="text-gray-600">Klik tombol hapus pada item</span>
+                                        <span>Daftar Produk Tersimpan (<span id="manageProductCount">0</span>)</span>
+                                        <span class="text-gray-600">Edit atau Hapus item</span>
                                     </div>
-                                    <div id="productListContainer" class="max-h-[300px] overflow-y-auto neo-scroll divide-y-2 divide-black">
+                                    <div id="productListContainer" class="max-h-[380px] overflow-y-auto neo-scroll divide-y-2 divide-black">
                                         <div class="p-6 text-center text-xs font-bold text-gray-600">
-                                            Klik "Muat Daftar" untuk melihat &amp; menghapus produk dari database.
+                                            Klik "Muat Daftar" untuk melihat &amp; mengelola produk dari database.
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- FIELD CODE GENERATOR (HANYA V1) -->
+                    </div>
+                    
+                                        <!-- FIELD CODE GENERATOR (HANYA V1) -->
                     <div class="mode-field neo-box rounded-2xl overflow-hidden bg-white" id="field-codeGen" style="display: none;">
                         <div class="bg-neoYellow border-b-[3px] border-black px-5 py-3.5 flex items-center gap-2.5">
                             <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
@@ -723,7 +954,7 @@
                                     <input type="text" id="desc" placeholder="Contoh: By arulzxd">
                                 </div>
                                 <div>
-                                    <label for="date" class="field-label">Tanggal (Otomatis Hari Ini)</label>
+                                    <label for="date" class="field-label">Tanggal (Otomatis Hari Ini WIB)</label>
                                     <input type="text" id="date" readonly placeholder="Otomatis terisi...">
                                 </div>
                             </div>
@@ -736,9 +967,9 @@
                     </div>
 
                     <!-- ACTION BUTTONS -->
-                    <div class="flex flex-col sm:flex-row gap-3.5">
-                        <button type="submit" class="neo-btn flex-1 bg-neoGreen text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5">
-                            <i class="fa-solid fa-bolt"></i> EXECUTE / SIMPAN DATA
+                    <div class="flex flex-col sm:flex-row gap-3.5" id="mainFormActions">
+                        <button type="submit" id="btnSubmitMain" class="neo-btn flex-1 bg-neoGreen text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5">
+                            <i class="fa-solid fa-bolt"></i> <span id="btnSubmitMainText">EXECUTE / SIMPAN DATA</span>
                         </button>
                         <button type="button" class="neo-btn sm:w-48 bg-neoPink text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5" onclick="resetForm()">
                             <i class="fa-solid fa-rotate-left"></i> RESET FORM
@@ -792,9 +1023,14 @@
     <!-- SweetAlert2 Script -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        const TZ_WIB = 'Asia/Jakarta';
         let currentMode = 'voucher';
+        let currentProductSubMode = 'add'; // 'add' | 'edit' | 'manage'
+        let currentExpiryMode = 'auto';    // 'auto' | 'manual'
+        let currentAutoHours = 24;
         let currentSchemaVersion = 'v1';
         let currentOutputText = '';
+        let cachedProductsList = [];
 
         const BrutalSwal = Swal.mixin({
             customClass: {
@@ -805,6 +1041,179 @@
             },
             buttonsStyling: false
         });
+
+        // ====================================================
+        // HELPER NORMALISASI RUPIAH (Contoh: "20.000" -> 20000)
+        // ====================================================
+        function parseRupiahToNumber(val, fallback = 0) {
+            if (val === null || val === undefined || val === '') return fallback;
+            if (typeof val === 'number') return Number.isFinite(val) ? val : fallback;
+            const digitsOnly = String(val).replace(/[^\d]/g, '');
+            if (!digitsOnly) return fallback;
+            const parsed = Number(digitsOnly);
+            return Number.isFinite(parsed) ? parsed : fallback;
+        }
+
+        function sanitizeRupiahInput(inputEl) {
+            if (!inputEl) return;
+            // Izinkan ketik angka & titik pemisah ribuan saat mengetik, namun simpan/konversi murni tanpa titik
+            const cleaned = inputEl.value.replace(/[^\d.]/g, '');
+            if (inputEl.value !== cleaned) {
+                inputEl.value = cleaned;
+            }
+        }
+
+        // ====================================================
+        // HELPER MOMENT-TIMEZONE (WIB / ASIA/JAKARTA) VOUCHER
+        // ====================================================
+        function getMomentWib(dateInput = null) {
+            if (typeof moment !== 'undefined' && typeof moment.tz === 'function') {
+                return dateInput ? moment.tz(dateInput, TZ_WIB) : moment().tz(TZ_WIB);
+            }
+            return dateInput ? moment(dateInput) : moment();
+        }
+
+        function initYearOptionsForExpiry() {
+            const yearSelect = document.getElementById('vExpYear');
+            if (!yearSelect) return;
+            const currentYear = getMomentWib().year();
+            let opts = '';
+            for (let y = currentYear; y <= currentYear + 10; y++) {
+                opts += `<option value="${y}">${y}</option>`;
+            }
+            yearSelect.innerHTML = opts;
+        }
+
+        function updateDaysInMonthSelect(preferredDay = null) {
+            const daySelect = document.getElementById('vExpDay');
+            const monthSelect = document.getElementById('vExpMonth');
+            const yearSelect = document.getElementById('vExpYear');
+            if (!daySelect || !monthSelect || !yearSelect) return;
+
+            const year = parseInt(yearSelect.value, 10) || getMomentWib().year();
+            const month = parseInt(monthSelect.value, 10) || 1;
+            const prevDay = preferredDay !== null ? parseInt(preferredDay, 10) : (parseInt(daySelect.value, 10) || 1);
+            const maxDays = new Date(year, month, 0).getDate();
+
+            let opts = '';
+            for (let d = 1; d <= maxDays; d++) {
+                const dd = String(d).padStart(2, '0');
+                opts += `<option value="${dd}">${dd}</option>`;
+            }
+            daySelect.innerHTML = opts;
+            const safeDay = Math.min(prevDay, maxDays);
+            daySelect.value = String(safeDay).padStart(2, '0');
+        }
+
+        function updateVoucherExpiryState(mWib) {
+            const target = mWib && mWib.isValid() ? mWib : getMomentWib().add(24, 'hours');
+            const isoWib = target.format('YYYY-MM-DDTHH:mm:ssZ');
+            document.getElementById('vExpiry').value = isoWib;
+
+            // Sinkronkan juga ke field manual (Tanggal, Bulan, Tahun, Jam)
+            const yearEl = document.getElementById('vExpYear');
+            const monthEl = document.getElementById('vExpMonth');
+            const timeEl = document.getElementById('vExpTime');
+
+            if (yearEl && monthEl) {
+                const yrStr = String(target.year());
+                if (![...yearEl.options].some(o => o.value === yrStr)) {
+                    const opt = document.createElement('option');
+                    opt.value = yrStr;
+                    opt.textContent = yrStr;
+                    yearEl.appendChild(opt);
+                }
+                yearEl.value = yrStr;
+                monthEl.value = target.format('MM');
+                updateDaysInMonthSelect(target.date());
+            }
+            if (timeEl) {
+                timeEl.value = target.format('HH:mm');
+            }
+
+            const previewEl = document.getElementById('vExpiryPreviewWib');
+            if (previewEl) {
+                previewEl.textContent = `${formatDateSosmedVoucher(isoWib)} (${target.format('DD/MM/YYYY HH:mm')} WIB)`;
+            }
+        }
+
+        function setVoucherExpiryMode(mode) {
+            currentExpiryMode = mode;
+            const btnAuto = document.getElementById('btnExpiryAuto');
+            const btnManual = document.getElementById('btnExpiryManual');
+            const panelAuto = document.getElementById('voucherExpiryAutoPanel');
+            const panelManual = document.getElementById('voucherExpiryManualPanel');
+
+            if (mode === 'auto') {
+                btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
+                btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
+                panelAuto.style.display = 'block';
+                panelManual.style.display = 'none';
+                applyAutoDurationHours(currentAutoHours);
+            } else {
+                btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
+                btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
+                panelAuto.style.display = 'none';
+                panelManual.style.display = 'block';
+                syncExpiryFromManualInputs();
+            }
+        }
+
+        function applyAutoDurationHours(hours) {
+            currentAutoHours = hours;
+            const nextExpiry = getMomentWib().add(hours, 'hours');
+            updateVoucherExpiryState(nextExpiry);
+        }
+
+        function syncExpiryFromManualInputs() {
+            const d = document.getElementById('vExpDay')?.value || '01';
+            const m = document.getElementById('vExpMonth')?.value || '01';
+            const y = document.getElementById('vExpYear')?.value || String(getMomentWib().year());
+            const t = document.getElementById('vExpTime')?.value || '23:59';
+
+            const composedStr = `${y}-${m}-${d} ${t}`;
+            const parsedWib = (typeof moment !== 'undefined' && typeof moment.tz === 'function')
+                ? moment.tz(composedStr, 'YYYY-MM-DD HH:mm', TZ_WIB)
+                : moment(composedStr, 'YYYY-MM-DD HH:mm');
+
+            if (parsedWib.isValid()) {
+                const isoWib = parsedWib.format('YYYY-MM-DDTHH:mm:ssZ');
+                document.getElementById('vExpiry').value = isoWib;
+                const previewEl = document.getElementById('vExpiryPreviewWib');
+                if (previewEl) {
+                    previewEl.textContent = `${formatDateSosmedVoucher(isoWib)} (${parsedWib.format('DD/MM/YYYY HH:mm')} WIB)`;
+                }
+            }
+        }
+
+        function setDefault24HoursVoucher() {
+            initYearOptionsForExpiry();
+            applyAutoDurationHours(24);
+        }
+
+        // ====================================================
+        // UI & NAVIGATION CONTROLS
+        // ====================================================
+        function updateSubmitButtonAppearance() {
+            const btnText = document.getElementById('btnSubmitMainText');
+            const actionsBox = document.getElementById('mainFormActions');
+            if (!btnText || !actionsBox) return;
+
+            if (currentMode === 'product') {
+                if (currentProductSubMode === 'manage') {
+                    actionsBox.style.display = 'none';
+                } else if (currentProductSubMode === 'edit') {
+                    actionsBox.style.display = 'flex';
+                    btnText.textContent = 'SIMPAN PERUBAHAN PRODUK';
+                } else {
+                    actionsBox.style.display = 'flex';
+                    btnText.textContent = 'SIMPAN PRODUK BARU';
+                }
+            } else {
+                actionsBox.style.display = 'flex';
+                btnText.textContent = 'EXECUTE / SIMPAN DATA';
+            }
+        }
 
         function selectModeFromItem(itemEl) {
             const mode = itemEl.getAttribute('data-mode');
@@ -821,6 +1230,36 @@
             switchMode(mode);
         }
 
+        function selectProductSubModeFromItem(itemEl) {
+            const subMode = itemEl.getAttribute('data-submode');
+            const labelHtml = itemEl.querySelector('span').innerHTML;
+            document.getElementById('selectedProductSubModeText').innerHTML = labelHtml;
+
+            const dropdown = document.getElementById('productSubModeDropdown');
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            itemEl.classList.add('selected');
+            dropdown.classList.remove('open');
+
+            switchProductSubMode(subMode);
+        }
+
+        function switchProductSubMode(subMode) {
+            currentProductSubMode = subMode;
+            document.querySelectorAll('.product-sub-section').forEach(el => el.style.display = 'none');
+            const targetSub = document.getElementById(`sub-product-${subMode}`);
+            if (targetSub) targetSub.style.display = 'block';
+
+            updateSubmitButtonAppearance();
+
+            if (subMode === 'add' && !document.getElementById('pId').value) {
+                generateRandomProductId(false);
+            } else if (subMode === 'edit' || subMode === 'manage') {
+                loadProductList();
+            }
+        }
+
         function setSchemaVersion(ver) {
             currentSchemaVersion = ver;
             document.getElementById('btnSchemaV1').classList.remove('active');
@@ -832,15 +1271,21 @@
                 document.getElementById('btnSchemaV2').classList.add('active');
             }
 
+            const upperVer = ver.toUpperCase();
             const headerBadge = document.getElementById('headerActiveSchemaBadge');
-            if (headerBadge) headerBadge.textContent = `SCHEMA: ${ver.toUpperCase()}`;
+            if (headerBadge) headerBadge.textContent = `SCHEMA: ${upperVer}`;
 
             const delLabel = document.getElementById('deleteSchemaLabel');
-            if (delLabel) delLabel.textContent = ver.toUpperCase();
+            if (delLabel) delLabel.textContent = upperVer;
 
-            // Atur mode yang tersedia berdasarkan versi schema:
-            // V2: hanya voucher & product
-            // V1: voucher, product, codeGen, paste
+            const editLabel = document.getElementById('editSchemaLabel');
+            if (editLabel) editLabel.textContent = upperVer;
+
+            const actionTag = document.getElementById('productActionSchemaTag');
+            if (actionTag) actionTag.textContent = upperVer;
+
+            clearEditProductForm();
+
             const v1OnlyItems = document.querySelectorAll('#modeDropdownMenu .v1-only-mode');
             v1OnlyItems.forEach(item => {
                 item.style.display = (ver === 'v2') ? 'none' : 'flex';
@@ -857,8 +1302,8 @@
 
             BrutalSwal.fire({
                 icon: 'info',
-                title: `TARGET SCHEMA: ${ver.toUpperCase()}`,
-                text: `Operasi API sekarang mengarah ke Endpoint ${ver.toUpperCase()}`,
+                title: `TARGET SCHEMA: ${upperVer}`,
+                text: `Operasi API sekarang mengarah ke Endpoint ${upperVer}`,
                 timer: 1200,
                 showConfirmButton: false
             });
@@ -892,20 +1337,9 @@
         });
 
         function getFormattedDateToday() {
-            const now = new Date();
+            const m = getMomentWib();
             const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-            return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-        }
-
-        function setDefault24HoursVoucher() {
-            const now = new Date();
-            now.setHours(now.getHours() + 24);
-            const year = now.getFullYear();
-            const month = String(now.getMonth() + 1).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('vExpiry').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            return `${m.date()} ${months[m.month()]} ${m.year()}`;
         }
 
         function switchMode(mode) {
@@ -917,6 +1351,8 @@
             const placeholder = document.getElementById('outputPlaceholder');
             if (placeholder) placeholder.style.display = 'block';
 
+            updateSubmitButtonAppearance();
+
             if (mode === 'voucher') {
                 if (!document.getElementById('vExpiry').value) {
                     setDefault24HoursVoucher();
@@ -925,9 +1361,9 @@
                 generateRandomCodeUI();
             } else if (mode === 'product') {
                 if (!document.getElementById('pId').value) {
-                    generateRandomProductId();
+                    generateRandomProductId(false);
                 }
-                loadProductList();
+                switchProductSubMode(currentProductSubMode);
             } else if (mode === 'paste') {
                 document.getElementById('date').value = getFormattedDateToday();
             }
@@ -943,44 +1379,223 @@
                 .replace(/'/g, "&#039;");
         }
 
-        async function loadProductList() {
+        function clearEditProductForm() {
+            document.getElementById('editTargetOriginalId').value = '';
+            document.getElementById('editProductSelectText').textContent = '-- Pilih Produk dari Database --';
+            const badge = document.getElementById('editSelectedStatusBadge');
+            if (badge) {
+                badge.textContent = 'BELUM DIPILIH';
+                badge.className = 'text-[11px] font-mono font-extrabold bg-neoBg border-2 border-black px-2.5 py-0.5 rounded-md';
+            }
+            document.getElementById('editPId').value = '';
+            document.getElementById('editPNama').value = '';
+            document.getElementById('editPKategori').value = '';
+            document.getElementById('editPHarga').value = '';
+            document.getElementById('editPHargaDiskon').value = '';
+            document.getElementById('editPBadge').value = '';
+            document.getElementById('editPTerjual').value = '';
+            document.getElementById('editPStok').value = '';
+            document.getElementById('editPLink').value = '';
+            document.getElementById('editPGambar').value = '';
+            document.getElementById('editPDeskripsi').value = '';
+        }
+
+        function populateEditFormByProduct(product) {
+            if (!product) return;
+            const prodKey = product.Id || product._id || '';
+            document.getElementById('editTargetOriginalId').value = prodKey;
+            document.getElementById('editProductSelectText').textContent = `[${prodKey}] ${product.nama}`;
+
+            const badge = document.getElementById('editSelectedStatusBadge');
+            if (badge) {
+                badge.textContent = `AKTIF: ${prodKey}`;
+                badge.className = 'text-[11px] font-mono font-extrabold bg-neoGreen border-2 border-black px-2.5 py-0.5 rounded-md shadow-[1.5px_1.5px_0_#000]';
+            }
+
+            document.getElementById('editPId').value = product.Id || '';
+            document.getElementById('editPNama').value = product.nama || '';
+            document.getElementById('editPKategori').value = product.kategori || '';
+            document.getElementById('editPHarga').value = product.harga ?? '';
+            document.getElementById('editPHargaDiskon').value = (product.harga_diskon !== null && product.harga_diskon !== undefined) ? product.harga_diskon : '';
+            document.getElementById('editPBadge').value = product.badge || '';
+            document.getElementById('editPTerjual').value = product.terjual ?? 0;
+            document.getElementById('editPStok').value = product.stok ?? 0;
+            document.getElementById('editPLink').value = product.link || '';
+            document.getElementById('editPGambar').value = Array.isArray(product.gambar) ? product.gambar.join('\n') : (product.gambar || '');
+            document.getElementById('editPDeskripsi').value = product.deskripsi || '';
+
+            document.querySelectorAll('#editProductDropdownMenu .dropdown-item').forEach(el => {
+                el.classList.toggle('selected', el.getAttribute('data-prod-id') === String(prodKey));
+            });
+        }
+
+        function selectProductForEdit(prodKey) {
+            const found = cachedProductsList.find(p => String(p.Id || p._id) === String(prodKey));
+            const dropdown = document.getElementById('editProductSelectDropdown');
+            if (dropdown) dropdown.classList.remove('open');
+
+            if (!found) return;
+            populateEditFormByProduct(found);
+        }
+
+        function jumpToEditProduct(prodKey) {
+            const editOptionEl = document.querySelector('#productSubModeMenu .dropdown-item[data-submode="edit"]');
+            if (editOptionEl) {
+                selectProductSubModeFromItem(editOptionEl);
+            } else {
+                switchProductSubMode('edit');
+            }
+            setTimeout(() => {
+                selectProductForEdit(prodKey);
+                const editSection = document.getElementById('sub-product-edit');
+                if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 80);
+        }
+
+        function renderEditProductDropdown(filterQuery = '') {
+            const menu = document.getElementById('editProductDropdownMenu');
+            if (!menu) return;
+
+            const q = filterQuery.trim().toLowerCase();
+            const filtered = cachedProductsList.filter(p => {
+                if (!q) return true;
+                return (
+                    String(p.Id || '').toLowerCase().includes(q) ||
+                    String(p.nama || '').toLowerCase().includes(q) ||
+                    String(p.kategori || '').toLowerCase().includes(q)
+                );
+            });
+
+            if (filtered.length === 0) {
+                menu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Tidak ada produk yang cocok di ${currentSchemaVersion.toUpperCase()}.</div>`;
+                return;
+            }
+
+            const activeEditId = document.getElementById('editTargetOriginalId').value;
+            menu.innerHTML = filtered.map(p => {
+                const key = String(p.Id || p._id);
+                const safeKey = escapeHtml(key);
+                const safeName = escapeHtml(p.nama);
+                const safeKat = escapeHtml(p.kategori);
+                const hargaText = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
+                const isSelected = activeEditId === key ? 'selected' : '';
+                return `
+                    <div class="dropdown-item ${isSelected}" data-prod-id="${safeKey}" onclick="selectProductForEdit('${safeKey.replace(/'/g, "\\'")}')">
+                        <div class="flex flex-col min-w-0 pr-2">
+                            <span class="font-cyber font-black text-xs text-black truncate">${safeName}</span>
+                            <span class="font-mono text-[11px] font-bold text-gray-700">ID: ${safeKey} • ${safeKat} • ${hargaText}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterEditProductDropdown(val) {
+            renderEditProductDropdown(val);
+            const dropdown = document.getElementById('editProductSelectDropdown');
+            if (dropdown && !dropdown.classList.contains('open') && val.trim().length > 0) {
+                dropdown.classList.add('open');
+            }
+        }
+
+        function renderManageProductList(filterQuery = '') {
             const container = document.getElementById('productListContainer');
+            const countBadge = document.getElementById('manageProductCount');
             if (!container) return;
 
-            container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Memuat daftar produk (${currentSchemaVersion.toUpperCase()})...</div>`;
+            const q = filterQuery.trim().toLowerCase();
+            const filtered = cachedProductsList.filter(p => {
+                if (!q) return true;
+                return (
+                    String(p.Id || '').toLowerCase().includes(q) ||
+                    String(p.nama || '').toLowerCase().includes(q) ||
+                    String(p.kategori || '').toLowerCase().includes(q)
+                );
+            });
+
+            if (countBadge) countBadge.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Tidak ada produk tersimpan di database ${currentSchemaVersion.toUpperCase()}.</div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => {
+                const key = String(p.Id || p._id);
+                const safeId = escapeHtml(key);
+                const safeName = escapeHtml(p.nama);
+                const safeKat = escapeHtml(p.kategori);
+                const hargaText = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
+                const diskonText = p.harga_diskon ? ` → Diskon: Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '';
+                return `
+                    <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 p-3.5 bg-white hover:bg-neoBg/70 transition-colors">
+                        <div class="flex flex-col gap-1 min-w-0 flex-1">
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="inline-block w-fit font-mono text-[11px] font-extrabold bg-neoYellow border-2 border-black px-2 py-0.5 rounded-md shadow-[1.5px_1.5px_0_#000]">
+                                    ID: ${safeId}
+                                </span>
+                                ${p.badge ? `<span class="inline-block font-cyber text-[10px] font-black bg-neoCyan border-2 border-black px-2 py-0.5 rounded-md">${escapeHtml(p.badge)}</span>` : ''}
+                            </div>
+                            <span class="font-cyber font-black text-sm text-black truncate">${safeName}</span>
+                            <span class="text-xs font-bold text-gray-700">${safeKat} • ${hargaText}${diskonText} • Stok: ${p.stok ?? 0} • Terjual: ${p.terjual ?? 0}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="button" class="neo-btn bg-neoCyan text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase" onclick="jumpToEditProduct('${safeId.replace(/'/g, "\\'")}')">
+                                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                            </button>
+                            <button type="button" class="neo-btn bg-neoPink text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase" onclick="confirmDeleteProduct('${safeId.replace(/'/g, "\\'")}', '${safeName.replace(/'/g, "\\'")}')">
+                                <i class="fa-solid fa-trash mr-1"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadProductList() {
+            const container = document.getElementById('productListContainer');
+            const editMenu = document.getElementById('editProductDropdownMenu');
+            const upperVer = currentSchemaVersion.toUpperCase();
+
+            if (container) {
+                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Memuat daftar produk (${upperVer})...</div>`;
+            }
+            if (editMenu) {
+                editMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Memuat daftar produk (${upperVer})...</div>`;
+            }
+
             const endpoint = currentSchemaVersion === 'v2' ? '/api/v2/products' : '/api/products';
 
             try {
                 const res = await fetch(endpoint);
                 const data = await res.json();
 
-                if (!data.success || !Array.isArray(data.products) || data.products.length === 0) {
-                    container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Belum ada produk tersimpan di database ${currentSchemaVersion.toUpperCase()}.</div>`;
-                    return;
+                if (!data.success || !Array.isArray(data.products)) {
+                    cachedProductsList = [];
+                } else {
+                    cachedProductsList = data.products;
                 }
 
-                container.innerHTML = data.products.map(p => {
-                    const safeId = escapeHtml(p.Id);
-                    const safeName = escapeHtml(p.nama);
-                    const safeKat = escapeHtml(p.kategori);
-                    const hargaText = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
-                    return `
-                        <div class="flex items-center justify-between gap-3 p-3.5 bg-white hover:bg-neoBg/70 transition-colors">
-                            <div class="flex flex-col gap-1 min-w-0">
-                                <span class="inline-block w-fit font-mono text-[11px] font-extrabold bg-neoYellow border-2 border-black px-2 py-0.5 rounded-md shadow-[1.5px_1.5px_0_#000]">
-                                    ID: ${safeId}
-                                </span>
-                                <span class="font-cyber font-black text-sm text-black truncate">${safeName}</span>
-                                <span class="text-xs font-bold text-gray-700">${safeKat} • ${hargaText} • Stok: ${p.stok ?? 0}</span>
-                            </div>
-                            <button type="button" class="neo-btn bg-neoPink text-black font-cyber font-black px-3.5 py-2 rounded-xl text-xs uppercase shrink-0" onclick="confirmDeleteProduct('${safeId}', '${safeName.replace(/'/g, "\\'")}')">
-                                <i class="fa-solid fa-trash mr-1"></i> Hapus
-                            </button>
-                        </div>
-                    `;
-                }).join('');
+                const manageSearch = document.getElementById('manageSearchFilterInput')?.value || '';
+                const editSearch = document.getElementById('editSearchFilterInput')?.value || '';
+                renderManageProductList(manageSearch);
+                renderEditProductDropdown(editSearch);
+
+                const activeEditId = document.getElementById('editTargetOriginalId')?.value;
+                if (activeEditId) {
+                    const stillExists = cachedProductsList.find(p => String(p.Id || p._id) === String(activeEditId));
+                    if (stillExists) {
+                        populateEditFormByProduct(stillExists);
+                    }
+                }
             } catch (err) {
-                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Gagal memuat produk dari server (${currentSchemaVersion.toUpperCase()}).</div>`;
+                cachedProductsList = [];
+                if (container) {
+                    container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Gagal memuat produk dari server (${upperVer}).</div>`;
+                }
+                if (editMenu) {
+                    editMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Gagal memuat produk (${upperVer}).</div>`;
+                }
             }
         }
 
@@ -1024,6 +1639,9 @@
 
                     if (data.success) {
                         document.getElementById('deleteProductIdInput').value = '';
+                        if (document.getElementById('editTargetOriginalId').value === String(productId)) {
+                            clearEditProductForm();
+                        }
                         loadProductList();
 
                         const deletedText = 
@@ -1078,9 +1696,32 @@ Powered by Arulz-XD`;
             document.getElementById('codeDisplay').textContent = code;
         }
 
-        function generateRandomProductId() {
+        function generateRandomProductId(showToast = false) {
             const newId = generateCode(10);
-            document.getElementById('pId').value = newId;
+            const pIdEl = document.getElementById('pId');
+            if (pIdEl) pIdEl.value = newId;
+
+            if (showToast) {
+                BrutalSwal.fire({
+                    icon: 'success',
+                    title: 'ID PRODUK DI-GENERATE',
+                    text: `ID Baru: ${newId}`,
+                    timer: 1300,
+                    showConfirmButton: false
+                });
+            }
+        }
+
+        function generateRandomEditProductId() {
+            const newId = generateCode(10);
+            document.getElementById('editPId').value = newId;
+            BrutalSwal.fire({
+                icon: 'success',
+                title: 'ID EDIT DI-GENERATE',
+                text: `ID Baru: ${newId}`,
+                timer: 1300,
+                showConfirmButton: false
+            });
         }
 
         function generateRandomVoucher() {
@@ -1098,13 +1739,13 @@ Powered by Arulz-XD`;
         }
 
         function formatDateSosmedVoucher(isoStr) {
-            const date = new Date(isoStr);
-            const day = String(date.getDate()).padStart(2, '0');
+            const m = getMomentWib(isoStr);
             const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            const month = months[date.getMonth()];
-            const year = date.getFullYear();
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const day = String(m.date()).padStart(2, '0');
+            const month = months[m.month()];
+            const year = m.year();
+            const hours = String(m.hours()).padStart(2, '0');
+            const minutes = String(m.minutes()).padStart(2, '0');
 
             return `${day} ${month} ${year} pukul ${hours}.${minutes} WIB`;
         }
@@ -1119,17 +1760,20 @@ Powered by Arulz-XD`;
                 BrutalSwal.fire({ icon: 'success', title: 'KODE BERHASIL DIBUAT', timer: 1500, showConfirmButton: false });
 
             } else if (currentMode === 'voucher') {
-                const code = document.getElementById('vCode').value || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-                let expiryValue = document.getElementById('vExpiry').value;
-                if (!expiryValue) {
-                    const now = new Date();
-                    now.setHours(now.getHours() + 24);
-                    expiryValue = now.toISOString();
+                const code = (document.getElementById('vCode').value.trim() || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`).toUpperCase();
+
+                if (currentExpiryMode === 'manual') {
+                    syncExpiryFromManualInputs();
+                } else if (!document.getElementById('vExpiry').value) {
+                    applyAutoDurationHours(currentAutoHours);
                 }
+
+                const expiryValue = document.getElementById('vExpiry').value || getMomentWib().add(24, 'hours').format('YYYY-MM-DDTHH:mm:ssZ');
+                const cleanDiscount = parseRupiahToNumber(document.getElementById('vDiscount').value, 0);
 
                 payload = {
                     code: code,
-                    discount: Number(document.getElementById('vDiscount').value) || 0,
+                    discount: cleanDiscount,
                     type: document.getElementById('vType').value,
                     expiredAt: expiryValue,
                     usageLimit: Number(document.getElementById('vLimit').value) || 100
@@ -1154,7 +1798,7 @@ Powered by Arulz-XD`;
 
                     if (result.success && result.voucher) {
                         const v = result.voucher;
-                        const discountText = v.type === 'percentage' ? `${v.discount}%` : `Rp ${v.discount.toLocaleString('id-ID')}`;
+                        const discountText = v.type === 'percentage' ? `${v.discount}%` : `Rp ${Number(v.discount).toLocaleString('id-ID')}`;
 
                         const sosmedText = 
 `SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
@@ -1179,7 +1823,7 @@ Powered by Arulz-XD`;
                         BrutalSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
                     }
                 } catch (err) {
-                    const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${payload.discount.toLocaleString('id-ID')}`;
+                    const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${Number(payload.discount).toLocaleString('id-ID')}`;
 
                     const sosmedText = 
 `SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
@@ -1201,19 +1845,151 @@ Powered by Arulz-XD`;
                 }
 
             } else if (currentMode === 'product') {
-                const productId = document.getElementById('pId').value || generateCode(10);
-                const nama = document.getElementById('pNama').value;
-                const harga = document.getElementById('pHarga').value;
-                const kategori = document.getElementById('pKategori').value;
-                const link = document.getElementById('pLink').value;
+                if (currentProductSubMode === 'edit') {
+                    const originalId = document.getElementById('editTargetOriginalId').value.trim();
+                    if (!originalId) {
+                        return BrutalSwal.fire({
+                            icon: 'error',
+                            title: 'PRODUK BELUM DIPILIH',
+                            text: 'Pilih produk dari daftar dropdown terlebih dahulu sebelum mengedit!'
+                        });
+                    }
 
-                if (!nama || !harga || !kategori || !link) {
+                    const newId = document.getElementById('editPId').value.trim();
+                    const nama = document.getElementById('editPNama').value.trim();
+                    const rawHarga = document.getElementById('editPHarga').value.trim();
+                    const kategori = document.getElementById('editPKategori').value.trim();
+                    const link = document.getElementById('editPLink').value.trim();
+
+                    if (!newId || !nama || rawHarga === '' || !kategori || !link) {
+                        return BrutalSwal.fire({
+                            icon: 'error',
+                            title: 'FIELD WAJIB KOSONG',
+                            text: 'ID Produk, Nama Produk, Harga, Kategori, dan Link wajib diisi!'
+                        });
+                    }
+
+                    const cleanHarga = parseRupiahToNumber(rawHarga, 0);
+                    const rawDiskon = document.getElementById('editPHargaDiskon').value.trim();
+                    const cleanHargaDiskon = rawDiskon !== '' ? parseRupiahToNumber(rawDiskon, null) : null;
+
+                    const rawGambar = document.getElementById('editPGambar').value;
+                    const gambarArray = rawGambar
+                        .split(/[\n,]+/)
+                        .map(url => url.trim())
+                        .filter(url => url.length > 0);
+
+                    const defaultImg = currentSchemaVersion === 'v2'
+                        ? 'https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png'
+                        : 'https://cdn.larasxd.my.id/files/1wh5do.png';
+
+                    payload = {
+                        Id: newId,
+                        nama: nama,
+                        harga: cleanHarga,
+                        harga_diskon: cleanHargaDiskon,
+                        kategori: kategori,
+                        badge: document.getElementById('editPBadge').value.trim(),
+                        terjual: Number(document.getElementById('editPTerjual').value) || 0,
+                        stok: Number(document.getElementById('editPStok').value) || 0,
+                        gambar: gambarArray.length > 0 ? gambarArray : [defaultImg],
+                        deskripsi: document.getElementById('editPDeskripsi').value || '',
+                        link: link
+                    };
+
+                    const targetEndpoint = currentSchemaVersion === 'v2'
+                        ? `/api/v2/products/${encodeURIComponent(originalId)}`
+                        : `/api/products/${encodeURIComponent(originalId)}`;
+
+                    BrutalSwal.fire({
+                        title: 'MEMPERBARUI...',
+                        text: `Menyimpan perubahan produk di MongoDB (${currentSchemaVersion.toUpperCase()})`,
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    try {
+                        const response = await fetch(targetEndpoint, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+
+                        if (result.success && result.product) {
+                            const p = result.product;
+                            document.getElementById('editTargetOriginalId').value = p.Id || p._id;
+                            await loadProductList();
+
+                            const hargaFormatted = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
+                            const diskonFormatted = p.harga_diskon ? `Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '-';
+                            const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
+
+                            const updatedText =
+`✏️ PRODUK BERHASIL DIPERBARUI (${currentSchemaVersion.toUpperCase()})!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ID PRODUK   : ${p.Id}
+NAMA PRODUK : ${p.nama}
+KATEGORI    : ${p.kategori} ${p.badge ? `[${p.badge}]` : ''}
+HARGA       : ${hargaFormatted}
+HARGA DISKON: ${diskonFormatted}
+STOK        : ${p.stok}
+TERJUAL     : ${p.terjual}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GAMBAR:
+${gambarFormatted}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DESKRIPSI:
+${p.deskripsi || '-'}
+
+🔗 LINK PEMBELIAN:
+${p.link}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Powered by Arulz-XD`;
+
+                            showOutput(updatedText);
+
+                            BrutalSwal.fire({
+                                icon: 'success',
+                                title: 'PRODUK DIPERBARUI!',
+                                text: result.message || `Produk "${p.nama}" berhasil diperbarui!`
+                            });
+                        } else {
+                            showOutput(JSON.stringify(result, null, 4));
+                            BrutalSwal.fire({
+                                icon: 'error',
+                                title: 'GAGAL UPDATE',
+                                text: result.message || 'Gagal memperbarui produk.'
+                            });
+                        }
+                    } catch (err) {
+                        BrutalSwal.fire({
+                            icon: 'error',
+                            title: 'ERROR SERVER',
+                            text: 'Gagal terhubung ke server saat mengedit produk.'
+                        });
+                    }
+                    return;
+                }
+
+                // MODE TAMBAH PRODUK BARU
+                const productId = document.getElementById('pId').value.trim() || generateCode(10);
+                const nama = document.getElementById('pNama').value.trim();
+                const rawHarga = document.getElementById('pHarga').value.trim();
+                const kategori = document.getElementById('pKategori').value.trim();
+                const link = document.getElementById('pLink').value.trim();
+
+                if (!nama || rawHarga === '' || !kategori || !link) {
                     return BrutalSwal.fire({
                         icon: 'error',
                         title: 'FIELD WAJIB KOSONG',
                         text: 'Nama Produk, Harga, Kategori, dan Link wajib diisi!'
                     });
                 }
+
+                const cleanHarga = parseRupiahToNumber(rawHarga, 0);
+                const rawDiskon = document.getElementById('pHargaDiskon').value.trim();
+                const cleanHargaDiskon = rawDiskon !== '' ? parseRupiahToNumber(rawDiskon, null) : null;
 
                 const rawGambar = document.getElementById('pGambar').value;
                 const gambarArray = rawGambar
@@ -1224,8 +2000,8 @@ Powered by Arulz-XD`;
                 payload = {
                     Id: productId,
                     nama: nama,
-                    harga: Number(harga),
-                    harga_diskon: document.getElementById('pHargaDiskon').value ? Number(document.getElementById('pHargaDiskon').value) : null,
+                    harga: cleanHarga,
+                    harga_diskon: cleanHargaDiskon,
                     kategori: kategori,
                     badge: document.getElementById('pBadge').value || "",
                     terjual: Number(document.getElementById('pTerjual').value) || 0,
@@ -1254,8 +2030,8 @@ Powered by Arulz-XD`;
 
                     if (result.success && result.product) {
                         const p = result.product;
-                        const hargaFormatted = `Rp ${p.harga.toLocaleString('id-ID')}`;
-                        const diskonFormatted = p.harga_diskon ? `Rp ${p.harga_diskon.toLocaleString('id-ID')}` : '-';
+                        const hargaFormatted = `Rp ${Number(p.harga).toLocaleString('id-ID')}`;
+                        const diskonFormatted = p.harga_diskon ? `Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '-';
                         const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
 
                         const sosmedText = 
@@ -1282,6 +2058,7 @@ Powered by Arulz-XD`;
 
                         showOutput(sosmedText);
                         loadProductList();
+                        generateRandomProductId(false);
 
                         BrutalSwal.fire({
                             icon: 'success',
@@ -1399,13 +2176,15 @@ Powered by Arulz-XD`;
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('generatorForm').reset();
+                    clearEditProductForm();
                     document.getElementById('outputContainer').style.display = 'none';
                     const placeholder = document.getElementById('outputPlaceholder');
                     if (placeholder) placeholder.style.display = 'block';
                     currentOutputText = '';
-                    setDefault24HoursVoucher();
+                    setVoucherExpiryMode('auto');
+                    applyAutoDurationHours(24);
                     generateRandomCodeUI();
-                    generateRandomProductId();
+                    generateRandomProductId(false);
                     document.getElementById('date').value = getFormattedDateToday();
                     BrutalSwal.fire({ icon: 'success', title: 'CLEARED!', timer: 1000, showConfirmButton: false });
                 }
@@ -1414,6 +2193,7 @@ Powered by Arulz-XD`;
 
         window.addEventListener('DOMContentLoaded', () => {
             setDefault24HoursVoucher();
+            generateRandomProductId(false);
         });
     </script>
 </body>
