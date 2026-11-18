@@ -202,7 +202,7 @@
         }
 
         /* Mode Field Transition */
-        .mode-field, .product-sub-section {
+        .mode-field, .product-sub-section, .notif-sub-section {
             animation: fadeInBrutal 0.22s ease-out;
         }
 
@@ -214,6 +214,7 @@
         /* Neo Inputs & Select */
         .neo-input,
         input[type="text"],
+        input[type="email"],
         input[type="number"],
         input[type="time"],
         input[type="datetime-local"],
@@ -438,6 +439,12 @@
                                 <span>MODE PRODUCT GENERATOR</span>
                             </span>
                         </div>
+                        <div class="dropdown-item v2-only-mode" data-mode="notification" onclick="selectModeFromItem(this)" style="display: none;">
+                            <span class="inline-flex items-center gap-2.5">
+                                <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                                <span>MODE NOTIFIKASI V2 (TAMBAH / EDIT / KELOLA)</span>
+                            </span>
+                        </div>
                         <div class="dropdown-item v1-only-mode" data-mode="codeGen" onclick="selectModeFromItem(this)">
                             <span class="inline-flex items-center gap-2.5">
                                 <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM7 7h2v2H7V7zm0 10h2v-2H7v2zm10 0h-2v-2h2v2zm0-10h-2v2h2V7zm-5 5h2v-2h-2v2z"/></svg>
@@ -640,16 +647,24 @@
                                     </div>
                                     <div>
                                         <h3 class="font-cyber font-black text-base text-black">Tambah Produk Baru</h3>
-                                        <p class="text-[11px] font-bold text-black/80">ID otomatis terisi acak atau klik tombol Acak ID</p>
+                                        <p class="text-[11px] font-bold text-black/80">ID otomatis terisi acak (10 / 15 / 20 / 25 karakter) atau pilih panjang</p>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="p-5 sm:p-6 bg-neoPaper space-y-4">
                                 <div>
-                                    <label class="field-label">ID Produk (Acak Otomatis 10 Karakter)</label>
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                        <label class="field-label mb-0">ID Produk (Acak 10, 15, 20, 25 Karakter)</label>
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="generateRandomProductId(true, 10)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">10</button>
+                                            <button type="button" onclick="generateRandomProductId(true, 15)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">15</button>
+                                            <button type="button" onclick="generateRandomProductId(true, 20)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">20</button>
+                                            <button type="button" onclick="generateRandomProductId(true, 25)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">25</button>
+                                        </div>
+                                    </div>
                                     <div class="flex flex-col sm:flex-row gap-2.5">
-                                        <input type="text" id="pId" placeholder="Otomatis acak 10 karakter..." class="flex-1 font-mono">
+                                        <input type="text" id="pId" placeholder="Otomatis acak 10/15/20/25 karakter..." class="flex-1 font-mono">
                                         <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomProductId(true)">
                                             <i class="fa-solid fa-dice"></i> ACAK ID BARU
                                         </button>
@@ -760,7 +775,15 @@
                                 <!-- Form Edit Semua Field Produk -->
                                 <div id="editProductFormFields" class="space-y-4">
                                     <div>
-                                        <label for="editPId" class="field-label">ID Produk (Bisa Diedit / Acak Baru) *</label>
+                                        <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                            <label for="editPId" class="field-label mb-0">ID Produk (Bisa Diedit / Acak 10, 15, 20, 25) *</label>
+                                            <div class="flex items-center gap-1">
+                                                <button type="button" onclick="generateRandomEditProductId(10)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">10</button>
+                                                <button type="button" onclick="generateRandomEditProductId(15)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">15</button>
+                                                <button type="button" onclick="generateRandomEditProductId(20)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">20</button>
+                                                <button type="button" onclick="generateRandomEditProductId(25)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">25</button>
+                                            </div>
+                                        </div>
                                         <div class="flex flex-col sm:flex-row gap-2.5">
                                             <input type="text" id="editPId" placeholder="ID Produk..." class="flex-1 font-mono">
                                             <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomEditProductId()">
@@ -876,8 +899,252 @@
                         </div>
 
                     </div>
-                    
-                                        <!-- FIELD CODE GENERATOR (HANYA V1) -->
+
+                    <!-- FIELD NOTIFIKASI KHUSUS V2 (TAMBAH, EDIT, KELOLA & HAPUS) -->
+                    <div class="mode-field space-y-6" id="field-notification" style="display: none;">
+
+                        <!-- SELECT AKSI MODE NOTIFIKASI V2 -->
+                        <div class="neo-box rounded-2xl p-5 bg-white space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="inline-flex items-center gap-1.5 bg-neoCyan border-2 border-black text-black text-[11px] font-black px-2.5 py-0.5 rounded-lg uppercase font-cyber shadow-[2px_2px_0_#000]">
+                                    <i class="fa-solid fa-bell"></i> Pusat Notifikasi (KHUSUS V2)
+                                </span>
+                                <span class="text-[11px] font-bold text-gray-600">Simpan langsung ke MongoDB V2 tanpa helper kirim eksternal</span>
+                            </div>
+
+                            <div class="custom-dropdown" id="notifSubModeDropdown">
+                                <div class="dropdown-trigger bg-neoPaper" onclick="toggleCustomDropdown('notifSubModeDropdown')">
+                                    <span id="selectedNotifSubModeText" class="inline-flex items-center gap-2.5">
+                                        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                        <span>TAMBAH NOTIFIKASI BARU (V2)</span>
+                                    </span>
+                                    <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                </div>
+                                <div class="dropdown-menu neo-scroll" id="notifSubModeMenu">
+                                    <div class="dropdown-item selected" data-submode="add" onclick="selectNotifSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                                            <span>TAMBAH NOTIFIKASI BARU (V2)</span>
+                                        </span>
+                                    </div>
+                                    <div class="dropdown-item" data-submode="edit" onclick="selectNotifSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/></svg>
+                                            <span>EDIT NOTIFIKASI (V2)</span>
+                                        </span>
+                                    </div>
+                                    <div class="dropdown-item" data-submode="manage" onclick="selectNotifSubModeFromItem(this)">
+                                        <span class="inline-flex items-center gap-2.5">
+                                            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                            <span>KELOLA &amp; HAPUS NOTIFIKASI (V2)</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-SECTION 1: TAMBAH NOTIFIKASI BARU V2 -->
+                        <div class="notif-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-notif-add">
+                            <div class="bg-neoYellow border-b-[3px] border-black px-5 py-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
+                                        <i class="fa-solid fa-bell"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-cyber font-black text-base text-black">Tambah Notifikasi Baru (V2)</h3>
+                                        <p class="text-[11px] font-bold text-black/80">Tersimpan ke koleksi notifikasiv2s untuk tampil di halaman /notifikasi</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-5 sm:p-6 bg-neoPaper space-y-4">
+                                <div>
+                                    <label for="nTitle" class="field-label">Judul Notifikasi *</label>
+                                    <input type="text" id="nTitle" placeholder="Contoh: Promo Spesial Akhir Pekan Diskon 50%!">
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="field-label">Tipe Notifikasi</label>
+                                        <div class="custom-dropdown" id="nTypeDropdown">
+                                            <div class="dropdown-trigger" onclick="toggleCustomDropdown('nTypeDropdown')">
+                                                <span id="nTypeSelectedText">Info (info)</span>
+                                                <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                            </div>
+                                            <div class="dropdown-menu">
+                                                <div class="dropdown-item selected" onclick="selectCustomValue('nTypeDropdown', 'info', 'Info (info)', 'nType')">Info (info)</div>
+                                                <div class="dropdown-item" onclick="selectCustomValue('nTypeDropdown', 'promo', 'Promo (promo)', 'nType')">Promo (promo)</div>
+                                                <div class="dropdown-item" onclick="selectCustomValue('nTypeDropdown', 'transaksi', 'Transaksi (transaksi)', 'nType')">Transaksi (transaksi)</div>
+                                                <div class="dropdown-item" onclick="selectCustomValue('nTypeDropdown', 'sistem', 'Sistem (sistem)', 'nType')">Sistem (sistem)</div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="nType" value="info">
+                                    </div>
+
+                                    <div>
+                                        <label for="nCreatedBy" class="field-label">Pengirim (Created By)</label>
+                                        <input type="text" id="nCreatedBy" value="Admin" placeholder="Admin">
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="nTargetEmail" class="field-label">Target Email User (Opsional)</label>
+                                        <input type="email" id="nTargetEmail" placeholder="Kosongkan = Broadcast ke semua user">
+                                    </div>
+
+                                    <div>
+                                        <label for="nLink" class="field-label">Link Tujuan / CTA (Opsional)</label>
+                                        <input type="text" id="nLink" placeholder="Contoh: /store atau https://...">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="nMessage" class="field-label">Isi Pesan Notifikasi *</label>
+                                    <textarea id="nMessage" placeholder="Tuliskan isi lengkap notifikasi di sini..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-SECTION 2: EDIT NOTIFIKASI V2 -->
+                        <div class="notif-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-notif-edit" style="display: none;">
+                            <div class="bg-neoCyan border-b-[3px] border-black px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-cyber font-black text-base text-black">Edit Notifikasi (V2)</h3>
+                                        <p class="text-[11px] font-bold text-black/80">Pilih notifikasi V2 yang sudah ada lalu perbarui isinya</p>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="neo-btn bg-white text-black font-cyber font-black px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5" onclick="loadNotificationList()">
+                                    <i class="fa-solid fa-rotate"></i> Refresh Daftar
+                                </button>
+                            </div>
+
+                            <div class="p-5 sm:p-6 bg-neoPaper space-y-5">
+                                <div class="rounded-xl border-[3px] border-black bg-white p-4 shadow-[4px_4px_0_#000] space-y-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <label class="field-label mb-0">1. Pilih Notifikasi yang Akan Diedit *</label>
+                                        <span id="editNotifStatusBadge" class="text-[11px] font-mono font-extrabold bg-neoBg border-2 border-black px-2.5 py-0.5 rounded-md">
+                                            BELUM DIPILIH
+                                        </span>
+                                    </div>
+
+                                    <div class="custom-dropdown" id="editNotifSelectDropdown">
+                                        <div class="dropdown-trigger bg-neoYellow/40" onclick="toggleCustomDropdown('editNotifSelectDropdown')">
+                                            <span id="editNotifSelectText" class="truncate">-- Pilih Notifikasi dari Database V2 --</span>
+                                            <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                        </div>
+                                        <div class="dropdown-menu neo-scroll" id="editNotifDropdownMenu">
+                                            <div class="p-4 text-center text-xs font-bold text-gray-600">Memuat daftar notifikasi V2...</div>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="editNotifOriginalId" value="">
+
+                                    <div class="pt-1">
+                                        <input type="text" id="editNotifSearchInput" placeholder="Cari judul, tipe, atau target email notifikasi..." oninput="filterEditNotifDropdown(this.value)" class="text-xs">
+                                    </div>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="editNTitle" class="field-label">Judul Notifikasi *</label>
+                                        <input type="text" id="editNTitle" placeholder="Judul notifikasi...">
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="field-label">Tipe Notifikasi</label>
+                                            <div class="custom-dropdown" id="editNTypeDropdown">
+                                                <div class="dropdown-trigger" onclick="toggleCustomDropdown('editNTypeDropdown')">
+                                                    <span id="editNTypeSelectedText">Info (info)</span>
+                                                    <span class="dropdown-arrow"><i class="fa-solid fa-chevron-down"></i></span>
+                                                </div>
+                                                <div class="dropdown-menu">
+                                                    <div class="dropdown-item selected" onclick="selectCustomValue('editNTypeDropdown', 'info', 'Info (info)', 'editNType')">Info (info)</div>
+                                                    <div class="dropdown-item" onclick="selectCustomValue('editNTypeDropdown', 'promo', 'Promo (promo)', 'editNType')">Promo (promo)</div>
+                                                    <div class="dropdown-item" onclick="selectCustomValue('editNTypeDropdown', 'transaksi', 'Transaksi (transaksi)', 'editNType')">Transaksi (transaksi)</div>
+                                                    <div class="dropdown-item" onclick="selectCustomValue('editNTypeDropdown', 'sistem', 'Sistem (sistem)', 'editNType')">Sistem (sistem)</div>
+                                                </div>
+                                            </div>
+                                            <input type="hidden" id="editNType" value="info">
+                                        </div>
+
+                                        <div>
+                                            <label for="editNCreatedBy" class="field-label">Pengirim (Created By)</label>
+                                            <input type="text" id="editNCreatedBy" placeholder="Admin">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="editNTargetEmail" class="field-label">Target Email User (Kosongkan = Broadcast)</label>
+                                            <input type="email" id="editNTargetEmail" placeholder="Broadcast ke semua user">
+                                        </div>
+
+                                        <div>
+                                            <label for="editNLink" class="field-label">Link Tujuan / CTA (Opsional)</label>
+                                            <input type="text" id="editNLink" placeholder="/store atau https://...">
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="editNMessage" class="field-label">Isi Pesan Notifikasi *</label>
+                                        <textarea id="editNMessage" placeholder="Isi lengkap notifikasi..."></textarea>
+                                    </div>
+
+                                    <label class="flex items-center gap-2.5 bg-white border-2 border-black rounded-xl p-3 cursor-pointer select-none shadow-[2px_2px_0_#000]">
+                                        <input type="checkbox" id="editNResetReadBy" class="w-4 h-4 accent-black">
+                                        <span class="text-xs font-extrabold text-black">Reset status "Sudah Dibaca" (readBy) agar muncul sebagai notifikasi baru lagi</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SUB-SECTION 3: KELOLA & HAPUS NOTIFIKASI V2 -->
+                        <div class="notif-sub-section neo-box rounded-2xl overflow-hidden bg-white" id="sub-notif-manage" style="display: none;">
+                            <div class="bg-neoPink border-b-[3px] border-black px-5 py-3.5 flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-cyber font-black text-base text-black">Kelola &amp; Hapus Notifikasi (V2)</h3>
+                                        <p class="text-[11px] font-bold text-black/80">Edit cepat atau hapus notifikasi dari database V2</p>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="neo-btn bg-white text-black font-cyber font-black px-3.5 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5" onclick="loadNotificationList()">
+                                    <i class="fa-solid fa-rotate"></i> Muat Daftar
+                                </button>
+                            </div>
+
+                            <div class="p-5 sm:p-6 bg-neoPaper space-y-4">
+                                <div>
+                                    <label for="manageNotifSearchInput" class="field-label">Filter Daftar Notifikasi V2</label>
+                                    <input type="text" id="manageNotifSearchInput" placeholder="Cari judul, isi pesan, tipe, atau target email..." oninput="renderManageNotificationList(this.value)">
+                                </div>
+
+                                <div class="rounded-xl border-[3px] border-black bg-white shadow-[4px_4px_0_#000] overflow-hidden">
+                                    <div class="bg-neoBg border-b-2 border-black px-4 py-2 text-[11px] font-cyber font-black uppercase flex items-center justify-between">
+                                        <span>Daftar Notifikasi V2 (<span id="manageNotifCount">0</span>)</span>
+                                        <span class="text-gray-600">Edit atau Hapus item</span>
+                                    </div>
+                                    <div id="notifListContainer" class="max-h-[380px] overflow-y-auto neo-scroll divide-y-2 divide-black">
+                                        <div class="p-6 text-center text-xs font-bold text-gray-600">
+                                            Klik "Muat Daftar" untuk melihat &amp; mengelola notifikasi V2 dari database.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FIELD CODE GENERATOR (HANYA V1) -->
                     <div class="mode-field neo-box rounded-2xl overflow-hidden bg-white" id="field-codeGen" style="display: none;">
                         <div class="bg-neoYellow border-b-[3px] border-black px-5 py-3.5 flex items-center gap-2.5">
                             <div class="w-9 h-9 rounded-xl bg-white border-2 border-black flex items-center justify-center shadow-[2px_2px_0_#000]">
@@ -917,11 +1184,29 @@
                             </div>
                             <div>
                                 <h3 class="font-cyber font-black text-base text-black">Pastebin Snippet Saver</h3>
-                                <p class="text-[11px] font-bold text-black/80">Simpan potongan kode langsung ke Supabase</p>
+                                <p class="text-[11px] font-bold text-black/80">Simpan potongan kode langsung ke Supabase (ID acak 10 / 15 / 20 / 25)</p>
                             </div>
                         </div>
 
                         <div class="p-5 sm:p-6 bg-neoPaper space-y-4">
+                            <div>
+                                <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
+                                    <label for="pasteId" class="field-label mb-0">ID Snippet (Acak 10, 15, 20, 25 Karakter)</label>
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" onclick="generateRandomPasteId(true, 10)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">10</button>
+                                        <button type="button" onclick="generateRandomPasteId(true, 15)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">15</button>
+                                        <button type="button" onclick="generateRandomPasteId(true, 20)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">20</button>
+                                        <button type="button" onclick="generateRandomPasteId(true, 25)" class="px-2 py-0.5 rounded-md border-2 border-black bg-white hover:bg-neoYellow font-mono text-[10px] font-extrabold cursor-pointer">25</button>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col sm:flex-row gap-2.5">
+                                    <input type="text" id="pasteId" placeholder="Otomatis acak 10/15/20/25 karakter..." class="flex-1 font-mono">
+                                    <button type="button" class="neo-btn bg-neoYellow text-black font-cyber font-black px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 shrink-0" onclick="generateRandomPasteId(true)">
+                                        <i class="fa-solid fa-dice"></i> ACAK ID SNIPPET
+                                    </button>
+                                </div>
+                            </div>
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <label for="title" class="field-label">Judul Snippet</label>
@@ -1019,20 +1304,23 @@
 
         </div>
     </main>
-
-    <!-- SweetAlert2 Script -->
+    
+        <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        const TZ_WIB = 'Asia/Jakarta';
-        let currentMode = 'voucher';
-        let currentProductSubMode = 'add'; // 'add' | 'edit' | 'manage'
-        let currentExpiryMode = 'auto';    // 'auto' | 'manual'
-        let currentAutoHours = 24;
-        let currentSchemaVersion = 'v1';
-        let currentOutputText = '';
-        let cachedProductsList = [];
 
-        const BrutalSwal = Swal.mixin({
+    <script>
+        let currentMode = 'voucher';
+        let currentSchema = 'v1'; // 'v1' atau 'v2'
+        let currentProductSubMode = 'add'; // 'add', 'edit', atau 'manage'
+        let currentNotifSubMode = 'add'; // 'add', 'edit', atau 'manage'
+        let voucherExpiryMode = 'auto'; // 'auto' atau 'manual'
+        let cachedProductsList = [];
+        let cachedNotificationsList = [];
+
+        const ALLOWED_ID_LENGTHS = [10, 15, 20, 25];
+
+        // Konfigurasi Alert Soft Neo-Brutalism
+        const brutalAlert = Swal.mixin({
             customClass: {
                 popup: 'swal2-popup-brutal',
                 title: 'swal2-title-brutal',
@@ -1042,336 +1330,46 @@
             buttonsStyling: false
         });
 
-        // ====================================================
-        // HELPER NORMALISASI RUPIAH (Contoh: "20.000" -> 20000)
-        // ====================================================
-        function parseRupiahToNumber(val, fallback = 0) {
-            if (val === null || val === undefined || val === '') return fallback;
-            if (typeof val === 'number') return Number.isFinite(val) ? val : fallback;
-            const digitsOnly = String(val).replace(/[^\d]/g, '');
-            if (!digitsOnly) return fallback;
-            const parsed = Number(digitsOnly);
-            return Number.isFinite(parsed) ? parsed : fallback;
+        // Helper Generate ID Alphanumeric Acak (Panjang: 10, 15, 20, atau 25 karakter)
+        function pickRandomIdLength() {
+            return ALLOWED_ID_LENGTHS[Math.floor(Math.random() * ALLOWED_ID_LENGTHS.length)];
         }
 
+        function generateRandomAlphanumeric(length = null) {
+            const parsedLen = Number(length);
+            const targetLength = ALLOWED_ID_LENGTHS.includes(parsedLen)
+                ? parsedLen
+                : pickRandomIdLength();
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < targetLength; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // Helper Sanitasi & Parsing Angka Rupiah (20.000 -> 20000)
         function sanitizeRupiahInput(inputEl) {
             if (!inputEl) return;
-            // Izinkan ketik angka & titik pemisah ribuan saat mengetik, namun simpan/konversi murni tanpa titik
-            const cleaned = inputEl.value.replace(/[^\d.]/g, '');
-            if (inputEl.value !== cleaned) {
-                inputEl.value = cleaned;
+            const raw = String(inputEl.value || '');
+            const digitsOnly = raw.replace(/[^\d]/g, '');
+            if (raw !== digitsOnly) {
+                inputEl.value = digitsOnly;
             }
         }
 
-        // ====================================================
-        // HELPER MOMENT-TIMEZONE (WIB / ASIA/JAKARTA) VOUCHER
-        // ====================================================
-        function getMomentWib(dateInput = null) {
-            if (typeof moment !== 'undefined' && typeof moment.tz === 'function') {
-                return dateInput ? moment.tz(dateInput, TZ_WIB) : moment().tz(TZ_WIB);
-            }
-            return dateInput ? moment(dateInput) : moment();
+        function parseCleanNumber(val, fallback = 0) {
+            if (val === null || val === undefined || val === '') return fallback;
+            const cleaned = String(val).replace(/[^\d-]/g, '');
+            if (cleaned === '' || cleaned === '-') return fallback;
+            const num = Number(cleaned);
+            return Number.isFinite(num) ? num : fallback;
         }
 
-        function initYearOptionsForExpiry() {
-            const yearSelect = document.getElementById('vExpYear');
-            if (!yearSelect) return;
-            const currentYear = getMomentWib().year();
-            let opts = '';
-            for (let y = currentYear; y <= currentYear + 10; y++) {
-                opts += `<option value="${y}">${y}</option>`;
-            }
-            yearSelect.innerHTML = opts;
-        }
-
-        function updateDaysInMonthSelect(preferredDay = null) {
-            const daySelect = document.getElementById('vExpDay');
-            const monthSelect = document.getElementById('vExpMonth');
-            const yearSelect = document.getElementById('vExpYear');
-            if (!daySelect || !monthSelect || !yearSelect) return;
-
-            const year = parseInt(yearSelect.value, 10) || getMomentWib().year();
-            const month = parseInt(monthSelect.value, 10) || 1;
-            const prevDay = preferredDay !== null ? parseInt(preferredDay, 10) : (parseInt(daySelect.value, 10) || 1);
-            const maxDays = new Date(year, month, 0).getDate();
-
-            let opts = '';
-            for (let d = 1; d <= maxDays; d++) {
-                const dd = String(d).padStart(2, '0');
-                opts += `<option value="${dd}">${dd}</option>`;
-            }
-            daySelect.innerHTML = opts;
-            const safeDay = Math.min(prevDay, maxDays);
-            daySelect.value = String(safeDay).padStart(2, '0');
-        }
-
-        function updateVoucherExpiryState(mWib) {
-            const target = mWib && mWib.isValid() ? mWib : getMomentWib().add(24, 'hours');
-            const isoWib = target.format('YYYY-MM-DDTHH:mm:ssZ');
-            document.getElementById('vExpiry').value = isoWib;
-
-            // Sinkronkan juga ke field manual (Tanggal, Bulan, Tahun, Jam)
-            const yearEl = document.getElementById('vExpYear');
-            const monthEl = document.getElementById('vExpMonth');
-            const timeEl = document.getElementById('vExpTime');
-
-            if (yearEl && monthEl) {
-                const yrStr = String(target.year());
-                if (![...yearEl.options].some(o => o.value === yrStr)) {
-                    const opt = document.createElement('option');
-                    opt.value = yrStr;
-                    opt.textContent = yrStr;
-                    yearEl.appendChild(opt);
-                }
-                yearEl.value = yrStr;
-                monthEl.value = target.format('MM');
-                updateDaysInMonthSelect(target.date());
-            }
-            if (timeEl) {
-                timeEl.value = target.format('HH:mm');
-            }
-
-            const previewEl = document.getElementById('vExpiryPreviewWib');
-            if (previewEl) {
-                previewEl.textContent = `${formatDateSosmedVoucher(isoWib)} (${target.format('DD/MM/YYYY HH:mm')} WIB)`;
-            }
-        }
-
-        function setVoucherExpiryMode(mode) {
-            currentExpiryMode = mode;
-            const btnAuto = document.getElementById('btnExpiryAuto');
-            const btnManual = document.getElementById('btnExpiryManual');
-            const panelAuto = document.getElementById('voucherExpiryAutoPanel');
-            const panelManual = document.getElementById('voucherExpiryManualPanel');
-
-            if (mode === 'auto') {
-                btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
-                btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
-                panelAuto.style.display = 'block';
-                panelManual.style.display = 'none';
-                applyAutoDurationHours(currentAutoHours);
-            } else {
-                btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
-                btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
-                panelAuto.style.display = 'none';
-                panelManual.style.display = 'block';
-                syncExpiryFromManualInputs();
-            }
-        }
-
-        function applyAutoDurationHours(hours) {
-            currentAutoHours = hours;
-            const nextExpiry = getMomentWib().add(hours, 'hours');
-            updateVoucherExpiryState(nextExpiry);
-        }
-
-        function syncExpiryFromManualInputs() {
-            const d = document.getElementById('vExpDay')?.value || '01';
-            const m = document.getElementById('vExpMonth')?.value || '01';
-            const y = document.getElementById('vExpYear')?.value || String(getMomentWib().year());
-            const t = document.getElementById('vExpTime')?.value || '23:59';
-
-            const composedStr = `${y}-${m}-${d} ${t}`;
-            const parsedWib = (typeof moment !== 'undefined' && typeof moment.tz === 'function')
-                ? moment.tz(composedStr, 'YYYY-MM-DD HH:mm', TZ_WIB)
-                : moment(composedStr, 'YYYY-MM-DD HH:mm');
-
-            if (parsedWib.isValid()) {
-                const isoWib = parsedWib.format('YYYY-MM-DDTHH:mm:ssZ');
-                document.getElementById('vExpiry').value = isoWib;
-                const previewEl = document.getElementById('vExpiryPreviewWib');
-                if (previewEl) {
-                    previewEl.textContent = `${formatDateSosmedVoucher(isoWib)} (${parsedWib.format('DD/MM/YYYY HH:mm')} WIB)`;
-                }
-            }
-        }
-
-        function setDefault24HoursVoucher() {
-            initYearOptionsForExpiry();
-            applyAutoDurationHours(24);
-        }
-
-        // ====================================================
-        // UI & NAVIGATION CONTROLS
-        // ====================================================
-        function updateSubmitButtonAppearance() {
-            const btnText = document.getElementById('btnSubmitMainText');
-            const actionsBox = document.getElementById('mainFormActions');
-            if (!btnText || !actionsBox) return;
-
-            if (currentMode === 'product') {
-                if (currentProductSubMode === 'manage') {
-                    actionsBox.style.display = 'none';
-                } else if (currentProductSubMode === 'edit') {
-                    actionsBox.style.display = 'flex';
-                    btnText.textContent = 'SIMPAN PERUBAHAN PRODUK';
-                } else {
-                    actionsBox.style.display = 'flex';
-                    btnText.textContent = 'SIMPAN PRODUK BARU';
-                }
-            } else {
-                actionsBox.style.display = 'flex';
-                btnText.textContent = 'EXECUTE / SIMPAN DATA';
-            }
-        }
-
-        function selectModeFromItem(itemEl) {
-            const mode = itemEl.getAttribute('data-mode');
-            const labelHtml = itemEl.querySelector('span').innerHTML;
-            document.getElementById('selectedOptionText').innerHTML = labelHtml;
-
-            const dropdown = document.getElementById('cyberDropdown');
-            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            itemEl.classList.add('selected');
-            dropdown.classList.remove('open');
-
-            switchMode(mode);
-        }
-
-        function selectProductSubModeFromItem(itemEl) {
-            const subMode = itemEl.getAttribute('data-submode');
-            const labelHtml = itemEl.querySelector('span').innerHTML;
-            document.getElementById('selectedProductSubModeText').innerHTML = labelHtml;
-
-            const dropdown = document.getElementById('productSubModeDropdown');
-            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-                item.classList.remove('selected');
-            });
-            itemEl.classList.add('selected');
-            dropdown.classList.remove('open');
-
-            switchProductSubMode(subMode);
-        }
-
-        function switchProductSubMode(subMode) {
-            currentProductSubMode = subMode;
-            document.querySelectorAll('.product-sub-section').forEach(el => el.style.display = 'none');
-            const targetSub = document.getElementById(`sub-product-${subMode}`);
-            if (targetSub) targetSub.style.display = 'block';
-
-            updateSubmitButtonAppearance();
-
-            if (subMode === 'add' && !document.getElementById('pId').value) {
-                generateRandomProductId(false);
-            } else if (subMode === 'edit' || subMode === 'manage') {
-                loadProductList();
-            }
-        }
-
-        function setSchemaVersion(ver) {
-            currentSchemaVersion = ver;
-            document.getElementById('btnSchemaV1').classList.remove('active');
-            document.getElementById('btnSchemaV2').classList.remove('active');
-
-            if (ver === 'v1') {
-                document.getElementById('btnSchemaV1').classList.add('active');
-            } else {
-                document.getElementById('btnSchemaV2').classList.add('active');
-            }
-
-            const upperVer = ver.toUpperCase();
-            const headerBadge = document.getElementById('headerActiveSchemaBadge');
-            if (headerBadge) headerBadge.textContent = `SCHEMA: ${upperVer}`;
-
-            const delLabel = document.getElementById('deleteSchemaLabel');
-            if (delLabel) delLabel.textContent = upperVer;
-
-            const editLabel = document.getElementById('editSchemaLabel');
-            if (editLabel) editLabel.textContent = upperVer;
-
-            const actionTag = document.getElementById('productActionSchemaTag');
-            if (actionTag) actionTag.textContent = upperVer;
-
-            clearEditProductForm();
-
-            const v1OnlyItems = document.querySelectorAll('#modeDropdownMenu .v1-only-mode');
-            v1OnlyItems.forEach(item => {
-                item.style.display = (ver === 'v2') ? 'none' : 'flex';
-            });
-
-            if (ver === 'v2' && currentMode !== 'voucher' && currentMode !== 'product') {
-                const defaultVoucherItem = document.querySelector('#modeDropdownMenu .dropdown-item[data-mode="voucher"]');
-                if (defaultVoucherItem) {
-                    selectModeFromItem(defaultVoucherItem);
-                }
-            } else if (currentMode === 'product') {
-                loadProductList();
-            }
-
-            BrutalSwal.fire({
-                icon: 'info',
-                title: `TARGET SCHEMA: ${upperVer}`,
-                text: `Operasi API sekarang mengarah ke Endpoint ${upperVer}`,
-                timer: 1200,
-                showConfirmButton: false
-            });
-        }
-
-        function toggleCustomDropdown(dropdownId) {
-            const dropdown = document.getElementById(dropdownId);
-            document.querySelectorAll('.custom-dropdown').forEach(d => {
-                if (d !== dropdown) d.classList.remove('open');
-            });
-            dropdown.classList.toggle('open');
-        }
-
-        function selectCustomValue(dropdownId, val, labelText, hiddenInputId) {
-            const dropdown = document.getElementById(dropdownId);
-            dropdown.querySelector('.dropdown-trigger span').textContent = labelText;
-            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-                item.classList.remove('selected');
-                if (item.textContent === labelText) {
-                    item.classList.add('selected');
-                }
-            });
-            document.getElementById(hiddenInputId).value = val;
-            dropdown.classList.remove('open');
-        }
-
-        window.addEventListener('click', function(e) {
-            if (!e.target.closest('.custom-dropdown')) {
-                document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
-            }
-        });
-
-        function getFormattedDateToday() {
-            const m = getMomentWib();
-            const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
-            return `${m.date()} ${months[m.month()]} ${m.year()}`;
-        }
-
-        function switchMode(mode) {
-            currentMode = mode;
-            document.querySelectorAll('.mode-field').forEach(el => el.style.display = 'none');
-            const targetField = document.getElementById(`field-${mode}`);
-            if (targetField) targetField.style.display = 'block';
-            document.getElementById('outputContainer').style.display = 'none';
-            const placeholder = document.getElementById('outputPlaceholder');
-            if (placeholder) placeholder.style.display = 'block';
-
-            updateSubmitButtonAppearance();
-
-            if (mode === 'voucher') {
-                if (!document.getElementById('vExpiry').value) {
-                    setDefault24HoursVoucher();
-                }
-            } else if (mode === 'codeGen') {
-                generateRandomCodeUI();
-            } else if (mode === 'product') {
-                if (!document.getElementById('pId').value) {
-                    generateRandomProductId(false);
-                }
-                switchProductSubMode(currentProductSubMode);
-            } else if (mode === 'paste') {
-                document.getElementById('date').value = getFormattedDateToday();
-            }
-        }
-
+        // Helper Escape HTML
         function escapeHtml(text) {
-            if (text === null || text === undefined) return '';
-            return String(text)
+            return String(text ?? '')
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
@@ -1379,733 +1377,1304 @@
                 .replace(/'/g, "&#039;");
         }
 
-        function clearEditProductForm() {
-            document.getElementById('editTargetOriginalId').value = '';
-            document.getElementById('editProductSelectText').textContent = '-- Pilih Produk dari Database --';
+        // Helper Format WIB untuk Tampilan
+        function formatWibReadable(dateInput) {
+            if (!dateInput) return '-';
+            if (typeof moment !== 'undefined' && moment.tz) {
+                return moment(dateInput).tz('Asia/Jakarta').format('DD MMM YYYY, HH:mm') + ' WIB';
+            }
+            return new Date(dateInput).toLocaleString('id-ID');
+        }
+
+        // ====================================================
+        // WAKTU EXPIRED VOUCHER (MOMENT-TIMEZONE ASIA/JAKARTA)
+        // ====================================================
+        function initManualExpirySelectors() {
+            const yearSelect = document.getElementById('vExpYear');
+            if (!yearSelect) return;
+
+            const nowWib = moment().tz('Asia/Jakarta').add(24, 'hours');
+            const currentYear = nowWib.year();
+
+            yearSelect.innerHTML = '';
+            for (let y = currentYear; y <= currentYear + 5; y++) {
+                const opt = document.createElement('option');
+                opt.value = String(y);
+                opt.textContent = String(y);
+                yearSelect.appendChild(opt);
+            }
+
+            document.getElementById('vExpYear').value = nowWib.format('YYYY');
+            document.getElementById('vExpMonth').value = nowWib.format('MM');
+            updateDaysInMonthSelect();
+            document.getElementById('vExpDay').value = nowWib.format('DD');
+            document.getElementById('vExpTime').value = nowWib.format('HH:mm');
+        }
+
+        function updateDaysInMonthSelect() {
+            const yearVal = parseInt(document.getElementById('vExpYear')?.value, 10) || moment().tz('Asia/Jakarta').year();
+            const monthVal = document.getElementById('vExpMonth')?.value || '01';
+            const daySelect = document.getElementById('vExpDay');
+            if (!daySelect) return;
+
+            const prevDay = daySelect.value || '01';
+            const daysInMonth = moment.tz(`${yearVal}-${monthVal}-01`, 'YYYY-MM-DD', 'Asia/Jakarta').daysInMonth();
+
+            daySelect.innerHTML = '';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const padded = String(d).padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = padded;
+                opt.textContent = padded;
+                daySelect.appendChild(opt);
+            }
+
+            daySelect.value = Number(prevDay) <= daysInMonth ? prevDay : String(daysInMonth).padStart(2, '0');
+        }
+
+        function setVoucherExpiryMode(mode) {
+            voucherExpiryMode = mode === 'manual' ? 'manual' : 'auto';
+            const autoPanel = document.getElementById('voucherExpiryAutoPanel');
+            const manualPanel = document.getElementById('voucherExpiryManualPanel');
+            const btnAuto = document.getElementById('btnExpiryAuto');
+            const btnManual = document.getElementById('btnExpiryManual');
+
+            if (voucherExpiryMode === 'auto') {
+                if (autoPanel) autoPanel.style.display = 'block';
+                if (manualPanel) manualPanel.style.display = 'none';
+                if (btnAuto) btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
+                if (btnManual) btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
+                applyAutoDurationHours(24);
+            } else {
+                if (autoPanel) autoPanel.style.display = 'none';
+                if (manualPanel) manualPanel.style.display = 'block';
+                if (btnManual) btnManual.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-neoCyan shadow-[2px_2px_0_#000] cursor-pointer';
+                if (btnAuto) btnAuto.className = 'px-2.5 py-1 rounded-lg border-2 border-black text-[11px] font-cyber font-black uppercase bg-white cursor-pointer';
+                syncExpiryFromManualInputs();
+            }
+        }
+
+        function applyAutoDurationHours(hours = 24) {
+            const targetWib = moment().tz('Asia/Jakarta').add(Number(hours) || 24, 'hours');
+            updateVoucherExpiryHiddenAndPreview(targetWib);
+        }
+
+        function syncExpiryFromManualInputs() {
+            const year = document.getElementById('vExpYear')?.value || moment().tz('Asia/Jakarta').format('YYYY');
+            const month = document.getElementById('vExpMonth')?.value || '01';
+            const day = document.getElementById('vExpDay')?.value || '01';
+            const time = document.getElementById('vExpTime')?.value || '23:59';
+
+            const parsedWib = moment.tz(`${year}-${month}-${day} ${time}`, 'YYYY-MM-DD HH:mm', 'Asia/Jakarta');
+            if (parsedWib.isValid()) {
+                updateVoucherExpiryHiddenAndPreview(parsedWib);
+            }
+        }
+
+        function updateVoucherExpiryHiddenAndPreview(momentWibObj) {
+            const hiddenInput = document.getElementById('vExpiry');
+            const previewEl = document.getElementById('vExpiryPreviewWib');
+            if (hiddenInput) {
+                hiddenInput.value = momentWibObj.toISOString();
+            }
+            if (previewEl) {
+                previewEl.textContent = momentWibObj.format('dddd, DD MMMM YYYY • HH:mm [WIB]');
+            }
+        }
+
+        // ====================================================
+        // GENERATOR ID PRODUK & PASTEBIN (10, 15, 20, 25 KARAKTER)
+        // ====================================================
+        function generateRandomProductId(forceOverwrite = true, length = null) {
+            const pIdInput = document.getElementById('pId');
+            if (!pIdInput) return;
+            if (forceOverwrite || !pIdInput.value.trim()) {
+                pIdInput.value = generateRandomAlphanumeric(length);
+            }
+        }
+
+        function generateRandomEditProductId(length = null) {
+            const editPIdInput = document.getElementById('editPId');
+            if (!editPIdInput) return;
+            editPIdInput.value = generateRandomAlphanumeric(length);
+        }
+
+        function generateRandomPasteId(forceOverwrite = true, length = null) {
+            const pasteIdInput = document.getElementById('pasteId');
+            if (!pasteIdInput) return;
+            if (forceOverwrite || !pasteIdInput.value.trim()) {
+                pasteIdInput.value = generateRandomAlphanumeric(length);
+            }
+        }
+
+        // ====================================================
+        // SET SCHEMA VERSION (V1 / V2)
+        // ====================================================
+        function setSchemaVersion(version) {
+            currentSchema = version;
+            const btnV1 = document.getElementById('btnSchemaV1');
+            const btnV2 = document.getElementById('btnSchemaV2');
+            const headerBadge = document.getElementById('headerActiveSchemaBadge');
+            const editSchemaLabel = document.getElementById('editSchemaLabel');
+            const deleteSchemaLabel = document.getElementById('deleteSchemaLabel');
+            const productActionSchemaTag = document.getElementById('productActionSchemaTag');
+            const v1Items = document.querySelectorAll('.v1-only-mode');
+            const v2Items = document.querySelectorAll('.v2-only-mode');
+
+            if (version === 'v1') {
+                btnV1.classList.add('active');
+                btnV2.classList.remove('active');
+                if (headerBadge) headerBadge.textContent = 'SCHEMA: V1';
+                if (editSchemaLabel) editSchemaLabel.textContent = 'V1';
+                if (deleteSchemaLabel) deleteSchemaLabel.textContent = 'V1';
+                if (productActionSchemaTag) productActionSchemaTag.textContent = 'V1';
+                v1Items.forEach(item => item.style.display = 'flex');
+                v2Items.forEach(item => item.style.display = 'none');
+
+                // Jika sebelumnya berada di mode khusus V2 (notification), kembalikan ke Voucher
+                if (currentMode === 'notification') {
+                    const voucherItem = document.querySelector('#modeDropdownMenu .dropdown-item[data-mode="voucher"]');
+                    if (voucherItem) selectModeFromItem(voucherItem);
+                }
+            } else {
+                btnV2.classList.add('active');
+                btnV1.classList.remove('active');
+                if (headerBadge) headerBadge.textContent = 'SCHEMA: V2';
+                if (editSchemaLabel) editSchemaLabel.textContent = 'V2';
+                if (deleteSchemaLabel) deleteSchemaLabel.textContent = 'V2';
+                if (productActionSchemaTag) productActionSchemaTag.textContent = 'V2';
+                v1Items.forEach(item => item.style.display = 'none');
+                v2Items.forEach(item => item.style.display = 'flex');
+
+                if (currentMode === 'codeGen' || currentMode === 'paste') {
+                    const voucherItem = document.querySelector('#modeDropdownMenu .dropdown-item[data-mode="voucher"]');
+                    if (voucherItem) selectModeFromItem(voucherItem);
+                }
+            }
+
+            if (currentMode === 'product') {
+                resetEditProductSelection();
+                loadProductList();
+            }
+            if (currentMode === 'notification' && version === 'v2') {
+                resetEditNotifSelection();
+                loadNotificationList();
+            }
+        }
+
+        // Toggle Custom Dropdown
+        function toggleCustomDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const isOpen = dropdown.classList.contains('open');
+
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                if (d.id !== dropdownId) d.classList.remove('open');
+            });
+
+            if (isOpen) {
+                dropdown.classList.remove('open');
+            } else {
+                dropdown.classList.add('open');
+            }
+        }
+
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-dropdown')) {
+                document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                    d.classList.remove('open');
+                });
+            }
+        });
+
+        function selectCustomValue(dropdownId, value, labelText, hiddenInputId) {
+            const dropdown = document.getElementById(dropdownId);
+            dropdown.querySelector('.dropdown-trigger span:first-child').textContent = labelText;
+            document.getElementById(hiddenInputId).value = value;
+
+            dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.classList.remove('selected');
+                if (item.textContent.trim() === labelText.trim()) {
+                    item.classList.add('selected');
+                }
+            });
+
+            dropdown.classList.remove('open');
+        }
+
+        // ====================================================
+        // SUB-MODE PRODUK (TAMBAH / EDIT / KELOLA & HAPUS)
+        // ====================================================
+        function selectProductSubModeFromItem(itemEl) {
+            const subMode = itemEl.getAttribute('data-submode');
+            const labelHtml = itemEl.querySelector('span').innerHTML;
+
+            document.getElementById('selectedProductSubModeText').innerHTML = labelHtml;
+            document.querySelectorAll('#productSubModeMenu .dropdown-item').forEach(item => item.classList.remove('selected'));
+            itemEl.classList.add('selected');
+            document.getElementById('productSubModeDropdown').classList.remove('open');
+
+            setProductSubMode(subMode);
+        }
+
+        function setProductSubMode(subMode) {
+            currentProductSubMode = subMode;
+
+            document.querySelectorAll('.product-sub-section').forEach(sec => {
+                sec.style.display = 'none';
+            });
+
+            const activeSub = document.getElementById(`sub-product-${subMode}`);
+            if (activeSub) activeSub.style.display = 'block';
+
+            updateMainSubmitButtonState();
+
+            if (subMode === 'add') {
+                generateRandomProductId(false);
+            } else if (subMode === 'edit' || subMode === 'manage') {
+                loadProductList();
+            }
+        }
+
+        // ====================================================
+        // SUB-MODE NOTIFIKASI V2 (TAMBAH / EDIT / KELOLA & HAPUS)
+        // ====================================================
+        function selectNotifSubModeFromItem(itemEl) {
+            const subMode = itemEl.getAttribute('data-submode');
+            const labelHtml = itemEl.querySelector('span').innerHTML;
+
+            document.getElementById('selectedNotifSubModeText').innerHTML = labelHtml;
+            document.querySelectorAll('#notifSubModeMenu .dropdown-item').forEach(item => item.classList.remove('selected'));
+            itemEl.classList.add('selected');
+            document.getElementById('notifSubModeDropdown').classList.remove('open');
+
+            setNotifSubMode(subMode);
+        }
+
+        function setNotifSubMode(subMode) {
+            currentNotifSubMode = subMode;
+
+            document.querySelectorAll('.notif-sub-section').forEach(sec => {
+                sec.style.display = 'none';
+            });
+
+            const activeSub = document.getElementById(`sub-notif-${subMode}`);
+            if (activeSub) activeSub.style.display = 'block';
+
+            updateMainSubmitButtonState();
+
+            if (subMode === 'edit' || subMode === 'manage') {
+                loadNotificationList();
+            }
+        }
+
+        function updateMainSubmitButtonState() {
+            const mainActions = document.getElementById('mainFormActions');
+            const submitText = document.getElementById('btnSubmitMainText');
+            const submitBtn = document.getElementById('btnSubmitMain');
+
+            if (!mainActions || !submitText || !submitBtn) return;
+
+            if (currentMode === 'product') {
+                if (currentProductSubMode === 'manage') {
+                    mainActions.style.display = 'none';
+                } else if (currentProductSubMode === 'edit') {
+                    mainActions.style.display = 'flex';
+                    submitText.textContent = 'SIMPAN PERUBAHAN PRODUK';
+                    submitBtn.className = 'neo-btn flex-1 bg-neoCyan text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5';
+                } else {
+                    mainActions.style.display = 'flex';
+                    submitText.textContent = 'SIMPAN PRODUK BARU';
+                    submitBtn.className = 'neo-btn flex-1 bg-neoGreen text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5';
+                }
+            } else if (currentMode === 'notification') {
+                if (currentNotifSubMode === 'manage') {
+                    mainActions.style.display = 'none';
+                } else if (currentNotifSubMode === 'edit') {
+                    mainActions.style.display = 'flex';
+                    submitText.textContent = 'SIMPAN PERUBAHAN NOTIFIKASI V2';
+                    submitBtn.className = 'neo-btn flex-1 bg-neoCyan text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5';
+                } else {
+                    mainActions.style.display = 'flex';
+                    submitText.textContent = 'SIMPAN NOTIFIKASI V2';
+                    submitBtn.className = 'neo-btn flex-1 bg-neoGreen text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5';
+                }
+            } else {
+                mainActions.style.display = 'flex';
+                submitText.textContent = 'EXECUTE / SIMPAN DATA';
+                submitBtn.className = 'neo-btn flex-1 bg-neoGreen text-black font-cyber font-black py-4 px-6 rounded-2xl text-sm uppercase tracking-wider flex items-center justify-center gap-2.5';
+            }
+        }
+
+        // Pilih Mode dari Dropdown
+        function selectModeFromItem(itemEl) {
+            const mode = itemEl.getAttribute('data-mode');
+            const labelHtml = itemEl.querySelector('span').innerHTML;
+
+            document.getElementById('selectedOptionText').innerHTML = labelHtml;
+            document.querySelectorAll('#modeDropdownMenu .dropdown-item').forEach(item => item.classList.remove('selected'));
+            itemEl.classList.add('selected');
+            document.getElementById('cyberDropdown').classList.remove('open');
+
+            changeMode(mode);
+        }
+
+        function changeMode(mode) {
+            currentMode = mode;
+
+            document.querySelectorAll('.mode-field').forEach(field => field.style.display = 'none');
+            const activeField = document.getElementById(`field-${mode}`);
+            if (activeField) activeField.style.display = 'block';
+
+            updateMainSubmitButtonState();
+
+            if (mode === 'paste') {
+                setTodayDate();
+                generateRandomPasteId(false);
+            } else if (mode === 'codeGen') {
+                generateRandomCodeUI();
+            } else if (mode === 'voucher') {
+                if (!document.getElementById('vExpiry').value) {
+                    applyAutoDurationHours(24);
+                }
+            } else if (mode === 'product') {
+                setProductSubMode(currentProductSubMode);
+            } else if (mode === 'notification') {
+                setNotifSubMode(currentNotifSubMode);
+            }
+
+            document.getElementById('outputContainer').style.display = 'none';
+            document.getElementById('outputPlaceholder').style.display = 'block';
+        }
+
+        function setTodayDate() {
+            const dateInput = document.getElementById('date');
+            if (!dateInput) return;
+            const nowWib = moment().tz('Asia/Jakarta').locale('id');
+            dateInput.value = nowWib.format('DD MMM YYYY');
+        }
+
+        function generateRandomVoucher() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = 'ARULZXD';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('vCode').value = code;
+        }
+
+        function generateRandomCodeUI() {
+            const lengthInput = document.getElementById('codeLength');
+            let len = parseInt(lengthInput.value) || 6;
+            if (len < 1) len = 1;
+            if (len > 64) len = 64;
+
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let code = '';
+            for (let i = 0; i < len; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('codeDisplay').textContent = code;
+        }
+
+        function showOutput(jsonObj) {
+            document.getElementById('outputPlaceholder').style.display = 'none';
+            document.getElementById('outputContainer').style.display = 'block';
+            document.getElementById('jsonOutput').textContent = JSON.stringify(jsonObj, null, 2);
+        }
+
+        // ====================================================
+        // LOAD, EDIT & DELETE PRODUK (V1 / V2)
+        // ====================================================
+        async function loadProductList() {
+            const container = document.getElementById('productListContainer');
+            const editDropdownMenu = document.getElementById('editProductDropdownMenu');
+            const endpoint = currentSchema === 'v2' ? '/api/v2/products' : '/api/products';
+
+            if (container) {
+                container.innerHTML = `<div class="p-5 text-center text-xs font-bold text-gray-600"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat daftar produk (${currentSchema.toUpperCase()})...</div>`;
+            }
+            if (editDropdownMenu) {
+                editDropdownMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat katalog produk...</div>`;
+            }
+
+            try {
+                const response = await fetch(endpoint);
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Gagal memuat daftar produk');
+                }
+
+                cachedProductsList = Array.isArray(result.products) ? result.products : [];
+                renderEditProductDropdownOptions(cachedProductsList);
+                renderManageProductList(document.getElementById('manageSearchFilterInput')?.value || '');
+            } catch (error) {
+                if (container) {
+                    container.innerHTML = `<div class="p-4 text-center text-xs font-extrabold text-red-600">Error: ${escapeHtml(error.message)}</div>`;
+                }
+                if (editDropdownMenu) {
+                    editDropdownMenu.innerHTML = `<div class="p-4 text-center text-xs font-extrabold text-red-600">Error: ${escapeHtml(error.message)}</div>`;
+                }
+            }
+        }
+
+        function renderEditProductDropdownOptions(products) {
+            const menu = document.getElementById('editProductDropdownMenu');
+            if (!menu) return;
+
+            if (!products || products.length === 0) {
+                menu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Belum ada produk tersimpan di database ${currentSchema.toUpperCase()}.</div>`;
+                return;
+            }
+
+            const activeOrigId = document.getElementById('editTargetOriginalId')?.value || '';
+
+            menu.innerHTML = products.map((prod) => {
+                const prodId = escapeHtml(prod.Id || prod._id);
+                const prodNama = escapeHtml(prod.nama || 'Tanpa Nama');
+                const prodKategori = escapeHtml(prod.kategori || '-');
+                const prodHarga = Number(prod.harga || 0).toLocaleString('id-ID');
+                const isSelected = activeOrigId === (prod.Id || prod._id) ? 'selected' : '';
+
+                return `
+                    <div class="dropdown-item ${isSelected}" onclick="selectProductForEdit('${prodId}')">
+                        <div class="min-w-0 pr-2">
+                            <div class="font-cyber font-black text-xs text-black truncate">${prodNama}</div>
+                            <div class="text-[11px] font-mono text-gray-700 truncate">ID: ${prodId} • ${prodKategori} • Rp ${prodHarga}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterEditProductDropdown(keyword) {
+            const q = String(keyword || '').toLowerCase().trim();
+            if (!q) {
+                renderEditProductDropdownOptions(cachedProductsList);
+                return;
+            }
+            const filtered = cachedProductsList.filter(p =>
+                String(p.nama || '').toLowerCase().includes(q) ||
+                String(p.Id || '').toLowerCase().includes(q) ||
+                String(p.kategori || '').toLowerCase().includes(q)
+            );
+            renderEditProductDropdownOptions(filtered);
+            const dropdown = document.getElementById('editProductSelectDropdown');
+            if (dropdown && !dropdown.classList.contains('open')) {
+                dropdown.classList.add('open');
+            }
+        }
+
+        function selectProductForEdit(targetId) {
+            const prod = cachedProductsList.find(p => String(p.Id) === String(targetId) || String(p._id) === String(targetId));
+            if (!prod) return;
+
+            const canonicalId = prod.Id || prod._id;
+            document.getElementById('editTargetOriginalId').value = canonicalId;
+            document.getElementById('editProductSelectText').textContent = `${prod.nama} (${canonicalId})`;
+            document.getElementById('editSelectedStatusBadge').textContent = `EDITING: ${canonicalId}`;
+            document.getElementById('editSelectedStatusBadge').className = 'text-[11px] font-mono font-extrabold bg-neoGreen border-2 border-black px-2.5 py-0.5 rounded-md';
+
+            document.getElementById('editPId').value = prod.Id || '';
+            document.getElementById('editPNama').value = prod.nama || '';
+            document.getElementById('editPKategori').value = prod.kategori || '';
+            document.getElementById('editPHarga').value = prod.harga !== undefined && prod.harga !== null ? String(prod.harga) : '';
+            document.getElementById('editPHargaDiskon').value = (prod.harga_diskon !== null && prod.harga_diskon !== undefined) ? String(prod.harga_diskon) : '';
+            document.getElementById('editPBadge').value = prod.badge || '';
+            document.getElementById('editPTerjual').value = prod.terjual ?? 0;
+            document.getElementById('editPStok').value = prod.stok ?? 0;
+            document.getElementById('editPLink').value = prod.link || '';
+            document.getElementById('editPGambar').value = Array.isArray(prod.gambar) ? prod.gambar.join('\n') : (prod.gambar || '');
+            document.getElementById('editPDeskripsi').value = prod.deskripsi || '';
+
+            document.getElementById('editProductSelectDropdown').classList.remove('open');
+            renderEditProductDropdownOptions(cachedProductsList);
+        }
+
+        function jumpToEditProduct(targetId) {
+            const editMenuItem = document.querySelector('#productSubModeMenu .dropdown-item[data-submode="edit"]');
+            if (editMenuItem) {
+                selectProductSubModeFromItem(editMenuItem);
+            } else {
+                setProductSubMode('edit');
+            }
+            setTimeout(() => {
+                selectProductForEdit(targetId);
+            }, 80);
+        }
+
+        function resetEditProductSelection() {
+            const origInput = document.getElementById('editTargetOriginalId');
+            if (origInput) origInput.value = '';
+            const selectText = document.getElementById('editProductSelectText');
+            if (selectText) selectText.textContent = '-- Pilih Produk dari Database --';
             const badge = document.getElementById('editSelectedStatusBadge');
             if (badge) {
                 badge.textContent = 'BELUM DIPILIH';
                 badge.className = 'text-[11px] font-mono font-extrabold bg-neoBg border-2 border-black px-2.5 py-0.5 rounded-md';
             }
-            document.getElementById('editPId').value = '';
-            document.getElementById('editPNama').value = '';
-            document.getElementById('editPKategori').value = '';
-            document.getElementById('editPHarga').value = '';
-            document.getElementById('editPHargaDiskon').value = '';
-            document.getElementById('editPBadge').value = '';
-            document.getElementById('editPTerjual').value = '';
-            document.getElementById('editPStok').value = '';
-            document.getElementById('editPLink').value = '';
-            document.getElementById('editPGambar').value = '';
-            document.getElementById('editPDeskripsi').value = '';
+            ['editPId', 'editPNama', 'editPKategori', 'editPHarga', 'editPHargaDiskon', 'editPBadge', 'editPTerjual', 'editPStok', 'editPLink', 'editPGambar', 'editPDeskripsi', 'editSearchFilterInput']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
         }
 
-        function populateEditFormByProduct(product) {
-            if (!product) return;
-            const prodKey = product.Id || product._id || '';
-            document.getElementById('editTargetOriginalId').value = prodKey;
-            document.getElementById('editProductSelectText').textContent = `[${prodKey}] ${product.nama}`;
-
-            const badge = document.getElementById('editSelectedStatusBadge');
-            if (badge) {
-                badge.textContent = `AKTIF: ${prodKey}`;
-                badge.className = 'text-[11px] font-mono font-extrabold bg-neoGreen border-2 border-black px-2.5 py-0.5 rounded-md shadow-[1.5px_1.5px_0_#000]';
-            }
-
-            document.getElementById('editPId').value = product.Id || '';
-            document.getElementById('editPNama').value = product.nama || '';
-            document.getElementById('editPKategori').value = product.kategori || '';
-            document.getElementById('editPHarga').value = product.harga ?? '';
-            document.getElementById('editPHargaDiskon').value = (product.harga_diskon !== null && product.harga_diskon !== undefined) ? product.harga_diskon : '';
-            document.getElementById('editPBadge').value = product.badge || '';
-            document.getElementById('editPTerjual').value = product.terjual ?? 0;
-            document.getElementById('editPStok').value = product.stok ?? 0;
-            document.getElementById('editPLink').value = product.link || '';
-            document.getElementById('editPGambar').value = Array.isArray(product.gambar) ? product.gambar.join('\n') : (product.gambar || '');
-            document.getElementById('editPDeskripsi').value = product.deskripsi || '';
-
-            document.querySelectorAll('#editProductDropdownMenu .dropdown-item').forEach(el => {
-                el.classList.toggle('selected', el.getAttribute('data-prod-id') === String(prodKey));
-            });
-        }
-
-        function selectProductForEdit(prodKey) {
-            const found = cachedProductsList.find(p => String(p.Id || p._id) === String(prodKey));
-            const dropdown = document.getElementById('editProductSelectDropdown');
-            if (dropdown) dropdown.classList.remove('open');
-
-            if (!found) return;
-            populateEditFormByProduct(found);
-        }
-
-        function jumpToEditProduct(prodKey) {
-            const editOptionEl = document.querySelector('#productSubModeMenu .dropdown-item[data-submode="edit"]');
-            if (editOptionEl) {
-                selectProductSubModeFromItem(editOptionEl);
-            } else {
-                switchProductSubMode('edit');
-            }
-            setTimeout(() => {
-                selectProductForEdit(prodKey);
-                const editSection = document.getElementById('sub-product-edit');
-                if (editSection) editSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 80);
-        }
-
-        function renderEditProductDropdown(filterQuery = '') {
-            const menu = document.getElementById('editProductDropdownMenu');
-            if (!menu) return;
-
-            const q = filterQuery.trim().toLowerCase();
-            const filtered = cachedProductsList.filter(p => {
-                if (!q) return true;
-                return (
-                    String(p.Id || '').toLowerCase().includes(q) ||
-                    String(p.nama || '').toLowerCase().includes(q) ||
-                    String(p.kategori || '').toLowerCase().includes(q)
-                );
-            });
-
-            if (filtered.length === 0) {
-                menu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Tidak ada produk yang cocok di ${currentSchemaVersion.toUpperCase()}.</div>`;
-                return;
-            }
-
-            const activeEditId = document.getElementById('editTargetOriginalId').value;
-            menu.innerHTML = filtered.map(p => {
-                const key = String(p.Id || p._id);
-                const safeKey = escapeHtml(key);
-                const safeName = escapeHtml(p.nama);
-                const safeKat = escapeHtml(p.kategori);
-                const hargaText = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
-                const isSelected = activeEditId === key ? 'selected' : '';
-                return `
-                    <div class="dropdown-item ${isSelected}" data-prod-id="${safeKey}" onclick="selectProductForEdit('${safeKey.replace(/'/g, "\\'")}')">
-                        <div class="flex flex-col min-w-0 pr-2">
-                            <span class="font-cyber font-black text-xs text-black truncate">${safeName}</span>
-                            <span class="font-mono text-[11px] font-bold text-gray-700">ID: ${safeKey} • ${safeKat} • ${hargaText}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function filterEditProductDropdown(val) {
-            renderEditProductDropdown(val);
-            const dropdown = document.getElementById('editProductSelectDropdown');
-            if (dropdown && !dropdown.classList.contains('open') && val.trim().length > 0) {
-                dropdown.classList.add('open');
-            }
-        }
-
-        function renderManageProductList(filterQuery = '') {
+        function renderManageProductList(keyword = '') {
             const container = document.getElementById('productListContainer');
             const countBadge = document.getElementById('manageProductCount');
             if (!container) return;
 
-            const q = filterQuery.trim().toLowerCase();
-            const filtered = cachedProductsList.filter(p => {
-                if (!q) return true;
-                return (
-                    String(p.Id || '').toLowerCase().includes(q) ||
+            const q = String(keyword || '').toLowerCase().trim();
+            const list = q
+                ? cachedProductsList.filter(p =>
                     String(p.nama || '').toLowerCase().includes(q) ||
+                    String(p.Id || '').toLowerCase().includes(q) ||
                     String(p.kategori || '').toLowerCase().includes(q)
-                );
-            });
+                )
+                : cachedProductsList;
 
-            if (countBadge) countBadge.textContent = filtered.length;
+            if (countBadge) countBadge.textContent = list.length;
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Tidak ada produk tersimpan di database ${currentSchemaVersion.toUpperCase()}.</div>`;
+            if (list.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Tidak ada produk yang cocok di database ${currentSchema.toUpperCase()}.</div>`;
                 return;
             }
 
-            container.innerHTML = filtered.map(p => {
-                const key = String(p.Id || p._id);
-                const safeId = escapeHtml(key);
-                const safeName = escapeHtml(p.nama);
-                const safeKat = escapeHtml(p.kategori);
-                const hargaText = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
-                const diskonText = p.harga_diskon ? ` → Diskon: Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '';
+            container.innerHTML = list.map((prod) => {
+                const prodId = escapeHtml(prod.Id || prod._id);
+                const prodNama = escapeHtml(prod.nama || 'Tanpa Nama');
+                const prodKategori = escapeHtml(prod.kategori || '-');
+                const prodHarga = Number(prod.harga || 0).toLocaleString('id-ID');
+                const prodStok = Number(prod.stok ?? 0);
+                const prodTerjual = Number(prod.terjual ?? 0);
+
                 return `
-                    <div class="flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 p-3.5 bg-white hover:bg-neoBg/70 transition-colors">
-                        <div class="flex flex-col gap-1 min-w-0 flex-1">
-                            <div class="flex flex-wrap items-center gap-1.5">
-                                <span class="inline-block w-fit font-mono text-[11px] font-extrabold bg-neoYellow border-2 border-black px-2 py-0.5 rounded-md shadow-[1.5px_1.5px_0_#000]">
-                                    ID: ${safeId}
-                                </span>
-                                ${p.badge ? `<span class="inline-block font-cyber text-[10px] font-black bg-neoCyan border-2 border-black px-2 py-0.5 rounded-md">${escapeHtml(p.badge)}</span>` : ''}
+                    <div class="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white hover:bg-neoPaper transition-colors">
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-mono text-[11px] font-extrabold bg-neoYellow border-2 border-black px-2 py-0.5 rounded-md">${prodId}</span>
+                                <span class="text-[11px] font-bold bg-neoBg border border-black px-2 py-0.5 rounded-md">${prodKategori}</span>
+                                <span class="text-[11px] font-mono font-bold text-gray-700">Stok: ${prodStok} • Terjual: ${prodTerjual}</span>
                             </div>
-                            <span class="font-cyber font-black text-sm text-black truncate">${safeName}</span>
-                            <span class="text-xs font-bold text-gray-700">${safeKat} • ${hargaText}${diskonText} • Stok: ${p.stok ?? 0} • Terjual: ${p.terjual ?? 0}</span>
+                            <p class="font-cyber font-black text-sm text-black truncate">${prodNama}</p>
+                            <p class="font-mono text-xs font-bold text-gray-700">Rp ${prodHarga}</p>
                         </div>
-                        <div class="flex items-center gap-2 shrink-0">
-                            <button type="button" class="neo-btn bg-neoCyan text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase" onclick="jumpToEditProduct('${safeId.replace(/'/g, "\\'")}')">
-                                <i class="fa-solid fa-pen-to-square mr-1"></i> Edit
+                        <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                            <button type="button" onclick="jumpToEditProduct('${prodId}')" class="neo-btn bg-neoCyan text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen"></i> Edit
                             </button>
-                            <button type="button" class="neo-btn bg-neoPink text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase" onclick="confirmDeleteProduct('${safeId.replace(/'/g, "\\'")}', '${safeName.replace(/'/g, "\\'")}')">
-                                <i class="fa-solid fa-trash mr-1"></i> Hapus
+                            <button type="button" onclick="confirmDeleteProduct('${prodId}', '${prodNama}')" class="neo-btn bg-neoPink text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Hapus
                             </button>
                         </div>
                     </div>
                 `;
             }).join('');
-        }
-
-        async function loadProductList() {
-            const container = document.getElementById('productListContainer');
-            const editMenu = document.getElementById('editProductDropdownMenu');
-            const upperVer = currentSchemaVersion.toUpperCase();
-
-            if (container) {
-                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Memuat daftar produk (${upperVer})...</div>`;
-            }
-            if (editMenu) {
-                editMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Memuat daftar produk (${upperVer})...</div>`;
-            }
-
-            const endpoint = currentSchemaVersion === 'v2' ? '/api/v2/products' : '/api/products';
-
-            try {
-                const res = await fetch(endpoint);
-                const data = await res.json();
-
-                if (!data.success || !Array.isArray(data.products)) {
-                    cachedProductsList = [];
-                } else {
-                    cachedProductsList = data.products;
-                }
-
-                const manageSearch = document.getElementById('manageSearchFilterInput')?.value || '';
-                const editSearch = document.getElementById('editSearchFilterInput')?.value || '';
-                renderManageProductList(manageSearch);
-                renderEditProductDropdown(editSearch);
-
-                const activeEditId = document.getElementById('editTargetOriginalId')?.value;
-                if (activeEditId) {
-                    const stillExists = cachedProductsList.find(p => String(p.Id || p._id) === String(activeEditId));
-                    if (stillExists) {
-                        populateEditFormByProduct(stillExists);
-                    }
-                }
-            } catch (err) {
-                cachedProductsList = [];
-                if (container) {
-                    container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Gagal memuat produk dari server (${upperVer}).</div>`;
-                }
-                if (editMenu) {
-                    editMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Gagal memuat produk (${upperVer}).</div>`;
-                }
-            }
         }
 
         function deleteProductByIdInput() {
             const targetId = document.getElementById('deleteProductIdInput').value.trim();
             if (!targetId) {
-                return BrutalSwal.fire({
-                    icon: 'error',
-                    title: 'ID PRODUK KOSONG',
+                brutalAlert.fire({
+                    icon: 'warning',
+                    title: 'ID Kosong',
                     text: 'Masukkan ID Produk yang ingin dihapus terlebih dahulu!'
                 });
+                return;
             }
             confirmDeleteProduct(targetId, targetId);
         }
 
-        function confirmDeleteProduct(productId, productName) {
-            BrutalSwal.fire({
-                title: 'HAPUS PRODUK?',
-                text: `Yakin ingin menghapus "${productName}" (${productId}) dari database ${currentSchemaVersion.toUpperCase()}?`,
+        async function confirmDeleteProduct(targetId, productName) {
+            const confirmResult = await brutalAlert.fire({
                 icon: 'warning',
+                title: `Hapus Produk (${currentSchema.toUpperCase()})?`,
+                html: `Yakin ingin menghapus permanen produk <b>${escapeHtml(productName)}</b> (ID: <span class="font-mono">${escapeHtml(targetId)}</span>)?`,
                 showCancelButton: true,
-                confirmButtonText: 'YA, HAPUS!',
-                cancelButtonText: 'BATAL'
-            }).then(async (result) => {
-                if (!result.isConfirmed) return;
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
+            });
 
-                const endpoint = currentSchemaVersion === 'v2'
-                    ? `/api/v2/products/${encodeURIComponent(productId)}`
-                    : `/api/products/${encodeURIComponent(productId)}`;
+            if (!confirmResult.isConfirmed) return;
 
-                BrutalSwal.fire({
-                    title: 'MENGHAPUS...',
-                    text: `Menghapus produk ${productId} (${currentSchemaVersion.toUpperCase()})`,
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
+            const endpoint = currentSchema === 'v2'
+                ? `/api/v2/products/${encodeURIComponent(targetId)}`
+                : `/api/products/${encodeURIComponent(targetId)}`;
 
-                try {
-                    const res = await fetch(endpoint, { method: 'DELETE' });
-                    const data = await res.json();
+            try {
+                const response = await fetch(endpoint, { method: 'DELETE' });
+                const result = await response.json();
 
-                    if (data.success) {
-                        document.getElementById('deleteProductIdInput').value = '';
-                        if (document.getElementById('editTargetOriginalId').value === String(productId)) {
-                            clearEditProductForm();
-                        }
-                        loadProductList();
-
-                        const deletedText = 
-`🗑️ PRODUK BERHASIL DIHAPUS (${currentSchemaVersion.toUpperCase()})!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ID PRODUK   : ${data.product ? data.product.Id : productId}
-NAMA PRODUK : ${data.product ? data.product.nama : productName}
-STATUS      : DELETED FROM MONGODB (${currentSchemaVersion.toUpperCase()})
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Powered by Arulz-XD`;
-
-                        showOutput(deletedText);
-
-                        BrutalSwal.fire({
-                            icon: 'success',
-                            title: 'TERHAPUS!',
-                            text: data.message || `Produk ${productId} berhasil dihapus!`
-                        });
-                    } else {
-                        BrutalSwal.fire({
-                            icon: 'error',
-                            title: 'GAGAL HAPUS',
-                            text: data.message || 'Produk tidak ditemukan atau gagal dihapus.'
-                        });
-                    }
-                } catch (err) {
-                    BrutalSwal.fire({
-                        icon: 'error',
-                        title: 'ERROR SERVER',
-                        text: 'Gagal terhubung ke server untuk menghapus produk.'
-                    });
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Gagal menghapus produk');
                 }
-            });
-        }
 
-        function generateRandomChars(length, chars) {
-            let res = '';
-            for (let i = 0; i < length; i++) {
-                res += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return res;
-        }
+                showOutput(result);
+                document.getElementById('deleteProductIdInput').value = '';
+                await loadProductList();
 
-        function generateCode(length = 10) {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            return generateRandomChars(length, chars);
-        }
-
-        function generateRandomCodeUI() {
-            const len = parseInt(document.getElementById('codeLength').value) || 6;
-            const code = generateCode(len);
-            document.getElementById('codeDisplay').textContent = code;
-        }
-
-        function generateRandomProductId(showToast = false) {
-            const newId = generateCode(10);
-            const pIdEl = document.getElementById('pId');
-            if (pIdEl) pIdEl.value = newId;
-
-            if (showToast) {
-                BrutalSwal.fire({
+                brutalAlert.fire({
                     icon: 'success',
-                    title: 'ID PRODUK DI-GENERATE',
-                    text: `ID Baru: ${newId}`,
-                    timer: 1300,
-                    showConfirmButton: false
+                    title: 'Produk Dihapus!',
+                    text: result.message
+                });
+            } catch (error) {
+                brutalAlert.fire({
+                    icon: 'error',
+                    title: 'Gagal Menghapus',
+                    text: error.message
                 });
             }
         }
 
-        function generateRandomEditProductId() {
-            const newId = generateCode(10);
-            document.getElementById('editPId').value = newId;
-            BrutalSwal.fire({
-                icon: 'success',
-                title: 'ID EDIT DI-GENERATE',
-                text: `ID Baru: ${newId}`,
-                timer: 1300,
-                showConfirmButton: false
+        // ====================================================
+        // LOAD, EDIT & DELETE NOTIFIKASI KHUSUS V2
+        // ====================================================
+        async function loadNotificationList() {
+            const container = document.getElementById('notifListContainer');
+            const editDropdownMenu = document.getElementById('editNotifDropdownMenu');
+
+            if (container) {
+                container.innerHTML = `<div class="p-5 text-center text-xs font-bold text-gray-600"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat daftar notifikasi V2...</div>`;
+            }
+            if (editDropdownMenu) {
+                editDropdownMenu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Memuat daftar notifikasi V2...</div>`;
+            }
+
+            try {
+                const response = await fetch('/api/v2/notifications');
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Gagal memuat daftar notifikasi V2');
+                }
+
+                cachedNotificationsList = Array.isArray(result.notifications) ? result.notifications : [];
+                renderEditNotifDropdownOptions(cachedNotificationsList);
+                renderManageNotificationList(document.getElementById('manageNotifSearchInput')?.value || '');
+            } catch (error) {
+                if (container) {
+                    container.innerHTML = `<div class="p-4 text-center text-xs font-extrabold text-red-600">Error: ${escapeHtml(error.message)}</div>`;
+                }
+                if (editDropdownMenu) {
+                    editDropdownMenu.innerHTML = `<div class="p-4 text-center text-xs font-extrabold text-red-600">Error: ${escapeHtml(error.message)}</div>`;
+                }
+            }
+        }
+
+        function renderEditNotifDropdownOptions(notifs) {
+            const menu = document.getElementById('editNotifDropdownMenu');
+            if (!menu) return;
+
+            if (!notifs || notifs.length === 0) {
+                menu.innerHTML = `<div class="p-4 text-center text-xs font-bold text-gray-600">Belum ada notifikasi tersimpan di database V2.</div>`;
+                return;
+            }
+
+            const activeOrigId = document.getElementById('editNotifOriginalId')?.value || '';
+
+            menu.innerHTML = notifs.map((n) => {
+                const nid = escapeHtml(n._id);
+                const title = escapeHtml(n.title || 'Tanpa Judul');
+                const type = escapeHtml((n.type || 'info').toUpperCase());
+                const target = n.targetEmail ? escapeHtml(n.targetEmail) : 'BROADCAST';
+                const dateStr = escapeHtml(formatWibReadable(n.createdAt));
+                const isSelected = activeOrigId === String(n._id) ? 'selected' : '';
+
+                return `
+                    <div class="dropdown-item ${isSelected}" onclick="selectNotifForEdit('${nid}')">
+                        <div class="min-w-0 pr-2">
+                            <div class="font-cyber font-black text-xs text-black truncate">[${type}] ${title}</div>
+                            <div class="text-[11px] font-mono text-gray-700 truncate">Target: ${target} • ${dateStr}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterEditNotifDropdown(keyword) {
+            const q = String(keyword || '').toLowerCase().trim();
+            if (!q) {
+                renderEditNotifDropdownOptions(cachedNotificationsList);
+                return;
+            }
+            const filtered = cachedNotificationsList.filter(n =>
+                String(n.title || '').toLowerCase().includes(q) ||
+                String(n.message || '').toLowerCase().includes(q) ||
+                String(n.type || '').toLowerCase().includes(q) ||
+                String(n.targetEmail || '').toLowerCase().includes(q)
+            );
+            renderEditNotifDropdownOptions(filtered);
+            const dropdown = document.getElementById('editNotifSelectDropdown');
+            if (dropdown && !dropdown.classList.contains('open')) {
+                dropdown.classList.add('open');
+            }
+        }
+
+        function selectNotifForEdit(notifId) {
+            const notif = cachedNotificationsList.find(n => String(n._id) === String(notifId));
+            if (!notif) return;
+
+            document.getElementById('editNotifOriginalId').value = notif._id;
+            document.getElementById('editNotifSelectText').textContent = `[${(notif.type || 'info').toUpperCase()}] ${notif.title}`;
+            document.getElementById('editNotifStatusBadge').textContent = `EDITING ID: ${String(notif._id).slice(-6).toUpperCase()}`;
+            document.getElementById('editNotifStatusBadge').className = 'text-[11px] font-mono font-extrabold bg-neoGreen border-2 border-black px-2.5 py-0.5 rounded-md';
+
+            document.getElementById('editNTitle').value = notif.title || '';
+            document.getElementById('editNCreatedBy').value = notif.createdBy || 'Admin';
+            document.getElementById('editNTargetEmail').value = notif.targetEmail || '';
+            document.getElementById('editNLink').value = notif.link || '';
+            document.getElementById('editNMessage').value = notif.message || '';
+            document.getElementById('editNResetReadBy').checked = false;
+
+            const typeMap = {
+                info: 'Info (info)',
+                promo: 'Promo (promo)',
+                transaksi: 'Transaksi (transaksi)',
+                sistem: 'Sistem (sistem)'
+            };
+            const cleanType = typeMap[notif.type] ? notif.type : 'info';
+            selectCustomValue('editNTypeDropdown', cleanType, typeMap[cleanType], 'editNType');
+
+            document.getElementById('editNotifSelectDropdown').classList.remove('open');
+            renderEditNotifDropdownOptions(cachedNotificationsList);
+        }
+
+        function jumpToEditNotif(notifId) {
+            const editMenuItem = document.querySelector('#notifSubModeMenu .dropdown-item[data-submode="edit"]');
+            if (editMenuItem) {
+                selectNotifSubModeFromItem(editMenuItem);
+            } else {
+                setNotifSubMode('edit');
+            }
+            setTimeout(() => {
+                selectNotifForEdit(notifId);
+            }, 80);
+        }
+
+        function resetEditNotifSelection() {
+            const origInput = document.getElementById('editNotifOriginalId');
+            if (origInput) origInput.value = '';
+            const selectText = document.getElementById('editNotifSelectText');
+            if (selectText) selectText.textContent = '-- Pilih Notifikasi dari Database V2 --';
+            const badge = document.getElementById('editNotifStatusBadge');
+            if (badge) {
+                badge.textContent = 'BELUM DIPILIH';
+                badge.className = 'text-[11px] font-mono font-extrabold bg-neoBg border-2 border-black px-2.5 py-0.5 rounded-md';
+            }
+            ['editNTitle', 'editNCreatedBy', 'editNTargetEmail', 'editNLink', 'editNMessage', 'editNotifSearchInput']
+                .forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = '';
+                });
+            const resetCb = document.getElementById('editNResetReadBy');
+            if (resetCb) resetCb.checked = false;
+        }
+
+        function renderManageNotificationList(keyword = '') {
+            const container = document.getElementById('notifListContainer');
+            const countBadge = document.getElementById('manageNotifCount');
+            if (!container) return;
+
+            const q = String(keyword || '').toLowerCase().trim();
+            const list = q
+                ? cachedNotificationsList.filter(n =>
+                    String(n.title || '').toLowerCase().includes(q) ||
+                    String(n.message || '').toLowerCase().includes(q) ||
+                    String(n.type || '').toLowerCase().includes(q) ||
+                    String(n.targetEmail || '').toLowerCase().includes(q)
+                )
+                : cachedNotificationsList;
+
+            if (countBadge) countBadge.textContent = list.length;
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center text-xs font-bold text-gray-600">Tidak ada notifikasi V2 yang cocok.</div>`;
+                return;
+            }
+
+            container.innerHTML = list.map((n) => {
+                const nid = escapeHtml(n._id);
+                const title = escapeHtml(n.title || 'Tanpa Judul');
+                const message = escapeHtml(n.message || '');
+                const type = escapeHtml((n.type || 'info').toUpperCase());
+                const target = n.targetEmail ? escapeHtml(n.targetEmail) : 'Broadcast Semua User';
+                const readCount = Array.isArray(n.readBy) ? n.readBy.length : 0;
+                const dateStr = escapeHtml(formatWibReadable(n.createdAt));
+
+                return `
+                    <div class="p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white hover:bg-neoPaper transition-colors">
+                        <div class="space-y-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="font-mono text-[11px] font-extrabold bg-neoCyan border-2 border-black px-2 py-0.5 rounded-md">${type}</span>
+                                <span class="text-[11px] font-bold bg-neoYellow border border-black px-2 py-0.5 rounded-md">${target}</span>
+                                <span class="text-[11px] font-mono font-bold text-gray-700">Dibaca: ${readCount} • ${dateStr}</span>
+                            </div>
+                            <p class="font-cyber font-black text-sm text-black truncate">${title}</p>
+                            <p class="text-xs font-bold text-gray-700 line-clamp-2">${message}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                            <button type="button" onclick="jumpToEditNotif('${nid}')" class="neo-btn bg-neoCyan text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <button type="button" onclick="confirmDeleteNotification('${nid}', '${title}')" class="neo-btn bg-neoPink text-black font-cyber font-black px-3 py-2 rounded-xl text-xs uppercase flex items-center gap-1.5">
+                                <i class="fa-solid fa-trash-can"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function confirmDeleteNotification(notifId, notifTitle) {
+            const confirmResult = await brutalAlert.fire({
+                icon: 'warning',
+                title: 'Hapus Notifikasi V2?',
+                html: `Yakin ingin menghapus permanen notifikasi <b>${escapeHtml(notifTitle)}</b>?`,
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Hapus!',
+                cancelButtonText: 'Batal'
             });
+
+            if (!confirmResult.isConfirmed) return;
+
+            try {
+                const response = await fetch(`/api/v2/notifications/${encodeURIComponent(notifId)}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    throw new Error(result.message || 'Gagal menghapus notifikasi V2');
+                }
+
+                showOutput(result);
+                if (document.getElementById('editNotifOriginalId')?.value === notifId) {
+                    resetEditNotifSelection();
+                }
+                await loadNotificationList();
+
+                brutalAlert.fire({
+                    icon: 'success',
+                    title: 'Notifikasi Dihapus!',
+                    text: result.message
+                });
+            } catch (error) {
+                brutalAlert.fire({
+                    icon: 'error',
+                    title: 'Gagal Menghapus',
+                    text: error.message
+                });
+            }
         }
 
-        function generateRandomVoucher() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let randomStr = generateRandomChars(6, chars);
-            document.getElementById('vCode').value = `ARULZXD${randomStr}`;
-
-            BrutalSwal.fire({
-                icon: 'success',
-                title: 'KODE DI-GENERATE',
-                text: `Kode baru: ARULZXD${randomStr}`,
-                timer: 1500,
-                showConfirmButton: false
-            });
-        }
-
-        function formatDateSosmedVoucher(isoStr) {
-            const m = getMomentWib(isoStr);
-            const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            const day = String(m.date()).padStart(2, '0');
-            const month = months[m.month()];
-            const year = m.year();
-            const hours = String(m.hours()).padStart(2, '0');
-            const minutes = String(m.minutes()).padStart(2, '0');
-
-            return `${day} ${month} ${year} pukul ${hours}.${minutes} WIB`;
-        }
-
+        // ====================================================
+        // SUBMIT HANDLER UTAMA
+        // ====================================================
         async function handleFormSubmit(e) {
             e.preventDefault();
-            let payload = {};
 
             if (currentMode === 'codeGen') {
                 const code = document.getElementById('codeDisplay').textContent;
-                showOutput(code);
-                BrutalSwal.fire({ icon: 'success', title: 'KODE BERHASIL DIBUAT', timer: 1500, showConfirmButton: false });
+                showOutput({
+                    code: code,
+                    length: code.length
+                });
+                return;
+            }
 
-            } else if (currentMode === 'voucher') {
-                const code = (document.getElementById('vCode').value.trim() || `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`).toUpperCase();
-
-                if (currentExpiryMode === 'manual') {
-                    syncExpiryFromManualInputs();
-                } else if (!document.getElementById('vExpiry').value) {
-                    applyAutoDurationHours(currentAutoHours);
+            if (currentMode === 'voucher') {
+                const discount = parseCleanNumber(document.getElementById('vDiscount').value, NaN);
+                if (Number.isNaN(discount)) {
+                    brutalAlert.fire({
+                        icon: 'warning',
+                        title: 'Input Kurang Lengkap',
+                        text: 'Harap masukkan Nominal / Persentase Diskon terlebih dahulu!'
+                    });
+                    return;
                 }
 
-                const expiryValue = document.getElementById('vExpiry').value || getMomentWib().add(24, 'hours').format('YYYY-MM-DDTHH:mm:ssZ');
-                const cleanDiscount = parseRupiahToNumber(document.getElementById('vDiscount').value, 0);
+                let code = document.getElementById('vCode').value.trim().toUpperCase();
+                if (!code) {
+                    generateRandomVoucher();
+                    code = document.getElementById('vCode').value.trim().toUpperCase();
+                }
 
-                payload = {
+                const expiryIso = document.getElementById('vExpiry').value || moment().tz('Asia/Jakarta').add(24, 'hours').toISOString();
+
+                const payload = {
                     code: code,
-                    discount: cleanDiscount,
+                    discount: discount,
                     type: document.getElementById('vType').value,
-                    expiredAt: expiryValue,
-                    usageLimit: Number(document.getElementById('vLimit').value) || 100
+                    expiredAt: expiryIso,
+                    usageLimit: parseCleanNumber(document.getElementById('vLimit').value, 100)
                 };
 
-                const targetEndpoint = currentSchemaVersion === 'v2' ? '/api/v2/vouchers' : '/api/vouchers';
-
-                BrutalSwal.fire({
-                    title: 'MEMPROSES...',
-                    text: `Menyimpan data ke database MongoDB (${currentSchemaVersion.toUpperCase()})`,
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
+                const endpoint = currentSchema === 'v2' ? '/api/v2/vouchers' : '/api/vouchers';
 
                 try {
-                    const response = await fetch(targetEndpoint, {
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const result = await response.json();
 
-                    if (result.success && result.voucher) {
-                        const v = result.voucher;
-                        const discountText = v.type === 'percentage' ? `${v.discount}%` : `Rp ${Number(v.discount).toLocaleString('id-ID')}`;
-
-                        const sosmedText = 
-`SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-KODE VOUCHER : ${v.code}
-DISKON       : ${discountText}
-KUOTA        : ${v.usageLimit} Pengguna
-KEDALUWARSA  : ${formatDateSosmedVoucher(v.expiredAt)}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Klaim sekarang sebelum kehabisan!
-Powered by Arulz-XD`;
-
-                        showOutput(sosmedText);
-
-                        BrutalSwal.fire({
+                    if (response.ok && result.success) {
+                        showOutput(result);
+                        brutalAlert.fire({
                             icon: 'success',
-                            title: 'BERHASIL DISIMPAN!',
-                            text: `Voucher berhasil tersimpan di MongoDB (${currentSchemaVersion.toUpperCase()})!`
+                            title: `Tersimpan (${currentSchema.toUpperCase()})!`,
+                            text: result.message
                         });
                     } else {
-                        showOutput(JSON.stringify(result, null, 4));
-                        BrutalSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
+                        brutalAlert.fire({
+                            icon: 'error',
+                            title: 'Gagal Simpan',
+                            text: result.message || 'Gagal menyimpan data voucher'
+                        });
                     }
                 } catch (err) {
-                    const discountText = payload.type === 'percentage' ? `${payload.discount}%` : `Rp ${Number(payload.discount).toLocaleString('id-ID')}`;
-
-                    const sosmedText = 
-`SPECIAL VOUCHER DISCOUNT (${currentSchemaVersion.toUpperCase()})!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-KODE VOUCHER : ${payload.code}
-DISKON       : ${discountText}
-KUOTA        : ${payload.usageLimit} Pengguna
-KEDALUWARSA  : ${formatDateSosmedVoucher(payload.expiredAt)}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Klaim sekarang sebelum kehabisan!
-Powered by Arulz-XD`;
-
-                    showOutput(sosmedText);
-                    BrutalSwal.fire({
-                        icon: 'warning',
-                        title: 'MODE OFFLINE',
-                        text: 'Gagal terhubung server. Hasil format teks berhasil dibuat secara lokal.'
+                    brutalAlert.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: err.message
                     });
                 }
 
             } else if (currentMode === 'product') {
+                // SUB-MODE: EDIT PRODUK
                 if (currentProductSubMode === 'edit') {
                     const originalId = document.getElementById('editTargetOriginalId').value.trim();
                     if (!originalId) {
-                        return BrutalSwal.fire({
-                            icon: 'error',
-                            title: 'PRODUK BELUM DIPILIH',
-                            text: 'Pilih produk dari daftar dropdown terlebih dahulu sebelum mengedit!'
+                        brutalAlert.fire({
+                            icon: 'warning',
+                            title: 'Pilih Produk Dulu',
+                            text: 'Silakan pilih produk yang ingin diedit dari dropdown katalog di atas!'
                         });
+                        return;
                     }
 
                     const newId = document.getElementById('editPId').value.trim();
                     const nama = document.getElementById('editPNama').value.trim();
-                    const rawHarga = document.getElementById('editPHarga').value.trim();
                     const kategori = document.getElementById('editPKategori').value.trim();
+                    const hargaVal = document.getElementById('editPHarga').value.trim();
+                    const hargaDiskonVal = document.getElementById('editPHargaDiskon').value.trim();
                     const link = document.getElementById('editPLink').value.trim();
 
-                    if (!newId || !nama || rawHarga === '' || !kategori || !link) {
-                        return BrutalSwal.fire({
-                            icon: 'error',
-                            title: 'FIELD WAJIB KOSONG',
-                            text: 'ID Produk, Nama Produk, Harga, Kategori, dan Link wajib diisi!'
+                    if (!newId || !nama || !kategori || !hargaVal || !link) {
+                        brutalAlert.fire({
+                            icon: 'warning',
+                            title: 'Field Wajib Kosong',
+                            text: 'ID Produk, Nama Produk, Kategori, Harga, dan Link Produk wajib diisi!'
                         });
+                        return;
                     }
 
-                    const cleanHarga = parseRupiahToNumber(rawHarga, 0);
-                    const rawDiskon = document.getElementById('editPHargaDiskon').value.trim();
-                    const cleanHargaDiskon = rawDiskon !== '' ? parseRupiahToNumber(rawDiskon, null) : null;
+                    const gambarRaw = document.getElementById('editPGambar').value.trim();
+                    const defaultImg = currentSchema === 'v2'
+                        ? "https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png"
+                        : "https://cdn.larasxd.my.id/files/1wh5do.png";
 
-                    const rawGambar = document.getElementById('editPGambar').value;
-                    const gambarArray = rawGambar
-                        .split(/[\n,]+/)
-                        .map(url => url.trim())
-                        .filter(url => url.length > 0);
+                    const gambarArr = gambarRaw
+                        ? gambarRaw.split(/[\n,]+/).map(url => url.trim()).filter(Boolean)
+                        : [defaultImg];
 
-                    const defaultImg = currentSchemaVersion === 'v2'
-                        ? 'https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png'
-                        : 'https://cdn.larasxd.my.id/files/1wh5do.png';
-
-                    payload = {
+                    const payload = {
                         Id: newId,
                         nama: nama,
-                        harga: cleanHarga,
-                        harga_diskon: cleanHargaDiskon,
+                        harga: parseCleanNumber(hargaVal, 0),
+                        harga_diskon: hargaDiskonVal !== '' ? parseCleanNumber(hargaDiskonVal, null) : null,
                         kategori: kategori,
                         badge: document.getElementById('editPBadge').value.trim(),
-                        terjual: Number(document.getElementById('editPTerjual').value) || 0,
-                        stok: Number(document.getElementById('editPStok').value) || 0,
-                        gambar: gambarArray.length > 0 ? gambarArray : [defaultImg],
-                        deskripsi: document.getElementById('editPDeskripsi').value || '',
+                        terjual: parseCleanNumber(document.getElementById('editPTerjual').value, 0),
+                        stok: parseCleanNumber(document.getElementById('editPStok').value, 0),
+                        gambar: gambarArr,
+                        deskripsi: document.getElementById('editPDeskripsi').value,
                         link: link
                     };
 
-                    const targetEndpoint = currentSchemaVersion === 'v2'
+                    const endpoint = currentSchema === 'v2'
                         ? `/api/v2/products/${encodeURIComponent(originalId)}`
                         : `/api/products/${encodeURIComponent(originalId)}`;
 
-                    BrutalSwal.fire({
-                        title: 'MEMPERBARUI...',
-                        text: `Menyimpan perubahan produk di MongoDB (${currentSchemaVersion.toUpperCase()})`,
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
-
                     try {
-                        const response = await fetch(targetEndpoint, {
+                        const response = await fetch(endpoint, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
                         const result = await response.json();
 
-                        if (result.success && result.product) {
-                            const p = result.product;
-                            document.getElementById('editTargetOriginalId').value = p.Id || p._id;
+                        if (response.ok && result.success) {
+                            showOutput(result);
+                            document.getElementById('editTargetOriginalId').value = result.product?.Id || newId;
+                            document.getElementById('editProductSelectText').textContent = `${nama} (${result.product?.Id || newId})`;
+                            document.getElementById('editSelectedStatusBadge').textContent = `EDITING: ${result.product?.Id || newId}`;
                             await loadProductList();
 
-                            const hargaFormatted = `Rp ${Number(p.harga || 0).toLocaleString('id-ID')}`;
-                            const diskonFormatted = p.harga_diskon ? `Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '-';
-                            const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
-
-                            const updatedText =
-`✏️ PRODUK BERHASIL DIPERBARUI (${currentSchemaVersion.toUpperCase()})!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ID PRODUK   : ${p.Id}
-NAMA PRODUK : ${p.nama}
-KATEGORI    : ${p.kategori} ${p.badge ? `[${p.badge}]` : ''}
-HARGA       : ${hargaFormatted}
-HARGA DISKON: ${diskonFormatted}
-STOK        : ${p.stok}
-TERJUAL     : ${p.terjual}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GAMBAR:
-${gambarFormatted}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DESKRIPSI:
-${p.deskripsi || '-'}
-
-🔗 LINK PEMBELIAN:
-${p.link}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Powered by Arulz-XD`;
-
-                            showOutput(updatedText);
-
-                            BrutalSwal.fire({
+                            brutalAlert.fire({
                                 icon: 'success',
-                                title: 'PRODUK DIPERBARUI!',
-                                text: result.message || `Produk "${p.nama}" berhasil diperbarui!`
+                                title: `Produk Diperbarui (${currentSchema.toUpperCase()})!`,
+                                text: result.message
                             });
                         } else {
-                            showOutput(JSON.stringify(result, null, 4));
-                            BrutalSwal.fire({
+                            brutalAlert.fire({
                                 icon: 'error',
-                                title: 'GAGAL UPDATE',
-                                text: result.message || 'Gagal memperbarui produk.'
+                                title: 'Gagal Update Produk',
+                                text: result.message || 'Gagal memperbarui produk'
                             });
                         }
                     } catch (err) {
-                        BrutalSwal.fire({
+                        brutalAlert.fire({
                             icon: 'error',
-                            title: 'ERROR SERVER',
-                            text: 'Gagal terhubung ke server saat mengedit produk.'
+                            title: 'Server Error',
+                            text: err.message
                         });
                     }
                     return;
                 }
 
-                // MODE TAMBAH PRODUK BARU
-                const productId = document.getElementById('pId').value.trim() || generateCode(10);
+                // SUB-MODE: TAMBAH PRODUK BARU
                 const nama = document.getElementById('pNama').value.trim();
-                const rawHarga = document.getElementById('pHarga').value.trim();
                 const kategori = document.getElementById('pKategori').value.trim();
+                const hargaVal = document.getElementById('pHarga').value.trim();
+                const hargaDiskonVal = document.getElementById('pHargaDiskon').value.trim();
                 const link = document.getElementById('pLink').value.trim();
 
-                if (!nama || rawHarga === '' || !kategori || !link) {
-                    return BrutalSwal.fire({
-                        icon: 'error',
-                        title: 'FIELD WAJIB KOSONG',
-                        text: 'Nama Produk, Harga, Kategori, dan Link wajib diisi!'
+                if (!nama || !kategori || !hargaVal || !link) {
+                    brutalAlert.fire({
+                        icon: 'warning',
+                        title: 'Field Wajib Kosong',
+                        text: 'Nama Produk, Kategori, Harga, dan Link Produk wajib diisi!'
                     });
+                    return;
                 }
 
-                const cleanHarga = parseRupiahToNumber(rawHarga, 0);
-                const rawDiskon = document.getElementById('pHargaDiskon').value.trim();
-                const cleanHargaDiskon = rawDiskon !== '' ? parseRupiahToNumber(rawDiskon, null) : null;
+                const gambarRaw = document.getElementById('pGambar').value.trim();
+                const defaultImg = currentSchema === 'v2'
+                    ? "https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png"
+                    : "https://cdn.larasxd.my.id/files/1wh5do.png";
 
-                const rawGambar = document.getElementById('pGambar').value;
-                const gambarArray = rawGambar
-                    .split(/[\n,]+/)
-                    .map(url => url.trim())
-                    .filter(url => url.length > 0);
+                const gambarArr = gambarRaw
+                    ? gambarRaw.split(/[\n,]+/).map(url => url.trim()).filter(Boolean)
+                    : [defaultImg];
 
-                payload = {
-                    Id: productId,
+                let pIdVal = document.getElementById('pId').value.trim();
+                if (!pIdVal) {
+                    generateRandomProductId(true);
+                    pIdVal = document.getElementById('pId').value.trim();
+                }
+
+                const payload = {
+                    Id: pIdVal,
                     nama: nama,
-                    harga: cleanHarga,
-                    harga_diskon: cleanHargaDiskon,
+                    harga: parseCleanNumber(hargaVal, 0),
+                    harga_diskon: hargaDiskonVal !== '' ? parseCleanNumber(hargaDiskonVal, null) : null,
                     kategori: kategori,
-                    badge: document.getElementById('pBadge').value || "",
-                    terjual: Number(document.getElementById('pTerjual').value) || 0,
-                    stok: Number(document.getElementById('pStok').value) || 0,
-                    gambar: gambarArray.length > 0 ? gambarArray : ["https://cdn.larasxd.my.id/files/1wh5do.png"],
-                    deskripsi: document.getElementById('pDeskripsi').value || "",
+                    badge: document.getElementById('pBadge').value.trim(),
+                    terjual: parseCleanNumber(document.getElementById('pTerjual').value, 0),
+                    stok: parseCleanNumber(document.getElementById('pStok').value, 0),
+                    gambar: gambarArr,
+                    deskripsi: document.getElementById('pDeskripsi').value,
                     link: link
                 };
 
-                const targetEndpoint = currentSchemaVersion === 'v2' ? '/api/v2/products' : '/api/products';
-
-                BrutalSwal.fire({
-                    title: 'MEMPROSES...',
-                    text: `Menyimpan produk ke database MongoDB (${currentSchemaVersion.toUpperCase()})`,
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
+                const endpoint = currentSchema === 'v2' ? '/api/v2/products' : '/api/products';
 
                 try {
-                    const response = await fetch(targetEndpoint, {
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     const result = await response.json();
 
-                    if (result.success && result.product) {
-                        const p = result.product;
-                        const hargaFormatted = `Rp ${Number(p.harga).toLocaleString('id-ID')}`;
-                        const diskonFormatted = p.harga_diskon ? `Rp ${Number(p.harga_diskon).toLocaleString('id-ID')}` : '-';
-                        const gambarFormatted = Array.isArray(p.gambar) ? p.gambar.join('\n') : p.gambar;
-
-                        const sosmedText = 
-`🔥 NEW PRODUCT RELEASE (${currentSchemaVersion.toUpperCase()})! 🔥
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-ID PRODUK   : ${p.Id}
-NAMA PRODUK : ${p.nama}
-KATEGORI    : ${p.kategori} ${p.badge ? `[${p.badge}]` : ''}
-HARGA       : ${hargaFormatted}
-HARGA DISKON: ${diskonFormatted}
-STOK        : ${p.stok}
-TERJUAL     : ${p.terjual}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-GAMBAR:
-${gambarFormatted}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DESKRIPSI:
-${p.deskripsi || '-'}
-
-🔗 LINK PEMBELIAN:
-${p.link}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Powered by Arulz-XD`;
-
-                        showOutput(sosmedText);
-                        loadProductList();
-                        generateRandomProductId(false);
-
-                        BrutalSwal.fire({
+                    if (response.ok && result.success) {
+                        showOutput(result);
+                        generateRandomProductId(true);
+                        await loadProductList();
+                        brutalAlert.fire({
                             icon: 'success',
-                            title: 'BERHASIL DISIMPAN!',
-                            text: `Produk berhasil tersimpan di MongoDB (${currentSchemaVersion.toUpperCase()})!`
+                            title: `Produk Tersimpan (${currentSchema.toUpperCase()})!`,
+                            text: result.message
                         });
                     } else {
-                        showOutput(JSON.stringify(result, null, 4));
-                        BrutalSwal.fire({ icon: 'error', title: 'GAGAL', text: result.message });
+                        brutalAlert.fire({
+                            icon: 'error',
+                            title: 'Gagal Simpan Produk',
+                            text: result.message || 'Gagal menyimpan produk'
+                        });
                     }
                 } catch (err) {
-                    showOutput(JSON.stringify({ status: 'LOCAL_JSON_ONLY', version: currentSchemaVersion, data: payload }, null, 4));
-                    BrutalSwal.fire({
+                    brutalAlert.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: err.message
+                    });
+                }
+
+            } else if (currentMode === 'notification') {
+                if (currentSchema !== 'v2') {
+                    brutalAlert.fire({
                         icon: 'warning',
-                        title: 'MODE OFFLINE',
-                        text: 'Gagal terhubung server. Hasil ditampilkan sebagai JSON Lokal.'
+                        title: 'Khusus Schema V2',
+                        text: 'Mode Notifikasi hanya tersedia pada Schema V2!'
+                    });
+                    return;
+                }
+
+                // SUB-MODE: EDIT NOTIFIKASI V2
+                if (currentNotifSubMode === 'edit') {
+                    const origNotifId = document.getElementById('editNotifOriginalId').value.trim();
+                    if (!origNotifId) {
+                        brutalAlert.fire({
+                            icon: 'warning',
+                            title: 'Pilih Notifikasi Dulu',
+                            text: 'Silakan pilih notifikasi V2 yang ingin diedit dari dropdown di atas!'
+                        });
+                        return;
+                    }
+
+                    const title = document.getElementById('editNTitle').value.trim();
+                    const message = document.getElementById('editNMessage').value.trim();
+                    if (!title || !message) {
+                        brutalAlert.fire({
+                            icon: 'warning',
+                            title: 'Field Wajib Kosong',
+                            text: 'Judul dan isi pesan notifikasi wajib diisi!'
+                        });
+                        return;
+                    }
+
+                    const payload = {
+                        title: title,
+                        message: message,
+                        type: document.getElementById('editNType').value || 'info',
+                        createdBy: document.getElementById('editNCreatedBy').value.trim() || 'Admin',
+                        targetEmail: document.getElementById('editNTargetEmail').value.trim() || null,
+                        link: document.getElementById('editNLink').value.trim() || null,
+                        resetReadBy: document.getElementById('editNResetReadBy').checked === true
+                    };
+
+                    try {
+                        const response = await fetch(`/api/v2/notifications/${encodeURIComponent(origNotifId)}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        const result = await response.json();
+
+                        if (response.ok && result.success) {
+                            showOutput(result);
+                            document.getElementById('editNotifSelectText').textContent = `[${payload.type.toUpperCase()}] ${title}`;
+                            await loadNotificationList();
+                            brutalAlert.fire({
+                                icon: 'success',
+                                title: 'Notifikasi V2 Diperbarui!',
+                                text: result.message
+                            });
+                        } else {
+                            brutalAlert.fire({
+                                icon: 'error',
+                                title: 'Gagal Update Notifikasi',
+                                text: result.message || 'Gagal memperbarui notifikasi V2'
+                            });
+                        }
+                    } catch (err) {
+                        brutalAlert.fire({
+                            icon: 'error',
+                            title: 'Server Error',
+                            text: err.message
+                        });
+                    }
+                    return;
+                }
+
+                // SUB-MODE: TAMBAH NOTIFIKASI BARU V2
+                const title = document.getElementById('nTitle').value.trim();
+                const message = document.getElementById('nMessage').value.trim();
+
+                if (!title || !message) {
+                    brutalAlert.fire({
+                        icon: 'warning',
+                        title: 'Field Wajib Kosong',
+                        text: 'Judul dan isi pesan notifikasi wajib diisi!'
+                    });
+                    return;
+                }
+
+                const payload = {
+                    title: title,
+                    message: message,
+                    type: document.getElementById('nType').value || 'info',
+                    createdBy: document.getElementById('nCreatedBy').value.trim() || 'Admin',
+                    targetEmail: document.getElementById('nTargetEmail').value.trim() || null,
+                    link: document.getElementById('nLink').value.trim() || null
+                };
+
+                try {
+                    const response = await fetch('/api/v2/notifications', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const result = await response.json();
+
+                    if (response.ok && result.success) {
+                        showOutput(result);
+                        await loadNotificationList();
+                        brutalAlert.fire({
+                            icon: 'success',
+                            title: 'Notifikasi V2 Tersimpan!',
+                            text: result.message
+                        });
+                    } else {
+                        brutalAlert.fire({
+                            icon: 'error',
+                            title: 'Gagal Simpan Notifikasi',
+                            text: result.message || 'Gagal menyimpan notifikasi V2'
+                        });
+                    }
+                } catch (err) {
+                    brutalAlert.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: err.message
                     });
                 }
 
             } else if (currentMode === 'paste') {
-                const titleVal = document.getElementById('title').value.trim() || "Tanpa Judul";
-                const languageVal = document.getElementById('language').value || "plaintext";
-                const descVal = document.getElementById('desc').value;
-                const contentVal = document.getElementById('content').value;
+                setTodayDate();
 
-                if (!contentVal || !contentVal.trim()) {
-                    return BrutalSwal.fire({
-                        icon: 'error',
-                        title: 'KONTEN KODE KOSONG',
-                        text: 'Isi Kode / Content wajib diisi!'
+                const title = document.getElementById('title').value.trim();
+                const content = document.getElementById('content').value;
+
+                if (!title || !content.trim()) {
+                    brutalAlert.fire({
+                        icon: 'warning',
+                        title: 'Data Tidak Lengkap',
+                        text: 'Judul Snippet dan Isi Kode wajib diisi!'
                     });
+                    return;
                 }
 
-                payload = {
-                    title: titleVal,
-                    language: languageVal,
-                    desc: descVal || "By arulzxd",
-                    author: descVal ? descVal.replace(/^By\s+/i, '') : "arulzxd",
-                    content: contentVal
-                };
+                let pasteIdVal = document.getElementById('pasteId').value.trim();
+                if (!pasteIdVal) {
+                    generateRandomPasteId(true);
+                    pasteIdVal = document.getElementById('pasteId').value.trim();
+                }
 
-                BrutalSwal.fire({
-                    title: 'MEMPROSES...',
-                    text: 'Menyimpan Pastecode ke database Supabase',
-                    allowOutsideClick: false,
-                    didOpen: () => { Swal.showLoading(); }
-                });
+                const descInput = document.getElementById('desc').value.trim();
+                const payload = {
+                    id: pasteIdVal,
+                    title: title,
+                    desc: descInput || "By arulzxd",
+                    language: document.getElementById('language').value,
+                    content: content,
+                    author: descInput ? descInput.replace(/^By\s+/i, '').trim() : "arulzxd"
+                };
 
                 try {
                     const response = await fetch('/api/pastecode', {
@@ -2113,87 +2682,94 @@ Powered by Arulz-XD`;
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
-
                     const result = await response.json();
 
-                    if (result.success && result.paste) {
-                        showOutput(JSON.stringify(result.paste, null, 2));
-
-                        BrutalSwal.fire({
+                    if (response.ok && result.success) {
+                        showOutput(result);
+                        generateRandomPasteId(true);
+                        brutalAlert.fire({
                             icon: 'success',
-                            title: 'PASTEBIN SAVED!',
-                            text: 'Snippet kode berhasil disimpan ke Supabase!'
+                            title: 'Pastecode Tersimpan!',
+                            text: result.message
                         });
                     } else {
-                        showOutput(JSON.stringify(result, null, 2));
-                        BrutalSwal.fire({
+                        brutalAlert.fire({
                             icon: 'error',
-                            title: 'GAGAL MENYIMPAN',
-                            text: result.message || 'Terjadi kesalahan saat menyimpan paste'
+                            title: 'Gagal Simpan Supabase',
+                            text: result.message || 'Gagal menyimpan pastecode ke Supabase'
                         });
                     }
                 } catch (err) {
-                    showOutput(JSON.stringify(payload, null, 2));
-                    BrutalSwal.fire({
-                        icon: 'warning',
-                        title: 'MODE OFFLINE',
-                        text: 'Gagal terhubung ke Supabase. Hasil tetap ditampilkan sebagai JSON lokal.'
+                    brutalAlert.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: err.message
                     });
                 }
             }
         }
 
-        function showOutput(text) {
-            currentOutputText = text;
-            const out = document.getElementById('outputContainer');
-            const placeholder = document.getElementById('outputPlaceholder');
-            document.getElementById('jsonOutput').textContent = text;
-            if (placeholder) placeholder.style.display = 'none';
-            out.style.display = 'block';
+        function resetForm() {
+            document.getElementById('generatorForm').reset();
+
+            selectCustomValue('vTypeDropdown', 'percentage', 'Persentase (%)', 'vType');
+            selectCustomValue('langDropdown', 'scrape', 'Scrape (scrape)', 'language');
+            selectCustomValue('nTypeDropdown', 'info', 'Info (info)', 'nType');
+            selectCustomValue('editNTypeDropdown', 'info', 'Info (info)', 'editNType');
+
+            if (currentMode === 'paste') {
+                setTodayDate();
+                generateRandomPasteId(true);
+            } else if (currentMode === 'codeGen') {
+                document.getElementById('codeLength').value = 6;
+                generateRandomCodeUI();
+            } else if (currentMode === 'voucher') {
+                document.getElementById('vLimit').value = 100;
+                initManualExpirySelectors();
+                setVoucherExpiryMode('auto');
+            } else if (currentMode === 'product') {
+                document.getElementById('pTerjual').value = 0;
+                document.getElementById('pStok').value = 100;
+                document.getElementById('pGambar').value = currentSchema === 'v2'
+                    ? "https://cdn.larasxd.my.id/files/Z9zjj0RF7G7ena.png"
+                    : "https://cdn.larasxd.my.id/files/1wh5do.png";
+                generateRandomProductId(true);
+                resetEditProductSelection();
+            } else if (currentMode === 'notification') {
+                document.getElementById('nCreatedBy').value = 'Admin';
+                resetEditNotifSelection();
+            }
+
+            document.getElementById('outputContainer').style.display = 'none';
+            document.getElementById('outputPlaceholder').style.display = 'block';
         }
 
         function copyResult() {
-            if (!currentOutputText) return;
-            navigator.clipboard.writeText(currentOutputText).then(() => {
-                BrutalSwal.fire({
-                    icon: 'success',
-                    title: 'TERSALIN!',
-                    text: 'Kode berhasil disalin ke clipboard Anda.',
-                    timer: 1500,
-                    showConfirmButton: false
-                });
+            const codeText = document.getElementById('jsonOutput').textContent;
+            if (!codeText) return;
+
+            navigator.clipboard.writeText(codeText).then(() => {
+                const btn = document.getElementById('btnCopy');
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> TERSALIN!';
+                btn.classList.remove('bg-neoYellow');
+                btn.classList.add('bg-neoGreen');
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.remove('bg-neoGreen');
+                    btn.classList.add('bg-neoYellow');
+                }, 1500);
             });
         }
 
-        function resetForm() {
-            BrutalSwal.fire({
-                title: 'RESET FORM?',
-                text: "Seluruh data yang telah diisi akan dibersihkan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'YA, RESET!',
-                cancelButtonText: 'BATAL'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('generatorForm').reset();
-                    clearEditProductForm();
-                    document.getElementById('outputContainer').style.display = 'none';
-                    const placeholder = document.getElementById('outputPlaceholder');
-                    if (placeholder) placeholder.style.display = 'block';
-                    currentOutputText = '';
-                    setVoucherExpiryMode('auto');
-                    applyAutoDurationHours(24);
-                    generateRandomCodeUI();
-                    generateRandomProductId(false);
-                    document.getElementById('date').value = getFormattedDateToday();
-                    BrutalSwal.fire({ icon: 'success', title: 'CLEARED!', timer: 1000, showConfirmButton: false });
-                }
-            });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setDefault24HoursVoucher();
-            generateRandomProductId(false);
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            initManualExpirySelectors();
+            setVoucherExpiryMode('auto');
+            generateRandomProductId(true);
+            generateRandomPasteId(true);
+            setTodayDate();
         });
     </script>
 </body>

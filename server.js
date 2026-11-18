@@ -75,11 +75,22 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Helper Generate ID Alphanumeric 10 Karakter
-function generateId(length = 10) {
+// Helper Generate ID Alphanumeric Acak (Panjang: 10, 15, 20, atau 25 Karakter)
+const ALLOWED_ID_LENGTHS = [10, 15, 20, 25];
+
+function pickRandomIdLength() {
+    return ALLOWED_ID_LENGTHS[Math.floor(Math.random() * ALLOWED_ID_LENGTHS.length)];
+}
+
+function generateId(length = null) {
+    const parsedLen = Number(length);
+    const targetLength = ALLOWED_ID_LENGTHS.includes(parsedLen)
+        ? parsedLen
+        : pickRandomIdLength();
+
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < targetLength; i++) {
         result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
@@ -174,14 +185,14 @@ app.post('/api/pastecode', async (req, res) => {
     try {
         if (!supabase) return res.status(500).json({ success: false, message: 'Supabase client belum terkonfigurasi' });
 
-        const { title, desc, language, content, author } = req.body;
+        const { id, title, desc, language, content, author } = req.body;
 
         if (!title || !content) {
             return res.status(400).json({ success: false, message: 'Judul dan isi kode wajib diisi!' });
         }
 
         const formattedDate = moment().tz('Asia/Jakarta').locale('id').format('DD MMM YYYY');
-        const pasteId = generateId(10);
+        const pasteId = (id && String(id).trim()) ? String(id).trim() : generateId();
         const safeAuthor = author ? String(author).trim().substring(0, 1000) : 'Anonymous';
 
         const { data, error } = await supabase
@@ -272,6 +283,19 @@ const productSchemaV2 = new mongoose.Schema({
 });
 const ProductV2 = connV2.models.ProductV2 || connV2.model('ProductV2', productSchemaV2);
 
+// NOTIFIKASI SCHEMA V2 (Khusus V2 -> koleksi: notifikasiv2s, tanpa helper kirim email/telegram)
+const notifikasiSchemaV2 = new mongoose.Schema({
+    title: { type: String, required: true, trim: true },
+    message: { type: String, required: true, trim: true },
+    type: { type: String, enum: ['info', 'promo', 'transaksi', 'sistem'], default: 'info' },
+    link: { type: String, default: null },
+    targetEmail: { type: String, default: null, lowercase: true, trim: true, index: true },
+    readBy: [{ type: String, lowercase: true, trim: true }],
+    createdBy: { type: String, default: 'Admin' },
+    createdAt: { type: Date, default: Date.now }
+});
+const NotifikasiV2 = connV2.models.NotifikasiV2 || connV2.model('NotifikasiV2', notifikasiSchemaV2);
+
 // ====================================================
 // ENDPOINT VOUCHER & PRODUCT V1
 // ====================================================
@@ -279,7 +303,7 @@ const ProductV2 = connV2.models.ProductV2 || connV2.model('ProductV2', productSc
 app.post('/api/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit } = req.body;
-        const cleanCode = (code && String(code).trim()) ? String(code).trim().toUpperCase() : `ARULZXD${generateId(6).toUpperCase()}`;
+        const cleanCode = (code && String(code).trim()) ? String(code).trim().toUpperCase() : `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const cleanDiscount = parseCleanNumber(discount, 0);
         const cleanLimit = parseCleanNumber(usageLimit, 100);
         const parsedExpired = parseExpiryAsiaJakarta(expiredAt);
@@ -335,7 +359,7 @@ app.post('/api/products', async (req, res) => {
             : null;
 
         const newProduct = new Product({
-            Id: (Id && String(Id).trim()) || generateId(10),
+            Id: (Id && String(Id).trim()) || generateId(),
             nama: String(nama).trim(),
             harga: cleanHarga,
             harga_diskon: cleanHargaDiskon,
@@ -428,7 +452,7 @@ app.delete('/api/products/:id', async (req, res) => {
 app.post('/api/v2/vouchers', async (req, res) => {
     try {
         const { code, discount, type, expiredAt, usageLimit, usedBy } = req.body;
-        const cleanCode = (code && String(code).trim()) ? String(code).trim().toUpperCase() : `ARULZXD${generateId(6).toUpperCase()}`;
+        const cleanCode = (code && String(code).trim()) ? String(code).trim().toUpperCase() : `ARULZXD${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const cleanDiscount = parseCleanNumber(discount, 0);
         const cleanLimit = parseCleanNumber(usageLimit, 100);
         const parsedExpired = parseExpiryAsiaJakarta(expiredAt);
@@ -485,7 +509,7 @@ app.post('/api/v2/products', async (req, res) => {
             : null;
 
         const newProduct = new ProductV2({ 
-            Id: (Id && String(Id).trim()) || generateId(10), 
+            Id: (Id && String(Id).trim()) || generateId(), 
             nama: String(nama).trim(), 
             harga: cleanHarga, 
             harga_diskon: cleanHargaDiskon, 
@@ -570,6 +594,154 @@ app.delete('/api/v2/products/:id', async (req, res) => {
         res.json({ success: true, message: `Produk V2 "${deleted.nama}" (${deleted.Id}) berhasil dihapus!`, product: deleted });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// ====================================================
+// ENDPOINT NOTIFIKASI KHUSUS V2 (TAMBAH, EDIT, KELOLA & HAPUS)
+// ====================================================
+
+app.get('/api/v2/notifications', async (req, res) => {
+    try {
+        const notifications = await NotifikasiV2.find({}).sort({ createdAt: -1 }).lean();
+        return res.json({ success: true, notifications });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.get('/api/v2/notifications/:id', async (req, res) => {
+    try {
+        const targetId = req.params.id.trim();
+        if (!mongoose.Types.ObjectId.isValid(targetId)) {
+            return res.status(400).json({ success: false, message: 'ID Notifikasi V2 tidak valid.' });
+        }
+        const notification = await NotifikasiV2.findById(targetId).lean();
+        if (!notification) {
+            return res.status(404).json({ success: false, message: 'Notifikasi V2 tidak ditemukan.' });
+        }
+        return res.json({ success: true, notification });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+app.post('/api/v2/notifications', async (req, res) => {
+    try {
+        const { title, message, type, link, targetEmail, createdBy } = req.body;
+
+        if (!title || !String(title).trim() || !message || !String(message).trim()) {
+            return res.status(400).json({ success: false, message: 'Judul dan isi pesan notifikasi wajib diisi!' });
+        }
+
+        const validTypes = ['info', 'promo', 'transaksi', 'sistem'];
+        const cleanType = validTypes.includes(String(type || '').toLowerCase())
+            ? String(type).toLowerCase()
+            : 'info';
+
+        const newNotif = new NotifikasiV2({
+            title: String(title).trim(),
+            message: String(message).trim(),
+            type: cleanType,
+            link: (link && String(link).trim()) ? String(link).trim() : null,
+            targetEmail: (targetEmail && String(targetEmail).trim()) ? String(targetEmail).toLowerCase().trim() : null,
+            readBy: [],
+            createdBy: (createdBy && String(createdBy).trim()) ? String(createdBy).trim() : 'Admin',
+            createdAt: moment().tz('Asia/Jakarta').toDate()
+        });
+
+        await newNotif.save();
+        return res.status(201).json({
+            success: true,
+            message: 'Notifikasi (V2) berhasil disimpan ke database!',
+            notification: newNotif
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+app.put('/api/v2/notifications/:id', async (req, res) => {
+    try {
+        const targetId = req.params.id.trim();
+        if (!mongoose.Types.ObjectId.isValid(targetId)) {
+            return res.status(400).json({ success: false, message: 'ID Notifikasi V2 tidak valid.' });
+        }
+
+        const existing = await NotifikasiV2.findById(targetId);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Notifikasi V2 tidak ditemukan.' });
+        }
+
+        const { title, message, type, link, targetEmail, createdBy, resetReadBy } = req.body;
+        const validTypes = ['info', 'promo', 'transaksi', 'sistem'];
+
+        if (title !== undefined) {
+            if (!String(title).trim()) {
+                return res.status(400).json({ success: false, message: 'Judul notifikasi tidak boleh kosong!' });
+            }
+            existing.title = String(title).trim();
+        }
+
+        if (message !== undefined) {
+            if (!String(message).trim()) {
+                return res.status(400).json({ success: false, message: 'Isi pesan notifikasi tidak boleh kosong!' });
+            }
+            existing.message = String(message).trim();
+        }
+
+        if (type !== undefined && validTypes.includes(String(type).toLowerCase())) {
+            existing.type = String(type).toLowerCase();
+        }
+
+        if (link !== undefined) {
+            existing.link = (link && String(link).trim()) ? String(link).trim() : null;
+        }
+
+        if (targetEmail !== undefined) {
+            existing.targetEmail = (targetEmail && String(targetEmail).trim())
+                ? String(targetEmail).toLowerCase().trim()
+                : null;
+        }
+
+        if (createdBy !== undefined && String(createdBy).trim()) {
+            existing.createdBy = String(createdBy).trim();
+        }
+
+        if (resetReadBy === true) {
+            existing.readBy = [];
+        }
+
+        await existing.save();
+        return res.json({
+            success: true,
+            message: `Notifikasi V2 "${existing.title}" berhasil diperbarui!`,
+            notification: existing
+        });
+    } catch (error) {
+        return res.status(400).json({ success: false, message: error.message });
+    }
+});
+
+app.delete('/api/v2/notifications/:id', async (req, res) => {
+    try {
+        const targetId = req.params.id.trim();
+        if (!mongoose.Types.ObjectId.isValid(targetId)) {
+            return res.status(400).json({ success: false, message: 'ID Notifikasi V2 tidak valid.' });
+        }
+
+        const deleted = await NotifikasiV2.findByIdAndDelete(targetId);
+        if (!deleted) {
+            return res.status(404).json({ success: false, message: 'Notifikasi V2 tidak ditemukan.' });
+        }
+
+        return res.json({
+            success: true,
+            message: `Notifikasi V2 "${deleted.title}" berhasil dihapus!`,
+            notification: deleted
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
     }
 });
 
